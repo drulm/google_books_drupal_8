@@ -1,1 +1,5 @@
-name = Google Books
+name = Google Book
+description = Input filter module returning data from books.google.com
+core = 7.x
+project = "googlebook"
+files[] = googlebook.module
