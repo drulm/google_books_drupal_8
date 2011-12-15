@@ -237,7 +237,7 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
                     $value = $sub_value;
                 }
                 if ( ! empty($value) ) {
-                    assign_bib_array( & $bib, $fieldname, $value );
+                    assign_bib_array($bib, $fieldname, $value );
                 }
             }
 
@@ -298,10 +298,13 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
   return $html_bookdata;
 }
 
-
-// Get the JSON into something we can display
-// Pass by reference to speed up recursion. 
-function json_extract(& $barr) {
+/*  Function: json_extract(& )
+ *
+ *  Get the JSON into something we can display
+ *  Pass by reference to speed up recursion.
+ *
+ */
+function json_extract( &$barr) {
     $bib_fields = bib_field_array();
     $book_html = "";
     // loop through array struture recursively
@@ -328,7 +331,11 @@ function json_extract(& $barr) {
 }
 
 
-// Get a bib value from the string
+/*  Function: extract_from_string_by_key
+ *
+ *  Get a bib value from the string
+ *
+ */
 function extract_from_string_by_key( $bib_str, $find ) {
    $field_arr = explode("|||", $bib_str);
    $found_index = array_search($find, $field_arr);
@@ -339,10 +346,11 @@ function extract_from_string_by_key( $bib_str, $find ) {
    return str_replace("(((", "", $found_str);
 }
 
+
 // If the bib field looks like an address, make it a link
 function make_html_link( $address ) {
     if ( strpos($address, "https://") !== FALSE || strpos($address, "http://") !== FALSE ) {
-        return '<a href="' . $address . '" rel="nofollow" target="_blank">' . $address . '</a>';
+        return '<a href="' . $address . '" rel="nofollow" target="_blank"> link </a>';
     }
 return $address;
 }
@@ -383,5 +391,4 @@ function get_url_contents($url, $curltimeout) {
     }
     return $output;
 }
-
 
