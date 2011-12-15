@@ -32,17 +32,17 @@ function bib_field_array()
        'id',
        'etag',
        'selfLink',
-       'volumeInfo',
+       //'volumeInfo',
        'title',
        'authors',
        'publisher',
        'publishedDate',
        'description',
-       'industryIdentifiers',
+       //'industryIdentifiers',
        'type',
        'identifier',
        'pageCount',
-       'dimensions',
+       //'dimensions',
        'height',
        'width',
        'thickness',
@@ -52,7 +52,7 @@ function bib_field_array()
        'averageRating',
        'ratingsCount',
        'contentVersion',
-       'imageLinks',
+       //'imageLinks',
        'smallThumbnail',
        'thumbnail',
        'small',
@@ -63,17 +63,21 @@ function bib_field_array()
        'previewLink',
        'infoLink',
        'canonicalVolumeLink',
-       'saleInfo',
+       //'saleInfo',
        'country',
        'saleability',
        'isEbook',
-       'accessInfo',
+       //'listPrice',
+       'amount',
+       'currencyCode',
+       'buyLink',
+       //'accessInfo',
        'viewability',
        'embeddable',
        'publicDomain',
        'textToSpeechPermission',
        'epub',
-       'acsTokenLink',
+       //'acsTokenLink',
        'accessViewStatus'
    );
 }
@@ -126,7 +130,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
       $settings['bib_fields'] = array(
       '#type' => 'select',
       '#multiple' => TRUE,
-      '#title' => 'Book Data Fields to Use',
+      '#title' => 'Google Book Data Fields to Use',
       '#required' => TRUE,
       '#options' => bib_field_array(),
       //'#default_value' => isset($filter->settings['bib_fields']) ? $filter->settings['bib_fields'] : $defaults['bib_fields'],
@@ -150,8 +154,12 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
       return $settings;
 }
 
+
 /**
- * Implements googlebook_filter_process
+ * Function: googlebook_filter_process()
+ * 
+ * Same code as used by Book Post Module
+ * 
 */
 function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
     preg_match_all('/{{(.*)}}/', $text, $match);
@@ -168,9 +176,11 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
 }
 
 
-/*  function retrieve_bookdata()
+/*  Function: retrieve_bookdata()
+ *
  *  Gets the book data from Google Books / other sites and then displays it.
  *  $id is a valid Google Book query
+ * 
  */
 function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary_link, $bib_field_select) {
 
@@ -187,6 +197,7 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
     $worldcat = "";
     $librarything = "";
     $openlibrary = "";
+    $extra_links = "";
 
     $isbn = $id;
     //clean ISBN of dashes and spaces, add more as needed
@@ -211,7 +222,6 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
         $fields = explode("|||", $book_str);
         for ( $i = 1; $i < count( $fields ); $i += 2 ) {
                 $fieldname = $fields[ $i ];
-
                 if ( strpos( $fields[ $i + 1 ], "[[[" ) === FALSE ) {
                     $value = trim( str_replace( "(((", "", $fields[ $i + 1 ]) );
                 }
@@ -231,21 +241,26 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
                 }
             }
 
-        // Pull an ISBN if we have it, prefer the last which should be an
-        // ISBN 13
+        // Pull an ISBN if we have it, prefer the last 
+        // which should be an ISBN 13 although may be something else :)
         $identifier_list = explode("|", $bib['identifier'] );
         $num_of_identifiers = count($identifier_list);
         $isbn = trim( $identifier_list[ $num_of_identifiers - 1 ] );
+        $isbn = is_numeric( $isbn ) ? $isbn : "";
 
+        // Get the book links if any are found. None are checked. 
         if ( ! empty( $isbn ) ) {
             if ($worldcat_link) {
-                  $worldcat = '<p class="googlebook_link">Link to: <a href="http://worldcat.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">WorldCat</a></p>';
+                  $worldcat = '<a href="http://worldcat.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">WorldCat</a><br />';
             }
             if ($librarything_link) {
-                  $librarything = '<p class="googlebook_link">Link to: <a href="http://librarything.com/isbn/' . $isbn . '" rel="nofollow" target="_blank">LibraryThing</a></p>';
+                  $librarything = '<a href="http://librarything.com/isbn/' . $isbn . '" rel="nofollow" target="_blank">LibraryThing</a><br />';
             }
             if ($openlibrary_link) {
-                  $openlibrary = '<p class="googlebook_link">Link to: <a href="http://openlibrary.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">Open Library</a></p>';
+                  $openlibrary = '<a href="http://openlibrary.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">Open Library</a><br />';
+            }
+            if ( strlen( $worldcat . $librarything . $openlibrary ) > 0 ) {
+                $extra_links = "Link to:<br />";
             }
         }
 
@@ -269,11 +284,11 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
         //coverimage
         if ( isset($bib['thumbnail']) ) {
             $html_coverimage = "<img src='" . $bib['thumbnail'] . "' alt='" . $title . "' />";
-            $html_coverimage = "<p><a style='float:right' class='googlebook_image' href='" . $bib['infoLink'] . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a></p>";
+            $html_coverimage = "<a style='float:right' class='googlebook_image' href='" . $bib['infoLink'] . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a>";
         }
 
        $html_text .= $html_title;
-       $html_text .= $worldcat . $librarything. $openlibrary;
+       $html_text .= "<p class='googlebook_links'>" . $extra_links . $worldcat . $librarything. $openlibrary."</p>";
        $html_text .= $html_fields;
 
        //div whole class for themeing
