@@ -3,57 +3,120 @@
  * @file
  * 7.0 Darrell Ulm
  *
+ * Based initialy on the BookPost module for Drupal 6 by Aaron Rubinstein
+ *
+ * The googlebook module is a filter module (for now, expanding to API later),
+ * that allows a user to insert rich Google Book data into nodes via filters.
+ *
+ * The Google Book search can be done with many types of search strings.
+ *
+ * There are many search options with Google books and many options to display
+ * that data within the Google Book module.
+ *
+ * See the INSTALL.TXT file for specific information.
  *
  */
 
-//Implementation of hook_filter_tips
-/**
- * Filter tips callback function for $filters[0] in hook_filter_info().
+
+/* Function: bib_field_array()
+ * 
+ * These are the fields that are in the multi select list and are
+ * displayable in google books. Just returns an array.
+ * 
+ */
+function bib_field_array()
+{
+   return array
+   (
+       'kind',
+       'id',
+       'etag',
+       'selfLink',
+       'volumeInfo',
+       'title',
+       'authors',
+       'publisher',
+       'publishedDate',
+       'description',
+       'industryIdentifiers',
+       'type',
+       'identifier',
+       'pageCount',
+       'dimensions',
+       'height',
+       'width',
+       'thickness',
+       'printType',
+       'mainCategory',
+       'categories',
+       'averageRating',
+       'ratingsCount',
+       'contentVersion',
+       'imageLinks',
+       'smallThumbnail',
+       'thumbnail',
+       'small',
+       'medium',
+       'large',
+       'extraLarge',
+       'language',
+       'previewLink',
+       'infoLink',
+       'canonicalVolumeLink',
+       'saleInfo',
+       'country',
+       'saleability',
+       'isEbook',
+       'accessInfo',
+       'viewability',
+       'embeddable',
+       'publicDomain',
+       'textToSpeechPermission',
+       'epub',
+       'acsTokenLink',
+       'accessViewStatus'
+   );
+}
+
+
+/* Function: filter_googlebook_tips()
+ *
  */
 function filter_googlebook_tips($filter, $format, $long = FALSE) {
   if ($long) {
-    return t('Placing an 10 or 13-digit ISBN or Open Library ID between curly braces, {{0312305389}}, will return book information and cover from the Open Library');
+    return t('Put a Google Book search term between double brackets like this:
+        {{The Hobbit}} or {{9780618154012}} or {{Rucker+Software}}
+        and this will filter the input to replace with Google Book data
+        and images from http://books.google.com');
   }
 }
 
+
 /**
- * Implements hook_filter_info().
+ * Implements googlebook_filter_info()
 */
 function googlebook_filter_info() {
-  $filters['googlebook'] = array(
-    'title' => t('Google Book'),
-    'description' => t('Insert Book Information from Google'),
-    'process callback' => 'googlebook_filter_process',
-    'settings callback' => 'googlebook_filter_settings',
-    'default settings' => array(
-      'worldcat' => 1,
-      'googlebooks' =>  1,
-      'librarything' => 1,
-      'bib_fields' => bib_field_array()
-    ),
+    $filters['googlebook'] = array(
+        'title' => t('Google Book'),
+        'description' => t('Insert Book Information from Google Books'),
+        'process callback' => 'googlebook_filter_process',
+        'settings callback' => 'googlebook_filter_settings',
+        'default settings' => array(
+            'worldcat' => 1,
+            'openlibrary' =>  1,
+            'librarything' => 1,
+            'bib_fields' => bib_field_array()
+        ),
     'tips callback' => 'filter_googlebook_tips',
-  );
-  return $filters;
+    );
+    return $filters;
 }
 
-//Implementation of hook_filter
-function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
-      preg_match_all('/{{(.*)}}/', $text, $match);
-      $tag = $match[0];
-      $book = array();
-      $counter = 0;
-      for ($i = 0; $i < count($match[1]); $i++) {
-        $book[$counter] = retrieve_bookdata($match[1][$i], $filter->settings['worldcat'], $filter->settings['librarything']
-                ,$filter->settings['googlebooks'], $filter->settings['bib_fields'] );
-        $counter++;
-      }
-      $text = str_replace($tag, $book, $text);
-      return $text;
-}
 
-// implementation of googlebook filter settings
+/**
+ * googlebook_filter_settings
+*/
 function googlebook_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
-
       $settings['googlebook'] = array(
         '#type' => 'fieldset',
         '#title' => t('Google Book Filter'),
@@ -79,59 +142,51 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
         '#title' => t('Link to LibraryThing'),
         '#default_value' => isset($filter->settings['librarything']) ? $filter->settings['librarything'] : $defaults['librarything'],
       );
-      $settings['googlebooks'] = array(
+      $settings['openlibrary'] = array(
         '#type' => 'checkbox',
-        '#title' => t('Link to Google Book Search'),
-        '#default_value' => isset($filter->settings['googlebooks']) ? $filter->settings['googlebooks'] : $defaults['googlebooks'],
+        '#title' => t('Link to Open Library'),
+        '#default_value' => isset($filter->settings['openlibrary']) ? $filter->settings['openlibrary'] : $defaults['openlibrary'],
       );
       return $settings;
 }
 
-
-//this method replaces file_get_contents, which is sometimes disallowed on servers
-function get_url_contents($url, $curltimeout) {
-
-  // Establish a cURL handle.
-  $ch = curl_init($url);
-
-  // Set our options
-  curl_setopt($ch, CURLOPT_HEADER, FALSE); //false=do not include headers
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE); //true=return as string
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $curltimeout); //timeout for when OL is down
-  curl_setopt($ch, CURLOPT_TIMEOUT, $curltimeout); //timeout for when OL is down
-
-  // Execute the request
-  $output = curl_exec($ch);
-
-  // Close the cURL session.
-  curl_close($ch);
-
-  if ($output == "") {
-    throw new Exception("Open Library Data Unavailable");
-  }
-  return $output;
+/**
+ * Implements googlebook_filter_process
+*/
+function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+    preg_match_all('/{{(.*)}}/', $text, $match);
+    $tag = $match[0];
+    $book = array();
+    $counter = 0;
+    for ($i = 0; $i < count( $match[1] ); $i++) {
+        $book[$counter] = retrieve_bookdata($match[1][$i], $filter->settings['worldcat'], $filter->settings['librarything']
+            ,$filter->settings['openlibrary'], $filter->settings['bib_fields'] );
+        $counter++;
+    }
+    $text = str_replace($tag, $book, $text);
+    return $text;
 }
 
 
 /*  function retrieve_bookdata()
  *  Gets the book data from Google Books / other sites and then displays it.
- *  $id is an Google Book code or ISBN
+ *  $id is a valid Google Book query
  */
-function retrieve_bookdata($id, $worldcat_op, $librarything_op, $googlebooks_op, $bib_field_select) {
+function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary_link, $bib_field_select) {
 
-    //      Get the correct Open Library bib record fields selected
-   //  $bib_fields = array_intersect_key( bib_field_array(), $bib_field_select );
-
+    // Get all the Google Book permissible book data fieds
     $bib_fields = bib_field_array();
 
     // set some variables
     $curltimeout = 10;                    // timeout for the openlibrary curl call
-    $path = '../' . drupal_get_path('module', 'googlebook');
     $html_bookdata = "";
     $html_text = "";
     $title = "";
     $html_coverimage = "";
     $html_fields = "";
+    $worldcat = "";
+    $librarything = "";
+    $openlibrary = "";
 
     $isbn = $id;
     //clean ISBN of dashes and spaces, add more as needed
@@ -176,6 +231,24 @@ function retrieve_bookdata($id, $worldcat_op, $librarything_op, $googlebooks_op,
                 }
             }
 
+        // Pull an ISBN if we have it, prefer the last which should be an
+        // ISBN 13
+        $identifier_list = explode("|", $bib['identifier'] );
+        $num_of_identifiers = count($identifier_list);
+        $isbn = trim( $identifier_list[ $num_of_identifiers - 1 ] );
+
+        if ( ! empty( $isbn ) ) {
+            if ($worldcat_link) {
+                  $worldcat = '<p class="googlebook_link">Link to: <a href="http://worldcat.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">WorldCat</a></p>';
+            }
+            if ($librarything_link) {
+                  $librarything = '<p class="googlebook_link">Link to: <a href="http://librarything.com/isbn/' . $isbn . '" rel="nofollow" target="_blank">LibraryThing</a></p>';
+            }
+            if ($openlibrary_link) {
+                  $openlibrary = '<p class="googlebook_link">Link to: <a href="http://openlibrary.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">Open Library</a></p>';
+            }
+        }
+
         $html_fields .= "<ul>";
         foreach ( $bib_field_select as $i => $k ) {
             $field = $bib_fields[ $i ];
@@ -200,11 +273,12 @@ function retrieve_bookdata($id, $worldcat_op, $librarything_op, $googlebooks_op,
         }
 
        $html_text .= $html_title;
+       $html_text .= $worldcat . $librarything. $openlibrary;
        $html_text .= $html_fields;
 
        //div whole class for themeing
        $html_bookdata = '<div class="googlebooks" >' . $html_coverimage . $html_text . '<div style="clear:both;"></div></div>';
-       } 
+       }
 
   return $html_bookdata;
 }
@@ -269,57 +343,30 @@ function assign_bib_array( & $bib_array, $index, $value ) {
 }
 
 
-// These are the fields that are in the multi select list
-function bib_field_array()
-{
-   return array
-   (
-       'kind',
-       'id',
-       'etag',
-       'selfLink',
-       'volumeInfo',
-       'title',
-       'authors',
-       'publisher',
-       'publishedDate',
-       'description',
-       'industryIdentifiers',
-       'type',
-       'identifier',
-       'pageCount',
-       'dimensions',
-       'height',
-       'width',
-       'thickness',
-       'printType',
-       'mainCategory',
-       'categories',
-       'averageRating',
-       'ratingsCount',
-       'contentVersion',
-       'imageLinks',
-       'smallThumbnail',
-       'thumbnail',
-       'small',
-       'medium',
-       'large',
-       'extraLarge',
-       'language',
-       'previewLink',
-       'infoLink',
-       'canonicalVolumeLink',
-       'saleInfo',
-       'country',
-       'saleability',
-       'isEbook',
-       'accessInfo',
-       'viewability',
-       'embeddable',
-       'publicDomain',
-       'textToSpeechPermission',
-       'epub',
-       'acsTokenLink',
-       'accessViewStatus'
-   );
+/**
+* Get the URL contents
+*/
+function get_url_contents($url, $curltimeout) {
+
+    // Establish a cURL handle.
+    $ch = curl_init($url);
+
+    // curl Options
+    curl_setopt($ch, CURLOPT_HEADER, FALSE); //false=do not include headers
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE); //true=return as string
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $curltimeout); //timeout for when OL is down
+    curl_setopt($ch, CURLOPT_TIMEOUT, $curltimeout); //timeout for when OL is down
+
+    // Execute the request
+    $output = curl_exec($ch);
+
+    // Close the cURL session.
+    curl_close($ch);
+
+    if ($output == "") {
+        throw new Exception("Google Books Data Currently Unavailable");
+    }
+    return $output;
 }
+
+
