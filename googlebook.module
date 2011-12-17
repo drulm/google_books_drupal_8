@@ -24,8 +24,7 @@
  * displayable in google books. Just returns an array.
  * 
  */
-function bib_field_array()
-{
+function bib_field_array() {
    return array
    (
        'kind',
@@ -168,7 +167,7 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
     $counter = 0;
     for ($i = 0; $i < count( $match[1] ); $i++) {
         $book[$counter] = retrieve_bookdata($match[1][$i], $filter->settings['worldcat'], $filter->settings['librarything']
-            ,$filter->settings['openlibrary'], $filter->settings['bib_fields'] );
+            , $filter->settings['openlibrary'], $filter->settings['bib_fields'] );
         $counter++;
     }
     $text = str_replace($tag, $book, $text);
@@ -211,11 +210,10 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
     $versions = $obj['totalItems'];
 
     if ( $versions > 0 ) {
-        $bookkeyresult = $obj['items'][0];  // grab the results if there
-        $version = 0;
 
-        $barr =  $bookkeyresult;
-        $book_str = json_extract($barr); // extract the results
+        $bookkeyresult = $obj['items'][0];  // Grab the first result
+
+        $book_str = json_extract($bookkeyresult); // extract the results
 
         // Build array for this
         $bib = array();
@@ -272,7 +270,7 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
                 $field_val = $bib [ $field ];
             }
             if ( ! empty( $field_val ) ) {
-                $html_fields .= "<li class='googlebook_". $field . "'><span class='googlebook_name'>".  ucfirst ( preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field) ) ) . ": </span><span class='googlebook_data'>" . make_html_link( $field_val ) . "</span></li>";
+                $html_fields .= "<li class='googlebook_" . $field . "'><span class='googlebook_name'>" . ucfirst( preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field) ) ) . ": </span><span class='googlebook_data'>" . make_html_link( $field_val ) . "</span></li>";
             }
         }
         $html_fields .= "</ul>";
@@ -288,7 +286,7 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
         }
 
        $html_text .= $html_title;
-       $html_text .= "<p class='googlebook_links'>" . $extra_links . $worldcat . $librarything. $openlibrary."</p>";
+       $html_text .= "<p class='googlebook_links'>" . $extra_links . $worldcat . $librarything . $openlibrary . "</p>";
        $html_text .= $html_fields;
 
        //div whole class for themeing
@@ -311,7 +309,7 @@ function json_extract( &$barr) {
     foreach ($barr as $key => $value) {
   //      if ( /*in_array($key,$bib_fields) ||*/ TRUE || is_int($key) ) {
             if ( ! is_array($value) && $value != ""  ) {
-                $effective_key = is_int($key) ? '[[[///'.$key.'[[[' : '|||'.$key.'|||';
+                $effective_key = is_int($key) ? '[[[///' . $key . '[[[' : '|||' . $key . '|||';
                 $book_html .= "$effective_key ((($value(((";
             }
             else {
@@ -322,7 +320,7 @@ function json_extract( &$barr) {
                     $sub_bib = $value;
                 }
                 if ( $sub_bib != "" ) {
-                        $book_html .= "|||".$key."|||".$sub_bib."";
+                        $book_html .= "|||" . $key . "|||" . $sub_bib . "";
                 }
             }
    //     }
