@@ -17,6 +17,8 @@
  *
  */
 
+// define("curltimeout", 10);
+
 
 /* Function: bib_field_array()
  * 
@@ -24,7 +26,7 @@
  * displayable in google books. Just returns an array.
  * 
  */
-function bib_field_array() {
+/*function bib_field_array() {
    return array
    (
        'kind',
@@ -80,7 +82,7 @@ function bib_field_array() {
        'accessViewStatus'
    );
 }
-
+*/
 
 /* Function: filter_googlebook_tips()
  *
@@ -175,6 +177,67 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
 }
 
 
+/*  Function: get_googlebook_data()
+ *
+ *  Gets the book data from Google Books
+ *  $id is a valid Google Book query
+ *
+ */
+/*
+function get_googlebook_data( $id ) {
+
+    //clean search string of spaces, turn into '+'
+    $dirt_id = array(" ");
+    $id = str_replace($dirt_id, "+", $id);
+
+    $url_bookkeys = "https://www.googleapis.com/books/v1/volumes?q=" . $id ;
+    $bookkeys = get_url_contents($url_bookkeys, curltimeout);
+    
+    // Decode into array to be able to scan
+    $obj = json_decode($bookkeys, TRUE);
+
+    $versions = $obj['totalItems'];
+
+    // Check the number of versions returned by Google Books
+    if ( $versions > 0 ) {
+
+        $bookkeyresult = $obj['items'][0];  // Grab the first result
+
+        // extract the results into one big string with delimiters
+        $book_str = json_extract($bookkeyresult); 
+
+        // Build array for this
+        $bib = array();
+        $fields = explode("|||", $book_str);
+        for ( $i = 1; $i < count( $fields ); $i += 2 ) {
+                $fieldname = $fields[ $i ];
+                if ( strpos( $fields[ $i + 1 ], "[[[" ) === FALSE ) {
+                    $value = trim( str_replace( "(((", "", $fields[ $i + 1 ]) );
+                }
+                else {
+                    $sub_value = "";
+                    $sub_fields = explode( "[[[", $fields[ $i + 1 ] );
+                    for ( $j = 1; $j < count( $sub_fields ); $j += 2 ) {
+                        if ( $j != 1 && ! empty( $sub_fields[ $j + 1 ] ) ) {
+                            $sub_value .= " | ";
+                        }
+                        $sub_value .= trim( str_replace( "(((", "", $sub_fields[ $j + 1 ] ) );
+                    }
+                    $value = $sub_value;
+                }
+                if ( ! empty($value) ) {
+                    assign_bib_array($bib, $fieldname, $value );
+                }
+            }
+            return $bib;
+    }
+    else {
+        return FALSE;
+    }
+}
+*/
+
+
 /*  Function: retrieve_bookdata()
  *
  *  Gets the book data from Google Books / other sites and then displays it.
@@ -187,7 +250,7 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
     $bib_fields = bib_field_array();
 
     // set some variables
-    $curltimeout = 10;                    // timeout for the openlibrary curl call
+    // $curltimeout = 10;                    // timeout for the openlibrary curl call
     $html_bookdata = "";
     $html_text = "";
     $title = "";
@@ -198,12 +261,14 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
     $openlibrary = "";
     $extra_links = "";
 
-    $isbn = $id;
-    //clean ISBN of dashes and spaces, add more as needed
-    $dirt_isbn = array("-", " ");
-    $isbn = str_replace($dirt_isbn, "", $isbn);
+    $bib = get_googlebook_data( $id );
 
-    $url_bookkeys = "https://www.googleapis.com/books/v1/volumes?q=" . $isbn ;
+/*
+    //clean ISBN of dashes and spaces, add more as needed
+    $dirt_id = array(" ");
+    $id = str_replace($dirt_id, "+", $id);
+
+    $url_bookkeys = "https://www.googleapis.com/books/v1/volumes?q=" . $id ;
     $bookkeys = get_url_contents($url_bookkeys, $curltimeout);
     $obj = json_decode($bookkeys, TRUE);
 
@@ -238,6 +303,11 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
                     assign_bib_array($bib, $fieldname, $value );
                 }
             }
+ *
+ */
+    
+    // If the data is sound then continue 
+    if ( $bib != FALSE ) {
 
         // Pull an ISBN if we have it, prefer the last 
         // which should be an ISBN 13 although may be something else :)
@@ -246,7 +316,7 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
         $isbn = trim( $identifier_list[ $num_of_identifiers - 1 ] );
         $isbn = is_numeric( $isbn ) ? $isbn : "";
 
-        // Get the book links if any are found. None are checked. 
+        // Get the book links if any are found. None are checked for ISBN validity.
         if ( ! empty( $isbn ) ) {
             if ($worldcat_link) {
                   $worldcat = '<a href="http://worldcat.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">WorldCat</a><br />';
@@ -262,6 +332,7 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
             }
         }
 
+        // Build up the HTML output for all the selected fields
         $html_fields .= "<ul>";
         foreach ( $bib_field_select as $i => $k ) {
             $field = $bib_fields[ $i ];
@@ -275,16 +346,17 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
         }
         $html_fields .= "</ul>";
 
-        //title
+        // Build the main title with a link
         $title = $bib['title'];
         $html_title = '<p>Title: <a href="' . $bib['infoLink'] . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></p>';
 
-        //coverimage
+        // Build a coverimage
         if ( isset($bib['thumbnail']) ) {
             $html_coverimage = "<img src='" . $bib['thumbnail'] . "' alt='" . $title . "' />";
             $html_coverimage = "<a style='float:right' class='googlebook_image' href='" . $bib['infoLink'] . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a>";
         }
 
+       // Create the final text
        $html_text .= $html_title;
        $html_text .= "<p class='googlebook_links'>" . $extra_links . $worldcat . $librarything . $openlibrary . "</p>";
        $html_text .= $html_fields;
@@ -302,12 +374,13 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
  *  Pass by reference to speed up recursion.
  *
  */
+/*
 function json_extract( &$barr) {
     $bib_fields = bib_field_array();
     $book_html = "";
     // loop through array struture recursively
     foreach ($barr as $key => $value) {
-  //      if ( /*in_array($key,$bib_fields) ||*/ TRUE || is_int($key) ) {
+  //      if (  TRUE || is_int($key) ) {
             if ( ! is_array($value) && $value != ""  ) {
                 $effective_key = is_int($key) ? '[[[///' . $key . '[[[' : '|||' . $key . '|||';
                 $book_html .= "$effective_key ((($value(((";
@@ -327,13 +400,14 @@ function json_extract( &$barr) {
     }
     return $book_html;
 }
-
+*/
 
 /*  Function: extract_from_string_by_key
  *
  *  Get a bib value from the string
  *
  */
+/*
 function extract_from_string_by_key( $bib_str, $find ) {
    $field_arr = explode("|||", $bib_str);
    $found_index = array_search($find, $field_arr);
@@ -343,7 +417,7 @@ function extract_from_string_by_key( $bib_str, $find ) {
    $found_str = $field_arr[ $found_index + 1 ];
    return str_replace("(((", "", $found_str);
 }
-
+*/
 
 // If the bib field looks like an address, make it a link
 function make_html_link( $address ) {
@@ -353,7 +427,7 @@ function make_html_link( $address ) {
 return $address;
 }
 
-
+/*
 function assign_bib_array( & $bib_array, $index, $value ) {
     if ( ! array_key_exists( $index, $bib_array ) ) {
         $bib_array[ $index ] = $value;
@@ -362,11 +436,12 @@ function assign_bib_array( & $bib_array, $index, $value ) {
         $bib_array[ $index ] = $bib_array[ $index ] . " | " . $value;
     }
 }
-
+*/
 
 /**
 * Get the URL contents
 */
+/*
 function get_url_contents($url, $curltimeout) {
 
     // Establish a cURL handle.
@@ -389,4 +464,4 @@ function get_url_contents($url, $curltimeout) {
     }
     return $output;
 }
-
+*/
