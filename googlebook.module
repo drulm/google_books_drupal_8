@@ -17,72 +17,6 @@
  *
  */
 
-// define("curltimeout", 10);
-
-
-/* Function: bib_field_array()
- * 
- * These are the fields that are in the multi select list and are
- * displayable in google books. Just returns an array.
- * 
- */
-/*function bib_field_array() {
-   return array
-   (
-       'kind',
-       'id',
-       'etag',
-       'selfLink',
-       //'volumeInfo',
-       'title',
-       'authors',
-       'publisher',
-       'publishedDate',
-       'description',
-       //'industryIdentifiers',
-       'type',
-       'identifier',
-       'pageCount',
-       //'dimensions',
-       'height',
-       'width',
-       'thickness',
-       'printType',
-       'mainCategory',
-       'categories',
-       'averageRating',
-       'ratingsCount',
-       'contentVersion',
-       //'imageLinks',
-       'smallThumbnail',
-       'thumbnail',
-       'small',
-       'medium',
-       'large',
-       'extraLarge',
-       'language',
-       'previewLink',
-       'infoLink',
-       'canonicalVolumeLink',
-       //'saleInfo',
-       'country',
-       'saleability',
-       'isEbook',
-       //'listPrice',
-       'amount',
-       'currencyCode',
-       'buyLink',
-       //'accessInfo',
-       'viewability',
-       'embeddable',
-       'publicDomain',
-       'textToSpeechPermission',
-       'epub',
-       //'acsTokenLink',
-       'accessViewStatus'
-   );
-}
-*/
 
 /* Function: filter_googlebook_tips()
  *
@@ -177,67 +111,6 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
 }
 
 
-/*  Function: get_googlebook_data()
- *
- *  Gets the book data from Google Books
- *  $id is a valid Google Book query
- *
- */
-/*
-function get_googlebook_data( $id ) {
-
-    //clean search string of spaces, turn into '+'
-    $dirt_id = array(" ");
-    $id = str_replace($dirt_id, "+", $id);
-
-    $url_bookkeys = "https://www.googleapis.com/books/v1/volumes?q=" . $id ;
-    $bookkeys = get_url_contents($url_bookkeys, curltimeout);
-    
-    // Decode into array to be able to scan
-    $obj = json_decode($bookkeys, TRUE);
-
-    $versions = $obj['totalItems'];
-
-    // Check the number of versions returned by Google Books
-    if ( $versions > 0 ) {
-
-        $bookkeyresult = $obj['items'][0];  // Grab the first result
-
-        // extract the results into one big string with delimiters
-        $book_str = json_extract($bookkeyresult); 
-
-        // Build array for this
-        $bib = array();
-        $fields = explode("|||", $book_str);
-        for ( $i = 1; $i < count( $fields ); $i += 2 ) {
-                $fieldname = $fields[ $i ];
-                if ( strpos( $fields[ $i + 1 ], "[[[" ) === FALSE ) {
-                    $value = trim( str_replace( "(((", "", $fields[ $i + 1 ]) );
-                }
-                else {
-                    $sub_value = "";
-                    $sub_fields = explode( "[[[", $fields[ $i + 1 ] );
-                    for ( $j = 1; $j < count( $sub_fields ); $j += 2 ) {
-                        if ( $j != 1 && ! empty( $sub_fields[ $j + 1 ] ) ) {
-                            $sub_value .= " | ";
-                        }
-                        $sub_value .= trim( str_replace( "(((", "", $sub_fields[ $j + 1 ] ) );
-                    }
-                    $value = $sub_value;
-                }
-                if ( ! empty($value) ) {
-                    assign_bib_array($bib, $fieldname, $value );
-                }
-            }
-            return $bib;
-    }
-    else {
-        return FALSE;
-    }
-}
-*/
-
-
 /*  Function: retrieve_bookdata()
  *
  *  Gets the book data from Google Books / other sites and then displays it.
@@ -262,49 +135,6 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
     $extra_links = "";
 
     $bib = get_googlebook_data( $id );
-
-/*
-    //clean ISBN of dashes and spaces, add more as needed
-    $dirt_id = array(" ");
-    $id = str_replace($dirt_id, "+", $id);
-
-    $url_bookkeys = "https://www.googleapis.com/books/v1/volumes?q=" . $id ;
-    $bookkeys = get_url_contents($url_bookkeys, $curltimeout);
-    $obj = json_decode($bookkeys, TRUE);
-
-    $versions = $obj['totalItems'];
-
-    if ( $versions > 0 ) {
-
-        $bookkeyresult = $obj['items'][0];  // Grab the first result
-
-        $book_str = json_extract($bookkeyresult); // extract the results
-
-        // Build array for this
-        $bib = array();
-        $fields = explode("|||", $book_str);
-        for ( $i = 1; $i < count( $fields ); $i += 2 ) {
-                $fieldname = $fields[ $i ];
-                if ( strpos( $fields[ $i + 1 ], "[[[" ) === FALSE ) {
-                    $value = trim( str_replace( "(((", "", $fields[ $i + 1 ]) );
-                }
-                else {
-                    $sub_value = "";
-                    $sub_fields = explode( "[[[", $fields[ $i + 1 ] );
-                    for ( $j = 1; $j < count( $sub_fields ); $j += 2 ) {
-                        if ( $j != 1 && ! empty( $sub_fields[ $j + 1 ] ) ) {
-                            $sub_value .= " | ";
-                        }
-                        $sub_value .= trim( str_replace( "(((", "", $sub_fields[ $j + 1 ] ) );
-                    }
-                    $value = $sub_value;
-                }
-                if ( ! empty($value) ) {
-                    assign_bib_array($bib, $fieldname, $value );
-                }
-            }
- *
- */
     
     // If the data is sound then continue 
     if ( $bib != FALSE ) {
@@ -368,56 +198,6 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
   return $html_bookdata;
 }
 
-/*  Function: json_extract(& )
- *
- *  Get the JSON into something we can display
- *  Pass by reference to speed up recursion.
- *
- */
-/*
-function json_extract( &$barr) {
-    $bib_fields = bib_field_array();
-    $book_html = "";
-    // loop through array struture recursively
-    foreach ($barr as $key => $value) {
-  //      if (  TRUE || is_int($key) ) {
-            if ( ! is_array($value) && $value != ""  ) {
-                $effective_key = is_int($key) ? '[[[///' . $key . '[[[' : '|||' . $key . '|||';
-                $book_html .= "$effective_key ((($value(((";
-            }
-            else {
-                if ( is_array( $value ) ) {
-                    $sub_bib = json_extract($value, $bib_fields);
-                }
-                else {
-                    $sub_bib = $value;
-                }
-                if ( $sub_bib != "" ) {
-                        $book_html .= "|||" . $key . "|||" . $sub_bib . "";
-                }
-            }
-   //     }
-    }
-    return $book_html;
-}
-*/
-
-/*  Function: extract_from_string_by_key
- *
- *  Get a bib value from the string
- *
- */
-/*
-function extract_from_string_by_key( $bib_str, $find ) {
-   $field_arr = explode("|||", $bib_str);
-   $found_index = array_search($find, $field_arr);
-   if ( $found_index === FALSE ) {
-       return FALSE;
-   }
-   $found_str = $field_arr[ $found_index + 1 ];
-   return str_replace("(((", "", $found_str);
-}
-*/
 
 // If the bib field looks like an address, make it a link
 function make_html_link( $address ) {
@@ -426,42 +206,3 @@ function make_html_link( $address ) {
     }
 return $address;
 }
-
-/*
-function assign_bib_array( & $bib_array, $index, $value ) {
-    if ( ! array_key_exists( $index, $bib_array ) ) {
-        $bib_array[ $index ] = $value;
-    }
-    else {
-        $bib_array[ $index ] = $bib_array[ $index ] . " | " . $value;
-    }
-}
-*/
-
-/**
-* Get the URL contents
-*/
-/*
-function get_url_contents($url, $curltimeout) {
-
-    // Establish a cURL handle.
-    $ch = curl_init($url);
-
-    // curl Options
-    curl_setopt($ch, CURLOPT_HEADER, FALSE); //false=do not include headers
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE); //true=return as string
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $curltimeout); //timeout for when OL is down
-    curl_setopt($ch, CURLOPT_TIMEOUT, $curltimeout); //timeout for when OL is down
-
-    // Execute the request
-    $output = curl_exec($ch);
-
-    // Close the cURL session.
-    curl_close($ch);
-
-    if ($output == "") {
-        throw new Exception("Google Books Data Currently Unavailable");
-    }
-    return $output;
-}
-*/
