@@ -1,24 +1,41 @@
 <?php
 /**
- * @file
- * 7.0 Darrell Ulm
+ * Googlebook Filter Module
  *
- * Based initialy on the BookPost module for Drupal 6 by Aaron Rubinstein
+ *    for Drupal 7.0
  *
- * The googlebook module is a filter module (for now, expanding to API later),
- * that allows a user to insert rich Google Book data into nodes via filters.
+ * Copyright 2011 Darrell Ulm.
+ * 
+ * Based initialy on the BookPost module for Drupal 6 by Aaron Rubinstein,
+ *   and partially based on the the OpenLibrary API for Drupal 6
  *
- * The Google Book search can be done with many types of search strings.
+ * The googlebook module is a filter module 
+ * that allows a user to insert rich Google Book
+ * data into nodes via filters.
  *
- * There are many search options with Google books and many options to display
- * that data within the Google Book module.
+ * The fields can be selected to be displayed globally. 
  *
  * See the INSTALL.TXT file for specific information.
+ *
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 
-/* Function: filter_googlebook_tips()
+/**
+ * Function: filter_googlebook_tips()
  *
  */
 function filter_googlebook_tips($filter, $format, $long = FALSE) {
@@ -33,6 +50,7 @@ function filter_googlebook_tips($filter, $format, $long = FALSE) {
 
 /**
  * Implements googlebook_filter_info()
+ * 
 */
 function googlebook_filter_info() {
     $filters['googlebook'] = array(
@@ -53,7 +71,8 @@ function googlebook_filter_info() {
 
 
 /**
- * googlebook_filter_settings
+ * Googlebook_filter_settings
+ * 
 */
 function googlebook_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
       $settings['googlebook'] = array(
@@ -111,7 +130,8 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
 }
 
 
-/*  Function: retrieve_bookdata()
+/**
+ *  Function: retrieve_bookdata()
  *
  *  Gets the book data from Google Books / other sites and then displays it.
  *  $id is a valid Google Book query
@@ -122,11 +142,11 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
     // Get all the Google Book permissible book data fieds
     $bib_fields = bib_field_array();
 
-    // set some variables
-    // $curltimeout = 10;                    // timeout for the openlibrary curl call
+    // Clear some variables
     $html_bookdata = "";
+
     $html_text = "";
-    $title = "";
+    
     $html_coverimage = "";
     $html_fields = "";
     $worldcat = "";
@@ -134,6 +154,7 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
     $openlibrary = "";
     $extra_links = "";
 
+    // This function pulls 
     $bib = get_googlebook_data( $id );
     
     // If the data is sound then continue 
@@ -198,11 +219,17 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
   return $html_bookdata;
 }
 
-
-// If the bib field looks like an address, make it a link
+/**
+ * Function: make_html_link( )
+ *
+ * If the bib field looks like an address, make it a link
+ *
+*/
 function make_html_link( $address ) {
     if ( strpos($address, "https://") !== FALSE || strpos($address, "http://") !== FALSE ) {
         return '<a href="' . $address . '" rel="nofollow" target="_blank"> link </a>';
     }
 return $address;
 }
+
+

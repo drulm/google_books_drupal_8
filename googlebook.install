@@ -1,0 +1,51 @@
+<?php
+/**
+ * GoogleBook Module and API
+ *
+ * Copyright 2011 Darrell Ulm.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function googlebook_install() {
+  drupal_install_schema('cache_googlebook');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function googlebook_uninstall() {
+  drupal_uninstall_schema('cache_googlebook');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function googlebook_schema() {
+  $schema['cache_googlebook'] = drupal_get_schema_unprocessed('system', 'cache');
+  // $schema['cache_googlebook']['description'] = 'Cache table for the Google Book API module to store the result of recent HTTP requests.';
+
+  return $schema;
+}
+
+/*
+function mymodule_schema() {
+  $schema['cache_mymodule'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+ *
+ */
