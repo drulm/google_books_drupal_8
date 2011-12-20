@@ -35,13 +35,15 @@
 
 
 /**
- * Function: filter_googlebook_tips()
+ * Function: filter_googlebook_tips
+ *
+ * The filter tips hook for the googlebook filter module
  *
  */
-function filter_googlebook_tips($filter, $format, $long = FALSE) {
+function filter_googlebook_tips( $filter, $format, $long = FALSE ) {
   if ($long) {
     return t('Put a Google Book search term between double brackets like this:
-        {{The Hobbit}} or {{9780618154012}} or {{Rucker+Software}}
+        {{The Hobbit}} or {{isbn:9780618154012}} or {{Rucker+Software}}
         and this will filter the input to replace with Google Book data
         and images from http://books.google.com');
   }
@@ -50,6 +52,8 @@ function filter_googlebook_tips($filter, $format, $long = FALSE) {
 
 /**
  * Implements googlebook_filter_info()
+ *
+ * Filter info hook for googlebook filter
  * 
 */
 function googlebook_filter_info() {
@@ -71,7 +75,9 @@ function googlebook_filter_info() {
 
 
 /**
- * Googlebook_filter_settings
+ * Implements googlebook_filter_settings
+ *
+ * The filter form hook for the googlebook filter
  * 
 */
 function googlebook_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
@@ -87,7 +93,6 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
       '#title' => 'Google Book Data Fields to Use',
       '#required' => TRUE,
       '#options' => bib_field_array(),
-      //'#default_value' => isset($filter->settings['bib_fields']) ? $filter->settings['bib_fields'] : $defaults['bib_fields'],
       '#default_value' => isset($filter->settings['bib_fields']) ? $filter->settings['bib_fields'] : bib_field_array()
       );
       $settings['worldcat'] = array(
@@ -112,7 +117,9 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
 /**
  * Function: googlebook_filter_process()
  * 
- * Same code as used by Book Post Module
+ * Same code as used by BookPost Module
+ *
+ * Good for migration to googlebook for Drupal7
  * 
 */
 function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
@@ -131,31 +138,39 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
 
 
 /**
- *  Function: retrieve_bookdata()
+ *  Function: retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrary_link, $bib_field_select )
  *
  *  Gets the book data from Google Books / other sites and then displays it.
  *  $id is a valid Google Book query
+ *
+ *  This is the main filter processing function that does the work.
+ *
+ *  $id : The full string pulled from inside the {{$id}} filter
+ *  $worldcat_link : True if setting for Worldcat link on
+ *  $librarything_link : True if setting for Library Thing link on
+ *  $openlibrary_link : True if setting for openlibrary is on
+ *  $bib_field_select : This is the array of True/False for the multi-field
+ *     data select
  * 
  */
-function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary_link, $bib_field_select) {
+function retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrary_link, $bib_field_select ) {
 
     // Get all the Google Book permissible book data fieds
     $bib_fields = bib_field_array();
 
-    // Clear some variables
+    // Clear some variables so we don't need to do it later
     $html_bookdata = "";
-
     $html_text = "";
-    
-    $html_coverimage = "";
     $html_fields = "";
     $worldcat = "";
     $librarything = "";
     $openlibrary = "";
     $extra_links = "";
 
+    $biblio_parameter = explode( '|', $id );
+
     // This function pulls 
-    $bib = get_googlebook_data( $id );
+    $bib = get_googlebook_data( $biblio_parameter[0] );
     
     // If the data is sound then continue 
     if ( $bib != FALSE ) {
@@ -219,10 +234,13 @@ function retrieve_bookdata($id, $worldcat_link, $librarything_link, $openlibrary
   return $html_bookdata;
 }
 
+
 /**
- * Function: make_html_link( )
+ * Function: make_html_link( $address )
  *
- * If the bib field looks like an address, make it a link
+ * If the bibli field looks like an address, make it a link
+ *
+ * $address : the biblio field, which might be an address.
  *
 */
 function make_html_link( $address ) {
@@ -231,5 +249,3 @@ function make_html_link( $address ) {
     }
 return $address;
 }
-
-
