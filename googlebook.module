@@ -167,10 +167,8 @@ function retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrar
     $openlibrary = "";
     $extra_links = "";
 
-    $biblio_parameter = explode( '|', $id );
-
     // This function pulls 
-    $bib = get_googlebook_data( $biblio_parameter[0] );
+    $bib = get_googlebook_data( $id );
     
     // If the data is sound then continue 
     if ( $bib != FALSE ) {
@@ -240,7 +238,7 @@ function retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrar
  *
  * If the bibli field looks like an address, make it a link
  *
- * $address : the biblio field, which might be an address.
+ * $address : the biblio field, which might be an address
  *
 */
 function make_html_link( $address ) {

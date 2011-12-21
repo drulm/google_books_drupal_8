@@ -125,12 +125,18 @@ function bib_field_array() {
  *
  */
 function get_googlebook_data( $id ) {
+    
+    //clean search string of spaces, turn into '+'
+    $dirt_id = array(" ");
+    $id  = str_replace( $dirt_id, "+", $id );
+
+    // var_dump($id);
 
     // Get all the arrays from the query
     $bookkeys = _googlebook_cached_request( $id );
     
     // Decode into array to be able to scan
-    $obj = json_decode($bookkeys, TRUE);
+    $obj = json_decode( $bookkeys , TRUE );
 
     $versions = $obj['totalItems'];
 
@@ -233,33 +239,6 @@ function assign_bib_array( & $bib_array, $index, $value ) {
 }
 
 
-/**
-* Get the URL contents
-*/
-function get_url_contents($url, $curltimeout) {
-
-    // Establish a cURL handle.
-    $ch = curl_init($url);
-
-    // curl Options
-    curl_setopt($ch, CURLOPT_HEADER, FALSE); //false=do not include headers
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE); //true=return as string
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $curltimeout); //timeout for when OL is down
-    curl_setopt($ch, CURLOPT_TIMEOUT, $curltimeout); //timeout for when OL is down
-
-    // Execute the request
-    $output = curl_exec($ch);
-
-    // Close the cURL session.
-    curl_close($ch);
-
-    if ($output == "") {
-        throw new Exception("Google Books Data Currently Unavailable");
-    }
-    return $output;
-}
-
-
 /* _googlebook_cached_request( $path )
  *
  * This returns JSON data from the cache if present, else
@@ -271,10 +250,6 @@ function get_url_contents($url, $curltimeout) {
  */
 function _googlebook_cached_request( $path ) {
 
-    //clean search string of spaces, turn into '+'
-    $dirt_id = array(" ");
-    $path  = str_replace( $dirt_id, "+", $path );
-
     // build the full path (and the cache key)
     $url_bookkeys = GOOGLE_BOOKS_API_ROOT . $path ;
 
@@ -284,14 +259,17 @@ function _googlebook_cached_request( $path ) {
     // If is it IS cached, then just return the data from the cache.
     if ( $cached !== FALSE ) {
         // Check if the time has expired
-        if ($cached->expire < time()) {
+        if ( $cached->expire < time() ) {
             cache_clear_all( $url_bookkeys, 'cache_googlebook' );
         }
+    // var_dump( $cached );
     return $cached->data;
     }
     else {
         // Do it the slow way, go get the new data
-        $bookkeys = get_url_contents($url_bookkeys, CURLTIMEOUT);
+        $url_data = drupal_http_request( $url_bookkeys );
+
+        $bookkeys = $url_data->data;
 
         // Set the cache
         cache_set($url_bookkeys, $bookkeys, 'cache_googlebook', time() + GOOGLEBOOKS_CACHE_PERIOD );
