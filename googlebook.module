@@ -33,6 +33,7 @@
  *
  */
 
+define('GOOGLE_BOOK_EXTERN_JS', 'https://www.google.com/jsapi');
 
 /**
  * Function: filter_googlebook_tips
@@ -66,6 +67,8 @@ function googlebook_filter_info() {
             'worldcat' => 1,
             'openlibrary' =>  1,
             'librarything' => 1,
+            'image' => 1,
+            'reader' => 0,
             'bib_fields' => bib_field_array()
         ),
     'tips callback' => 'filter_googlebook_tips',
@@ -110,6 +113,16 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
         '#title' => t('Link to Open Library'),
         '#default_value' => isset($filter->settings['openlibrary']) ? $filter->settings['openlibrary'] : $defaults['openlibrary'],
       );
+      $settings['image'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Include Google Book Cover Image'),
+        '#default_value' => isset($filter->settings['image']) ? $filter->settings['image'] : $defaults['image'],
+      );
+      $settings['reader'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Include the Google Book Reader'),
+        '#default_value' => isset($filter->settings['reader']) ? $filter->settings['reader'] : $defaults['reader'],
+      );
       return $settings;
 }
 
@@ -128,8 +141,15 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
     $book = array();
     $counter = 0;
     for ($i = 0; $i < count( $match[1] ); $i++) {
-        $book[$counter] = retrieve_bookdata($match[1][$i], $filter->settings['worldcat'], $filter->settings['librarything']
-            , $filter->settings['openlibrary'], $filter->settings['bib_fields'] );
+        $book[$counter] = retrieve_bookdata(
+                $match[1][$i],
+                $filter->settings['worldcat'],
+                $filter->settings['librarything'],
+                $filter->settings['openlibrary'],
+                $filter->settings['image'],
+                $filter->settings['reader'],
+                $filter->settings['bib_fields']
+                );
         $counter++;
     }
     $text = str_replace($tag, $book, $text);
@@ -153,7 +173,7 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
  *     data select
  * 
  */
-function retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrary_link, $bib_field_select ) {
+function retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrary_link, $image_option, $reader_option, $bib_field_select ) {
 
     // Get all the Google Book permissible book data fieds
     $bib_fields = bib_field_array();
@@ -166,13 +186,17 @@ function retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrar
     $librarything = "";
     $openlibrary = "";
     $extra_links = "";
+    $html_coverimage = "";
+    $google_viewer = "";
+
+    $params = explode("|", $id);
 
     // This function pulls 
-    $bib = get_googlebook_data( $id );
+    $bib = get_googlebook_data( $params[0] );
     
     // If the data is sound then continue 
     if ( $bib != FALSE ) {
-
+        
         // Pull an ISBN if we have it, prefer the last 
         // which should be an ISBN 13 although may be something else :)
         $identifier_list = explode("|", $bib['identifier'] );
@@ -215,9 +239,25 @@ function retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrar
         $html_title = '<p>Title: <a href="' . $bib['infoLink'] . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></p>';
 
         // Build a coverimage
-        if ( isset($bib['thumbnail']) ) {
+        if ( isset($bib['thumbnail']) && $image_option == 1 ) {
             $html_coverimage = "<img src='" . $bib['thumbnail'] . "' alt='" . $title . "' />";
             $html_coverimage = "<a style='float:right' class='googlebook_image' href='" . $bib['infoLink'] . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a>";
+        }
+
+        // View the book reader
+        if ( isset ( $bib['embeddable'] ) && $reader_option == 1 ) {
+            // add the google extern javascript if haven't already
+            drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => -10) );
+            $googlebook_js_string = '
+                google.load("books", "0");
+                function initialize() {
+                var viewer' . $isbn . ' = new google.books.DefaultViewer( document.getElementById( "viewerCanvas' . $isbn .'" ) );
+                viewer' . $isbn . '.load("ISBN:' . $isbn . '");
+                }
+                google.setOnLoadCallback(initialize);
+                ';
+            drupal_add_js( $googlebook_js_string , 'inline' );
+            $google_viewer = '<div id="viewerCanvas' . $isbn . '" style="float:right; width: 400px; height: 500px"></div>';
         }
 
        // Create the final text
@@ -226,8 +266,8 @@ function retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrar
        $html_text .= $html_fields;
 
        //div whole class for themeing
-       $html_bookdata = '<div class="googlebooks" >' . $html_coverimage . $html_text . '<div style="clear:both;"></div></div>';
-       }
+           $html_bookdata = '<div class="googlebooks" >' . $google_viewer . $html_coverimage . $html_text . '<div style="clear:both;"></div></div>';
+    }
 
   return $html_bookdata;
 }
