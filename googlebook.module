@@ -270,12 +270,24 @@ function retrieve_bookdata(
     set_param( $params, $reader_on, "no_reader", 0 );
 
     // Set the data field parameters explicitly
-/*
     $bib_field_select_explicit = array();
     foreach ( $bib_fields as $i => $field_name ) {
-        set_param( $bib_field_select_explicit, $flag_var, $value, $set );
+        $bib_field_select_explicit[ $i ] = "";
+        set_param( $params, $bib_field_select_explicit[ $i ], $field_name, "$i" );
+        set_param( $params, $bib_field_select_explicit[ $i ] , "no_" . $field_name, FALSE );
     }
-  */
+
+    // Merge the selected options with the global bib field options
+    //  Use the and operation to default to off.
+    foreach ( $bib_field_select_explicit as $i => $field_name ) {
+        if ( $bib_field_select_explicit[ $i ] ) {
+            $bib_field_select[ $i ] = $bib_field_select_explicit[ $i ];
+        }
+        if ( $bib_field_select_explicit[ $i ] === FALSE ) {
+            unset( $bib_field_select[ $i ] );
+        }
+    }
+
     // If the data is sound then continue 
     if ( $bib != FALSE ) {
         
