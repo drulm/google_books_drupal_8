@@ -153,10 +153,10 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
       );
       $settings['reader_width'] = array(
         '#type' => 'textfield',
-        '#title' => t('Image width'),
+        '#title' => t('Reader width'),
         '#size' => 6,
         '#maxlength' => 6,
-        '#description' => t('Width of Google cover image'),
+        '#description' => t('Width of Google reader'),
         '#default_value' => isset($filter->settings['reader_width']) ? $filter->settings['reader_width'] : $defaults['reader_width'],
       );
       return $settings;
@@ -234,6 +234,7 @@ function retrieve_bookdata(
     $html_bookdata = "";
     $html_text = "";
     $html_fields = "";
+    $html_title = "";
     $worldcat = "";
     $librarything = "";
     $openlibrary = "";
@@ -241,13 +242,18 @@ function retrieve_bookdata(
     $html_coverimage = "";
     $google_viewer = "";
     $page_curl = "";
+    $title_link = "";
+    $image_on = "";
+    $reader_on = "";
 
     $params = explode("|", $id);
 
     $bib = get_googlebook_data( $params[0] );
 
     unset ( $params[0] );
+    array_walk( $params, create_function( '&$val', '$val = trim($val);' ) );
 
+    // Set the fixed parameters explicitly (not the data fields)
     set_param( $params, $worldcat_link, "worldcat", 1 );
     set_param( $params, $worldcat_link, "no_worldcat", 0 );
     set_param( $params, $openlibrary_link, "openlibrary", 1 );
@@ -256,7 +262,20 @@ function retrieve_bookdata(
     set_param( $params, $librarything_link, "no_librarything", 0 );
     set_param( $params, $page_curl, "pagecurl", 1 );
     set_param( $params, $page_curl, "no_pagecurl", 0 );
-    
+    set_param( $params, $title_link, "titlelink", 1 );
+    set_param( $params, $title_link, "no_titlelink", 0 );
+    set_param( $params, $image_on, "image", 1 );
+    set_param( $params, $image_on, "no_image", 0 );
+    set_param( $params, $reader_on, "reader", 1 );
+    set_param( $params, $reader_on, "no_reader", 0 );
+
+    // Set the data field parameters explicitly
+/*
+    $bib_field_select_explicit = array();
+    foreach ( $bib_fields as $i => $field_name ) {
+        set_param( $bib_field_select_explicit, $flag_var, $value, $set );
+    }
+  */
     // If the data is sound then continue 
     if ( $bib != FALSE ) {
         
@@ -299,10 +318,12 @@ function retrieve_bookdata(
 
         // Build the main title with a link
         $title = $bib['title'];
-        $html_title = '<p>Title: <a href="' . $bib['infoLink'] . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></p>';
-
+        if ( $title_link == 1 || $title_link === "" ) {
+            $html_title = '<p>Title: <a href="' . $bib['infoLink'] . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></p>';
+        }
+        
         // Build a coverimage
-        if ( isset($bib['thumbnail']) && $image_option == 1 ) {
+        if ( isset( $bib['thumbnail'] ) && ( $image_option == 1 || $image_on == 1 ) && $image_on !== 0 ) {
             $img_link = $bib['thumbnail'];
             if ( $page_curl == 1 ) {
                 $img_link = str_replace("&edge=nocurl", "", $img_link);
@@ -316,7 +337,7 @@ function retrieve_bookdata(
         }
 
         // View the book reader
-        if ( isset ( $bib['embeddable'] ) && $reader_option == 1 ) {
+        if ( isset ( $bib['embeddable'] ) && ( $reader_option == 1 || $reader_on == 1 ) && $reader_on !== 0 ) {
             // add the google extern javascript if haven't already
             drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => -10) );
             $googlebook_js_string = '
