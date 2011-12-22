@@ -240,11 +240,22 @@ function retrieve_bookdata(
     $extra_links = "";
     $html_coverimage = "";
     $google_viewer = "";
+    $page_curl = "";
 
     $params = explode("|", $id);
 
-    // This function pulls 
     $bib = get_googlebook_data( $params[0] );
+
+    unset ( $params[0] );
+
+    set_param( $params, $worldcat_link, "worldcat", 1 );
+    set_param( $params, $worldcat_link, "no_worldcat", 0 );
+    set_param( $params, $openlibrary_link, "openlibrary", 1 );
+    set_param( $params, $openlibrary_link, "no_openlibrary", 0 );
+    set_param( $params, $librarything_link, "librarything", 1 );
+    set_param( $params, $librarything_link, "no_librarything", 0 );
+    set_param( $params, $page_curl, "pagecurl", 1 );
+    set_param( $params, $page_curl, "no_pagecurl", 0 );
     
     // If the data is sound then continue 
     if ( $bib != FALSE ) {
@@ -258,13 +269,13 @@ function retrieve_bookdata(
 
         // Get the book links if any are found. None are checked for ISBN validity.
         if ( ! empty( $isbn ) ) {
-            if ($worldcat_link) {
+            if ( $worldcat_link ) {
                   $worldcat = '<a href="http://worldcat.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">WorldCat</a><br />';
             }
-            if ($librarything_link) {
+            if ( $librarything_link ) {
                   $librarything = '<a href="http://librarything.com/isbn/' . $isbn . '" rel="nofollow" target="_blank">LibraryThing</a><br />';
             }
-            if ($openlibrary_link) {
+            if ( $openlibrary_link ) {
                   $openlibrary = '<a href="http://openlibrary.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">Open Library</a><br />';
             }
             if ( strlen( $worldcat . $librarything . $openlibrary ) > 0 ) {
@@ -292,7 +303,15 @@ function retrieve_bookdata(
 
         // Build a coverimage
         if ( isset($bib['thumbnail']) && $image_option == 1 ) {
-            $html_coverimage = "<img src='" . $bib['thumbnail'] . "' alt='" . $title . "' height='" . $image_height . "' width='" . $image_width . "' />";
+            $img_link = $bib['thumbnail'];
+            if ( $page_curl == 1 ) {
+                $img_link = str_replace("&edge=nocurl", "", $img_link);
+                $img_link .= "&edge=curl";
+            }
+            if ( $page_curl == 0 ) {
+                $img_link = str_replace("&edge=curl", "", $img_link);
+            }
+            $html_coverimage = "<img src='" . $img_link . "' alt='" . $title . "' height='" . $image_height . "' width='" . $image_width . "' />";
             $html_coverimage = "<a style='float:right' class='googlebook_image' href='" . $bib['infoLink'] . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a>";
         }
 
@@ -339,3 +358,16 @@ function make_html_link( $address ) {
     }
 return $address;
 }
+
+
+/**
+ *
+ *
+*/
+function set_param( $params, &$flag_var, $value, $set ) {
+    if ( in_array( $value, $params ) === TRUE ) {
+        $flag_var = $set;
+    }
+}
+
+
