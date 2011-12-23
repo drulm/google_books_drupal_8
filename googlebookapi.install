@@ -1,8 +1,11 @@
 <?php
 /**
- * GoogleBook Module and API
+ * @file
+ * GoogleBook API Install
  *
  * Copyright 2011 Darrell Ulm.
+ *
+ * This is the install code for the API part of the module
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,33 +22,25 @@
  */
 
 /**
- * Implementation of hook_install().
+ * Implements hook_install().
  */
-function googlebook_install() {
-  drupal_install_schema('cache_googlebook');
+function googlebookapi_install() {
+  drupal_install_schema('cache_googlebookapi');
 }
 
 /**
- * Implementation of hook_uninstall().
+ * Implements hook_uninstall().
  */
-function googlebook_uninstall() {
-  drupal_uninstall_schema('cache_googlebook');
+function googlebookapi_uninstall() {
+  drupal_uninstall_schema('cache_googlebookapi');
 }
 
 /**
- * Implementation of hook_schema().
+ * Implements hook_schema().
  */
-function googlebook_schema() {
-  $schema['cache_googlebook'] = drupal_get_schema_unprocessed('system', 'cache');
-  // $schema['cache_googlebook']['description'] = 'Cache table for the Google Book API module to store the result of recent HTTP requests.';
+function googlebookapi_schema() {
+    
+  $schema['cache_googlebookapi'] = drupal_get_schema_unprocessed('system', 'cache');
 
   return $schema;
 }
-
-/*
-function mymodule_schema() {
-  $schema['cache_mymodule'] = drupal_get_schema_unprocessed('system', 'cache');
-  return $schema;
-}
- *
- */

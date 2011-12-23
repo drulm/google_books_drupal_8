@@ -1,8 +1,7 @@
 <?php
 /**
  * @file
- * Googlebook API Module 
- *    for Drupal 7.0
+ * GoogleBook API Module for Drupal 7.0
  *
  * Copyright 2011 Darrell Ulm.
  *
@@ -16,12 +15,11 @@
  *
  * See the INSTALL.TXT file for specific information.
  *
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -29,31 +27,29 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 
 /* Define Section
  *
- * CURLTIMEOUT is the max seconds to request data
  * GOOGLE_BOOKS_API_ROOT is the path for the cURL request
  * GOOGLEBOOKS_CACHE_PERIOD is the time to keep data in the book cache
  *
  */
-define("CURLTIMEOUT", 10);
 define("GOOGLE_BOOKS_API_ROOT", 'https://www.googleapis.com/books/v1/volumes?q=');
 define("GOOGLEBOOKS_CACHE_PERIOD", 24 * 60 * 60 ); // in secs
 
 
 /* Function: bib_field_array()
- * 
+ *
  * These are the fields that are in the multi select list and are
  * displayable in google books. Just returns an array.
- * 
+ *
  */
 function bib_field_array() {
-   return array
-   (
+  return array
+  (
        'kind',
        'id',
        'etag',
@@ -105,27 +101,27 @@ function bib_field_array() {
        'epub',
        'acsTokenLink',
        'accessViewStatus'
-   );
+  );
 }
 
 
 /*  Function: get_googlebook_data( $id )
  *
- *  Gets the book data from Google Books
- * 
  *  $id is the {{ $id }} passed from the filter text
  *
+ *
+ *  Gets the book data from Google Books
  *  Puts all results in a flat array, key = field name.
  *
  *  Multiple data fields are delimited by '|' character in string.
  *
  *  This is the fuction to call if the caller only wants an array. If the
  *  caller needs *everything* google returns (which is fine) then the user
- *  should use the _googlebook_cached_request( $path ) function. 
+ *  should use the _googlebookapi_cached_request( $path ) function.
  *
  */
 function get_googlebook_data( $id ) {
-    
+
     //clean search string of spaces, turn into '+'
     $dirt_id = array(" ");
     $id  = str_replace( $dirt_id, "+", $id );
@@ -133,8 +129,8 @@ function get_googlebook_data( $id ) {
     // var_dump($id);
 
     // Get all the arrays from the query
-    $bookkeys = _googlebook_cached_request( $id );
-    
+    $bookkeys = _googlebookapi_cached_request( $id );
+
     // Decode into array to be able to scan
     $obj = json_decode( $bookkeys , TRUE );
 
@@ -144,10 +140,10 @@ function get_googlebook_data( $id ) {
     if ( $versions > 0 ) {
 
         // Grab the first result
-        $bookkeyresult = $obj['items'][0];  
+        $bookkeyresult = $obj['items'][0];
 
         // extract the results into one big string with delimiters
-        $book_str = json_extract($bookkeyresult); 
+        $book_str = json_extract($bookkeyresult);
 
         // Build array for this
         $bib = array();
@@ -180,17 +176,18 @@ function get_googlebook_data( $id ) {
 }
 
 
-/*  Function: json_extract( & barr )
- *
- *  Choose the first volume of the search and turn it into
- *  a flat array for easy access. Use simple recursion to scan the JSON
- *  and build up a string for easy expansion into a flat array.
+/*  Function: json_extract( &barr )
  *
  *  & barr : reference to JSON data from a single book search result.
+ *
+ *   Choose the first volume of the search and turn it into
+ *  a flat array for easy access. Use simple recursion to scan the JSON
+ *  and build up a string for easy expansion into a flat array.
  *
  */
 function json_extract( & $barr ) {
 
+    // Get the bib fields and go through the array
     $bib_fields = bib_field_array();
     $book_html = "";
 
@@ -201,6 +198,7 @@ function json_extract( & $barr ) {
                 $book_html .= "$effective_key ((($value(((";
             }
             else {
+                // If there is a sub array, call this same function to traverse it.
                 if ( is_array( $value ) ) {
                     $sub_bib = json_extract($value, $bib_fields);
                 }
@@ -216,7 +214,7 @@ function json_extract( & $barr ) {
 }
 
 
-/* assign_bib_array(  & $bib_array, $index, $value )
+/* Function assign_bib_array( &$bib_array, $index, $value )
  *
  * & $bib_array : reference to Array to modify
  * $index : The array index
@@ -241,26 +239,28 @@ function assign_bib_array( & $bib_array, $index, $value ) {
 
 /* _googlebook_cached_request( $path )
  *
+ * $path : The search string, without any additional parameters
+ *
  * This returns JSON data from the cache if present, else
  * it goes out and pulls the data in from books.google.com, caches the data
  * then returns it.
  *
- * $path : The search string, without any additional parameters
+ * Callers can use this function to pull all the data Google Books API returns
  *
  */
-function _googlebook_cached_request( $path ) {
+function _googlebookapi_cached_request( $path ) {
 
     // build the full path (and the cache key)
     $url_bookkeys = GOOGLE_BOOKS_API_ROOT . $path ;
 
     // See if it is cached
-    $cached = cache_get( $url_bookkeys, 'cache_googlebook' );
+    $cached = cache_get( $url_bookkeys, 'cache_googlebookapi' );
 
     // If is it IS cached, then just return the data from the cache.
     if ( $cached !== FALSE ) {
         // Check if the time has expired
         if ( $cached->expire < time() ) {
-            cache_clear_all( $url_bookkeys, 'cache_googlebook' );
+            cache_clear_all( $url_bookkeys, 'cache_googlebookapi' );
         }
     // var_dump( $cached );
     return $cached->data;
@@ -272,7 +272,7 @@ function _googlebook_cached_request( $path ) {
         $bookkeys = $url_data->data;
 
         // Set the cache
-        cache_set($url_bookkeys, $bookkeys, 'cache_googlebook', time() + GOOGLEBOOKS_CACHE_PERIOD );
+        cache_set($url_bookkeys, $bookkeys, 'cache_googlebookapi', time() + GOOGLEBOOKS_CACHE_PERIOD );
 
         // Bookkeys is the data, so return it
         return $bookkeys;
