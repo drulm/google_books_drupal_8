@@ -62,6 +62,7 @@ function googlebook_filter_info() {
         'description' => t('Insert Book Information from Google Books'),
         'process callback' => 'googlebook_filter_process',
         'settings callback' => 'googlebook_filter_settings',
+        'cache' => FALSE,
         'default settings' => array(
             'worldcat' => 1,
             'openlibrary' =>  1,
@@ -322,7 +323,7 @@ function retrieve_bookdata(
                 $field_val = $bib [ $field ];
             }
             if ( ! empty( $field_val ) ) {
-                $html_fields .= "<li class='googlebook_" . $field . "'><span class='googlebook_name'>" . ucfirst( preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field) ) ) . ": </span><span class='googlebook_data'>" . make_html_link( $field_val ) . "</span></li>";
+                $html_fields .= "<li>" . ucfirst( preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field) ) ) . ": " . make_html_link( $field_val ) . "</li>";
             }
         }
         $html_fields .= "</ul>";
@@ -330,7 +331,7 @@ function retrieve_bookdata(
         // Build the main title with a link
         $title = $bib['title'];
         if ( $title_link == 1 || $title_link === "" ) {
-            $html_title = '<p>Title: <a href="' . $bib['infoLink'] . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></p>';
+            $html_title = '<p>Title: <a href="' . htmlentities( $bib['infoLink'] ) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></p>';
         }
 
         // Build a coverimage
@@ -343,35 +344,36 @@ function retrieve_bookdata(
             if ( $page_curl == 0 ) {
                 $img_link = str_replace("&edge=curl", "", $img_link);
             }
-            $html_coverimage = "<img src='" . $img_link . "' alt='" . $title . "' height='" . $image_height . "' width='" . $image_width . "' />";
-            $html_coverimage = "<a style='float:right' class='googlebook_image' href='" . $bib['infoLink'] . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a>";
+            $html_coverimage = "<img src='" . htmlentities( $img_link ) . "' alt='" . $title . "' height='" . $image_height . "' width='" . $image_width . "' />";
+            $html_coverimage = "<a href='" . htmlentities( $bib['infoLink'] ) . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a>";
         }
 
         // View the book reader
         if ( isset ( $bib['embeddable'] ) && ( $reader_option == 1 || $reader_on == 1 ) && $reader_on !== 0 ) {
+
             // add the google extern javascript if haven't already
-            drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => -10) );
+            drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => 0 , 'preprocess' => TRUE ) );
             $googlebook_js_string = '
                 google.load("books", "0");
-                function initialize() {
+                function initialize' . $isbn . '() {
                 var viewer' . $isbn . ' = new google.books.DefaultViewer( document.getElementById( "viewerCanvas' . $isbn . '" ) );
                 viewer' . $isbn . '.load("ISBN:' . $isbn . '");
                 }
-                google.setOnLoadCallback(initialize);
+                google.setOnLoadCallback(initialize' . $isbn . ');
                 ';
-            drupal_add_js( $googlebook_js_string , 'inline' );
-            $google_viewer = '<div id="viewerCanvas' . $isbn . '" style="float:right; width: ' . $reader_width . 'px; height: ' . $reader_height . 'px"></div>';
+            drupal_add_js( $googlebook_js_string , array('type' => 'inline', 'weight' => 1 , 'preprocess' => TRUE ) );
+            $google_viewer = '<div id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div>';
         }
 
       // Create the final text
       $html_text .= $html_title;
-      $html_text .= "<p class='googlebook_links'>" . $extra_links . $worldcat . $librarything . $openlibrary . "</p>";
+      $html_text .= $extra_links . $worldcat . $librarything . $openlibrary;
+      $html_text .= $html_coverimage . $google_viewer;
       $html_text .= $html_fields;
 
       //div whole class for themeing
-      $html_bookdata = '<div class="googlebooks" >' . $google_viewer . $html_coverimage . $html_text . '<div style="clear:both;"></div></div>';
+      $html_bookdata = '<div class="googlebooks" >' . $html_text . '<div style="clear:both;"></div></div>';
     }
-
   return $html_bookdata;
 }
 
@@ -386,7 +388,7 @@ function retrieve_bookdata(
  */
 function make_html_link( $address ) {
     if ( strpos($address, "https://") !== FALSE || strpos($address, "http://") !== FALSE ) {
-        return '<a href="' . $address . '" rel="nofollow" target="_blank"> link </a>';
+        return '<a href="' . htmlentities( $address ) . '" rel="nofollow" target="_blank"> link </a>';
     }
 return $address;
 }
