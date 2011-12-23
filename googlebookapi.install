@@ -24,22 +24,24 @@
 /**
  * Implements hook_install().
  */
-function googlebookapi_install() {
-  drupal_install_schema('cache_googlebookapi');
+/* function googlebookapi_install() {
+ drupal_install_schema('cache_googlebookapi');
 }
+ *
+ */
 
 /**
  * Implements hook_uninstall().
  */
 function googlebookapi_uninstall() {
-  drupal_uninstall_schema('cache_googlebookapi');
+//  drupal_uninstall_schema('cache_googlebookapi');
 }
 
 /**
  * Implements hook_schema().
  */
 function googlebookapi_schema() {
-    
+
   $schema['cache_googlebookapi'] = drupal_get_schema_unprocessed('system', 'cache');
 
   return $schema;

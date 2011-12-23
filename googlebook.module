@@ -5,19 +5,18 @@
  *    for Drupal 7.0
  *
  * Copyright 2011 Darrell Ulm.
- * 
+ *
  * Based initialy on the BookPost module for Drupal 6 by Aaron Rubinstein,
  *   and partially based on the the OpenLibrary API for Drupal 6
  *
- * The googlebook module is a filter module 
+ * The googlebook module is a filter module
  * that allows a user to insert rich Google Book
  * data into nodes via filters.
  *
- * The fields can be selected to be displayed globally. 
+ * The fields can be selected to be displayed globally.
  *
  * See the INSTALL.TXT file for specific information.
  *
- * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
@@ -55,8 +54,8 @@ function filter_googlebook_tips( $filter, $format, $long = FALSE ) {
  * Implements googlebook_filter_info()
  *
  * Filter info hook for googlebook filter
- * 
-*/
+ *
+ */
 function googlebook_filter_info() {
     $filters['googlebook'] = array(
         'title' => t('Google Book'),
@@ -85,8 +84,8 @@ function googlebook_filter_info() {
  * Implements googlebook_filter_settings
  *
  * The filter form hook for the googlebook filter
- * 
-*/
+ *
+ */
 function googlebook_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
       $settings['googlebook'] = array(
         '#type' => 'fieldset',
@@ -165,12 +164,12 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
 
 /**
  * Function: googlebook_filter_process()
- * 
+ *
  * Same code as used by BookPost Module
  *
  * Good for migration to googlebook for Drupal7
- * 
-*/
+ *
+ */
 function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
     preg_match_all('/{{(.*)}}/', $text, $match);
     $tag = $match[0];
@@ -211,7 +210,7 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
  *  $openlibrary_link : True if setting for openlibrary is on
  *  $bib_field_select : This is the array of True/False for the multi-field
  *     data select
- * 
+ *
  */
 function retrieve_bookdata(
         $id,
@@ -250,7 +249,7 @@ function retrieve_bookdata(
 
     $bib = get_googlebook_data( $params[0] );
 
-    unset ( $params[0] );
+    unset( $params[0] );
     array_walk( $params, create_function( '&$val', '$val = trim($val);' ) );
 
     // Set the fixed parameters explicitly (not the data fields)
@@ -288,10 +287,10 @@ function retrieve_bookdata(
         }
     }
 
-    // If the data is sound then continue 
+    // If the data is sound then continue
     if ( $bib != FALSE ) {
-        
-        // Pull an ISBN if we have it, prefer the last 
+
+        // Pull an ISBN if we have it, prefer the last
         // which should be an ISBN 13 although may be something else :)
         $identifier_list = explode("|", $bib['identifier'] );
         $num_of_identifiers = count($identifier_list);
@@ -333,7 +332,7 @@ function retrieve_bookdata(
         if ( $title_link == 1 || $title_link === "" ) {
             $html_title = '<p>Title: <a href="' . $bib['infoLink'] . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></p>';
         }
-        
+
         // Build a coverimage
         if ( isset( $bib['thumbnail'] ) && ( $image_option == 1 || $image_on == 1 ) && $image_on !== 0 ) {
             $img_link = $bib['thumbnail'];
@@ -355,7 +354,7 @@ function retrieve_bookdata(
             $googlebook_js_string = '
                 google.load("books", "0");
                 function initialize() {
-                var viewer' . $isbn . ' = new google.books.DefaultViewer( document.getElementById( "viewerCanvas' . $isbn .'" ) );
+                var viewer' . $isbn . ' = new google.books.DefaultViewer( document.getElementById( "viewerCanvas' . $isbn . '" ) );
                 viewer' . $isbn . '.load("ISBN:' . $isbn . '");
                 }
                 google.setOnLoadCallback(initialize);
@@ -364,13 +363,13 @@ function retrieve_bookdata(
             $google_viewer = '<div id="viewerCanvas' . $isbn . '" style="float:right; width: ' . $reader_width . 'px; height: ' . $reader_height . 'px"></div>';
         }
 
-       // Create the final text
-       $html_text .= $html_title;
-       $html_text .= "<p class='googlebook_links'>" . $extra_links . $worldcat . $librarything . $openlibrary . "</p>";
-       $html_text .= $html_fields;
+      // Create the final text
+      $html_text .= $html_title;
+      $html_text .= "<p class='googlebook_links'>" . $extra_links . $worldcat . $librarything . $openlibrary . "</p>";
+      $html_text .= $html_fields;
 
-       //div whole class for themeing
-           $html_bookdata = '<div class="googlebooks" >' . $google_viewer . $html_coverimage . $html_text . '<div style="clear:both;"></div></div>';
+      //div whole class for themeing
+      $html_bookdata = '<div class="googlebooks" >' . $google_viewer . $html_coverimage . $html_text . '<div style="clear:both;"></div></div>';
     }
 
   return $html_bookdata;
@@ -384,7 +383,7 @@ function retrieve_bookdata(
  *
  * $address : the biblio field, which might be an address
  *
-*/
+ */
 function make_html_link( $address ) {
     if ( strpos($address, "https://") !== FALSE || strpos($address, "http://") !== FALSE ) {
         return '<a href="' . $address . '" rel="nofollow" target="_blank"> link </a>';
@@ -394,13 +393,11 @@ return $address;
 
 
 /**
+ * Function: set_param( $params, &$flag_var, $value, $set )
  *
- *
-*/
+ */
 function set_param( $params, &$flag_var, $value, $set ) {
     if ( in_array( $value, $params ) === TRUE ) {
         $flag_var = $set;
     }
 }
-
-
