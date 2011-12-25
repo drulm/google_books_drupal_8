@@ -54,7 +54,7 @@ function bib_field_array() {
        'id',
        'etag',
        'selfLink',
-       //'volumeInfo',
+       'volumeInfo',
        'title',
        'authors',
        'publisher',
@@ -120,13 +120,10 @@ function bib_field_array() {
  *  should use the _googlebookapi_cached_request( $path ) function.
  *
  */
-function get_googlebook_data( $id ) {
+function get_googlebook_data( $id, $version_num ) {
 
     //clean search string of spaces, turn into '+'
-    $dirt_id = array(" ");
-    $id  = str_replace( $dirt_id, "+", $id );
-
-    // var_dump($id);
+     $id = clean_search_id( $id );
 
     // Get all the arrays from the query
     $bookkeys = _googlebookapi_cached_request( $id );
@@ -137,10 +134,10 @@ function get_googlebook_data( $id ) {
     $versions = $obj['totalItems'];
 
     // Check the number of versions returned by Google Books
-    if ( $versions > 0 ) {
+    if ( $versions > 0 && $version_num < $versions ) {
 
         // Grab the first result
-        $bookkeyresult = $obj['items'][0];
+        $bookkeyresult = $obj['items'][$version_num];
 
         // extract the results into one big string with delimiters
         $book_str = json_extract($bookkeyresult);
@@ -277,4 +274,28 @@ function _googlebookapi_cached_request( $path ) {
         // Bookkeys is the data, so return it
         return $bookkeys;
     }
+}
+
+
+function get_googlebook_version_count( $id ) {
+
+    // Cleanup the search ID
+    $id = clean_search_id( $id );
+
+    // Get all the arrays from the query
+    $bookkeys = _googlebookapi_cached_request( $id );
+
+    // Decode into array to be able to scan
+    $obj = json_decode( $bookkeys , TRUE );
+
+    return $obj['totalItems'];
+}
+
+
+function clean_search_id( $id ) {
+    
+    //clean search string of spaces, turn into '+'
+    $id = trim($id);
+    $dirt_id = array(" ");
+    return str_replace( $dirt_id, "+", $id );
 }
