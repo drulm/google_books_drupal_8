@@ -347,7 +347,7 @@ function retrieve_bookdata(
             if ( $page_curl == 0 ) {
                 $img_link = str_replace("&edge=curl", "", $img_link);
             }
-            $html_coverimage = "<img src='" . htmlentities( $img_link ) . "' alt='" . $title . "' height='" . $image_height . "' width='" . $image_width . "' />";
+            $html_coverimage = "<img class='google_book_image' src='" . htmlentities( $img_link ) . "' alt='" . $title . "' height='" . $image_height . "' width='" . $image_width . "' />";
             $html_coverimage = "<a href='" . htmlentities( $bib['infoLink'] ) . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a>";
         }
 
@@ -374,7 +374,7 @@ function retrieve_bookdata(
             //$html_text .=
             drupal_render( add_googlebooks_viewer_inline( $isbn ) );
 
-            $google_viewer = '<div id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div>';
+            $google_viewer = '<div class="googleviewer" id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div>';
         }
 
       // Create the final text
@@ -438,7 +438,7 @@ function add_googlebooks_javascript() {
       'type' => 'external',
       'weight' => -1,
       'options' => array(
-        '#after_build' => TRUE,
+        //'#after_build' => TRUE,
         '#no_cache' => TRUE
         )
       );
@@ -473,7 +473,7 @@ function add_googlebooks_viewer_inline( $isbn ) {
         'scope' => 'header',
         'weight' => 1,
       ),
-        '#after_build' => TRUE,
+        //'#after_build' => TRUE,
         '#no_cache' => TRUE
     );
 
