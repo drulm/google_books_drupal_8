@@ -117,7 +117,7 @@ function bib_field_array() {
  *
  *  This is the fuction to call if the caller only wants an array. If the
  *  caller needs *everything* google returns (which is fine) then the user
- *  should use the _googlebookapi_cached_request( $path ) function.
+ *  should use the googlebookapi_cached_request( $path ) function.
  *
  */
 function get_googlebook_data( $id, $version_num ) {
@@ -126,7 +126,7 @@ function get_googlebook_data( $id, $version_num ) {
      $id = clean_search_id( $id );
 
     // Get all the arrays from the query
-    $bookkeys = _googlebookapi_cached_request( $id );
+    $bookkeys = googlebookapi_cached_request( $id );
 
     // Decode into array to be able to scan
     $obj = json_decode( $bookkeys , TRUE );
@@ -245,7 +245,7 @@ function assign_bib_array( & $bib_array, $index, $value ) {
  * Callers can use this function to pull all the data Google Books API returns
  *
  */
-function _googlebookapi_cached_request( $path ) {
+function googlebookapi_cached_request( $path ) {
 
     // build the full path (and the cache key)
     $url_bookkeys = GOOGLE_BOOKS_API_ROOT . $path ;
@@ -285,7 +285,7 @@ function get_googlebook_version_count( $id ) {
     $id = clean_search_id( $id );
 
     // Get all the arrays from the query
-    $bookkeys = _googlebookapi_cached_request( $id );
+    $bookkeys = googlebookapi_cached_request( $id );
 
     // Decode into array to be able to scan
     $obj = json_decode( $bookkeys , TRUE );

@@ -22,15 +22,6 @@
  */
 
 /**
- * Implements hook_install().
- */
-/* function googlebookapi_install() {
- drupal_install_schema('cache_googlebookapi');
-}
- *
- */
-
-/**
  * Implements hook_uninstall().
  */
 function googlebookapi_uninstall() {
