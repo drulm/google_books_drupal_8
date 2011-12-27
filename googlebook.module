@@ -62,7 +62,7 @@ function googlebook_filter_info() {
         'description' => t('Insert Book Information from Google Books'),
         'process callback' => 'googlebook_filter_process',
         'settings callback' => 'googlebook_filter_settings',
-        //'cache' => FALSE,
+        'cache' => FALSE,
         'default settings' => array(
             'worldcat' => 1,
             'openlibrary' =>  1,
@@ -358,8 +358,8 @@ function retrieve_bookdata(
             //$html_text .=
             drupal_render( drupal_get_form('add_googlebooks_javascript') );
             
-            // add the google extern javascript if haven't already
-            //drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => 0 , 'preprocess' => TRUE ) );
+            // add the gdrupal_add_jsoogle extern javascript if haven't already
+            //drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => 0  ) );
 
             $googlebook_js_string = '
                 google.load("books", "0");
@@ -369,7 +369,7 @@ function retrieve_bookdata(
                 }
                 google.setOnLoadCallback(initialize' . $isbn . ');
                 ';
-            //drupal_add_js( $googlebook_js_string , array('type' => 'inline', 'weight' => 1 , 'preprocess' => TRUE ) );
+            //drupal_add_js( $googlebook_js_string , array('type' => 'inline', 'weight' => 1  ) );
 
             //$html_text .=
             drupal_render( add_googlebooks_viewer_inline( $isbn ) );
@@ -436,7 +436,11 @@ function add_googlebooks_javascript() {
   $form['#attached']['js'] = array(
       'data' => 'https://www.google.com/jsapi',
       'type' => 'external',
-      'weight' => -1
+      'weight' => -1,
+      'options' => array(
+        '#after_build' => TRUE,
+        '#no_cache' => TRUE
+        )
       );
 
     return $form;
@@ -467,8 +471,10 @@ function add_googlebooks_viewer_inline( $isbn ) {
       $googlebook_js_string => array(
         'type' => 'inline',
         'scope' => 'header',
-        'weight' => 1
+        'weight' => 1,
       ),
+        '#after_build' => TRUE,
+        '#no_cache' => TRUE
     );
 
     return $form;
