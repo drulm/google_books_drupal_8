@@ -71,8 +71,8 @@ function googlebook_filter_info() {
             'reader' => 0,
             'reader_height' => 400,
             'reader_width' => 300,
-            //'image_height' => 100,
-            //'image_width' => 75,
+            'image_height' => '',
+            'image_width' => '',
             'bib_fields' => bib_field_array()
         ),
     'tips callback' => 'filter_googlebook_tips',
