@@ -211,7 +211,7 @@ function json_extract( & $barr ) {
 }
 
 
-/* Function assign_bib_array( &$bib_array, $index, $value )
+/* Function: assign_bib_array( &$bib_array, $index, $value )
  *
  * & $bib_array : reference to Array to modify
  * $index : The array index
@@ -234,7 +234,7 @@ function assign_bib_array( & $bib_array, $index, $value ) {
 }
 
 
-/* _googlebook_cached_request( $path )
+/* Function: _googlebook_cached_request( $path )
  *
  * $path : The search string, without any additional parameters
  *
@@ -276,7 +276,9 @@ function _googlebookapi_cached_request( $path ) {
     }
 }
 
-
+/* Function: get_googlebook_version_count( $id )
+ *
+ */
 function get_googlebook_version_count( $id ) {
 
     // Cleanup the search ID
@@ -291,7 +293,9 @@ function get_googlebook_version_count( $id ) {
     return $obj['totalItems'];
 }
 
-
+/* Function: get_googlebook_version_count( $id )
+ *
+ */
 function clean_search_id( $id ) {
     
     //clean search string of spaces, turn into '+'
@@ -299,3 +303,4 @@ function clean_search_id( $id ) {
     $dirt_id = array(" ");
     return str_replace( $dirt_id, "+", $id );
 }
+

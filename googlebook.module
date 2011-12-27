@@ -62,7 +62,7 @@ function googlebook_filter_info() {
         'description' => t('Insert Book Information from Google Books'),
         'process callback' => 'googlebook_filter_process',
         'settings callback' => 'googlebook_filter_settings',
-        'cache' => FALSE,
+        //'cache' => FALSE,
         'default settings' => array(
             'worldcat' => 1,
             'openlibrary' =>  1,
@@ -354,8 +354,13 @@ function retrieve_bookdata(
         // View the book reader
         if ( isset ( $bib['embeddable'] ) && ( $reader_option == 1 || $reader_on == 1 ) && $reader_on !== 0 ) {
 
+
+            //$html_text .=
+            drupal_render( drupal_get_form('add_googlebooks_javascript') );
+            
             // add the google extern javascript if haven't already
-            drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => 0 , 'preprocess' => TRUE ) );
+            //drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => 0 , 'preprocess' => TRUE ) );
+
             $googlebook_js_string = '
                 google.load("books", "0");
                 function initialize' . $isbn . '() {
@@ -364,7 +369,11 @@ function retrieve_bookdata(
                 }
                 google.setOnLoadCallback(initialize' . $isbn . ');
                 ';
-            drupal_add_js( $googlebook_js_string , array('type' => 'inline', 'weight' => 1 , 'preprocess' => TRUE ) );
+            //drupal_add_js( $googlebook_js_string , array('type' => 'inline', 'weight' => 1 , 'preprocess' => TRUE ) );
+
+            //$html_text .=
+            drupal_render( add_googlebooks_viewer_inline( $isbn ) );
+
             $google_viewer = '<div id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div>';
         }
 
@@ -400,9 +409,68 @@ return $address;
 /**
  * Function: set_param( $params, &$flag_var, $value, $set )
  *
+ * Sets a parameter variable by reference based on presence in array
+ *
+ * $params : The parameter array
+ * &$flag_var : The parameter variable to set
+ * $value : the var to find in the array (needle)
+ * $set : What $flag_var will be set to if TRUE
+ *
  */
 function set_param( $params, &$flag_var, $value, $set ) {
     if ( in_array( $value, $params ) === TRUE ) {
         $flag_var = $set;
     }
 }
+
+/**
+ * Function: add_googlebooks_javascript()
+ *
+ * Adds the external javascript for the google books viewer widget
+ *
+ * Cannot use add_js because used in a filter
+ *
+ */
+function add_googlebooks_javascript() {
+
+  $form['#attached']['js'] = array(
+      'data' => 'https://www.google.com/jsapi',
+      'type' => 'external',
+      'weight' => -1
+      );
+
+    return $form;
+}
+
+/**
+ * Function: add_googlebooks_viewer_inline( $isbn )
+ *
+ * ($isbn) A validated ISBN from the Google Books API
+ *
+ * Add javascript for a Google Books viewer for a particular ISBN
+ *
+ * Cannot use add_js because used in a filter
+ *
+ */
+function add_googlebooks_viewer_inline( $isbn ) {
+
+    $googlebook_js_string = '
+    google.load("books", "0");
+    function initialize' . $isbn . '() {
+    var viewer' . $isbn . ' = new google.books.DefaultViewer( document.getElementById( "viewerCanvas' . $isbn . '" ) );
+    viewer' . $isbn . '.load("ISBN:' . $isbn . '");
+    }
+    google.setOnLoadCallback(initialize' . $isbn . ');
+    ';
+
+    $form['#attached']['js'] = array(
+      $googlebook_js_string => array(
+        'type' => 'inline',
+        'scope' => 'header',
+        'weight' => 1
+      ),
+    );
+
+    return $form;
+}
+
