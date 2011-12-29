@@ -1,5 +1,6 @@
 <?php
-/** @file
+/**
+ * @file
  *
  * GoogleBookAPI Module for Drupal 7.0
  *
@@ -228,7 +229,7 @@ function googlebookapi_json_extract(&$barr) {
  *
  */
 function googlebookapi_assign_bib_array(&$bib_array, $index, $value) {
-  if (! array_key_exists($index, $bib_array )) {
+  if (! array_key_exists($index, $bib_array)) {
     $bib_array[ $index ] = $value;
   }
   else {
@@ -298,8 +299,8 @@ function googlebookapi_get_googlebook_version_count($id) {
  *
  */
 function googlebookapi_clean_search_id($id) {
-    
-  // clean search string of spaces, turn into '+'.
+
+  // Clean search string of spaces, turn into '+'.
   $id = trim($id);
   $dirt_id = array(" ");
   return str_replace($dirt_id, "+", $id);
