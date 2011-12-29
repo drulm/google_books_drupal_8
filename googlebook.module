@@ -1,8 +1,7 @@
 <?php
-/**
- * Googlebook Filter Module
- *
- *    for Drupal 7.0
+/** @file
+ * 
+ * Googlebook Filter Module for Drupal 7.0
  *
  * Copyright 2011 Darrell Ulm.
  *
@@ -73,7 +72,7 @@ function googlebook_filter_info() {
             'reader_width' => 300,
             'image_height' => '',
             'image_width' => '',
-            'bib_fields' => googlebookapi_bib_field_array()
+            'bib_fields' => googlebookapi_bib_field_array(),
         ),
     'tips callback' => 'googlebook_filter_googlebook_tips',
     );
@@ -92,7 +91,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
         '#type' => 'fieldset',
         '#title' => t('Google Book Filter'),
         '#collapsible' => TRUE,
-        '#collapsed' => FALSE
+        '#collapsed' => FALSE,
       );
       $settings['bib_fields'] = array(
       '#type' => 'select',
@@ -100,12 +99,12 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
       '#title' => 'Google Book Data Fields to Use',
       '#required' => TRUE,
       '#options' => googlebookapi_bib_field_array(),
-      '#default_value' => isset($filter->settings['bib_fields']) ? $filter->settings['bib_fields'] : googlebookapi_bib_field_array()
+      '#default_value' => isset($filter->settings['bib_fields']) ? $filter->settings['bib_fields'] : googlebookapi_bib_field_array(),
       );
       $settings['worldcat'] = array(
         '#type' => 'checkbox',
         '#title' => t('Link to WorldCat'),
-        '#default_value' => isset($filter->settings['worldcat']) ? $filter->settings['worldcat'] : $defaults['worldcat']
+        '#default_value' => isset($filter->settings['worldcat']) ? $filter->settings['worldcat'] : $defaults['worldcat'],
       );
       $settings['librarything'] = array(
         '#type' => 'checkbox',
@@ -115,12 +114,12 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
       $settings['openlibrary'] = array(
         '#type' => 'checkbox',
         '#title' => t('Link to Open Library'),
-        '#default_value' => isset($filter->settings['openlibrary']) ? $filter->settings['openlibrary'] : $defaults['openlibrary']
+        '#default_value' => isset($filter->settings['openlibrary']) ? $filter->settings['openlibrary'] : $defaults['openlibrary'],
       );
       $settings['image'] = array(
         '#type' => 'checkbox',
         '#title' => t('Include Google book cover image'),
-        '#default_value' => isset($filter->settings['image']) ? $filter->settings['image'] : $defaults['image']
+        '#default_value' => isset($filter->settings['image']) ? $filter->settings['image'] : $defaults['image'],
       );
       $settings['image_height'] = array(
         '#type' => 'textfield',
@@ -141,7 +140,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
       $settings['reader'] = array(
         '#type' => 'checkbox',
         '#title' => t('Include the Google book reader'),
-        '#default_value' => isset($filter->settings['reader']) ? $filter->settings['reader'] : $defaults['reader']
+        '#default_value' => isset($filter->settings['reader']) ? $filter->settings['reader'] : $defaults['reader'],
       );
       $settings['reader_height'] = array(
         '#type' => 'textfield',
@@ -176,20 +175,20 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
     $tag = $match[0];
     $book = array();
     $counter = 0;
-    for ($i = 0; $i < count( $match[1] ); $i++) {
+    for ($i = 0; $i < count($match[1]); $i++) {
         $book[$counter] = googlebook_retrieve_bookdata(
-                $match[1][$i],
-                $filter->settings['worldcat'],
-                $filter->settings['librarything'],
-                $filter->settings['openlibrary'],
-                $filter->settings['image'],
-                $filter->settings['reader'],
-                $filter->settings['bib_fields'],
-                $filter->settings['image_height'],
-                $filter->settings['image_width'],
-                $filter->settings['reader_height'],
-                $filter->settings['reader_width']
-                );
+            $match[1][$i],
+            $filter->settings['worldcat'],
+            $filter->settings['librarything'],
+            $filter->settings['openlibrary'],
+            $filter->settings['image'],
+            $filter->settings['reader'],
+            $filter->settings['bib_fields'],
+            $filter->settings['image_height'],
+            $filter->settings['image_width'],
+            $filter->settings['reader_height'],
+            $filter->settings['reader_width']
+            );
         $counter++;
     }
     $text = str_replace($tag, $book, $text);
@@ -198,7 +197,12 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
 
 
 /**
- *  Function: googlebook_retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrary_link, $bib_field_select )
+ *  Function: googlebook_retrieve_bookdata(
+ *      $id
+ *      $worldcat_link
+ *      $librarything_link
+ *      $openlibrary_link
+ *      $bib_field_select
  *
  *  Gets the book data from Google Books / other sites and then displays it.
  *  $id is a valid Google Book query
@@ -210,22 +214,22 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
  *  $librarything_link : True if setting for Library Thing link on
  *  $openlibrary_link : True if setting for openlibrary is on
  *  $bib_field_select : This is the array of True/False for the multi-field
- *     data select
+ *    data select
  *
  */
 function googlebook_retrieve_bookdata(
-        $id,
-        $worldcat_link,
-        $librarything_link,
-        $openlibrary_link,
-        $image_option,
-        $reader_option,
-        $bib_field_select,
-        $image_height,
-        $image_width,
-        $reader_height,
-        $reader_width
-        ) {
+    $id,
+    $worldcat_link,
+    $librarything_link,
+    $openlibrary_link,
+    $image_option,
+    $reader_option,
+    $bib_field_select,
+    $image_height,
+    $image_width,
+    $reader_height,
+    $reader_width
+    ) {
 
     // Get all the Google Book permissible book data fieds
     $bib_fields = googlebookapi_bib_field_array();
@@ -251,48 +255,48 @@ function googlebook_retrieve_bookdata(
     $search_string = $params[0];
 
     unset( $params[0] );
-    array_walk( $params, create_function( '&$val', '$val = trim($val);' ) );
+    array_walk($params, create_function('&$val', '$val = trim($val);'));
 
     // Set the fixed parameters explicitly (not the data fields)
-    googlebook_set_param( $params, $worldcat_link, "worldcat", 1 );
-    googlebook_set_param( $params, $worldcat_link, "no_worldcat", 0 );
-    googlebook_set_param( $params, $openlibrary_link, "openlibrary", 1 );
-    googlebook_set_param( $params, $openlibrary_link, "no_openlibrary", 0 );
-    googlebook_set_param( $params, $librarything_link, "librarything", 1 );
-    googlebook_set_param( $params, $librarything_link, "no_librarything", 0 );
-    googlebook_set_param( $params, $page_curl, "pagecurl", 1 );
-    googlebook_set_param( $params, $page_curl, "no_pagecurl", 0 );
-    googlebook_set_param( $params, $title_link, "titlelink", 1 );
-    googlebook_set_param( $params, $title_link, "no_titlelink", 0 );
-    googlebook_set_param( $params, $image_on, "image", 1 );
-    googlebook_set_param( $params, $image_on, "no_image", 0 );
-    googlebook_set_param( $params, $reader_on, "reader", 1 );
-    googlebook_set_param( $params, $reader_on, "no_reader", 0 );
+    googlebook_set_param($params, $worldcat_link, "worldcat", 1);
+    googlebook_set_param($params, $worldcat_link, "no_worldcat", 0);
+    googlebook_set_param($params, $openlibrary_link, "openlibrary", 1);
+    googlebook_set_param($params, $openlibrary_link, "no_openlibrary", 0);
+    googlebook_set_param($params, $librarything_link, "librarything", 1);
+    googlebook_set_param($params, $librarything_link, "no_librarything", 0);
+    googlebook_set_param($params, $page_curl, "pagecurl", 1);
+    googlebook_set_param($params, $page_curl, "no_pagecurl", 0);
+    googlebook_set_param($params, $title_link, "titlelink", 1);
+    googlebook_set_param($params, $title_link, "no_titlelink", 0);
+    googlebook_set_param($params, $image_on, "image", 1);
+    googlebook_set_param($params, $image_on, "no_image", 0);
+    googlebook_set_param($params, $reader_on, "reader", 1);
+    googlebook_set_param($params, $reader_on, "no_reader", 0);
 
     // Get the Google Book data
-    $bib = googlebookapi_get_googlebook_data( $search_string , 0 );
+    $bib = googlebookapi_get_googlebook_data($search_string , 0);
 
     // Set the data field parameters explicitly
     $bib_field_select_explicit = array();
     foreach ( $bib_fields as $i => $field_name ) {
         $bib_field_select_explicit[ $i ] = "";
-        googlebook_set_param( $params, $bib_field_select_explicit[ $i ], $field_name, "$i" );
-        googlebook_set_param( $params, $bib_field_select_explicit[ $i ] , "no_" . $field_name, FALSE );
+        googlebook_set_param($params, $bib_field_select_explicit[ $i ], $field_name, "$i");
+        googlebook_set_param($params, $bib_field_select_explicit[ $i ] , "no_" . $field_name, FALSE);
     }
 
     // Merge the selected options with the global bib field options
     //  Use the and operation to default to off.
-    foreach ( $bib_field_select_explicit as $i => $field_name ) {
-        if ( $bib_field_select_explicit[ $i ] ) {
+    foreach ($bib_field_select_explicit as $i => $field_name) {
+        if ($bib_field_select_explicit[ $i ]) {
             $bib_field_select[ $i ] = $bib_field_select_explicit[ $i ];
         }
-        if ( $bib_field_select_explicit[ $i ] === FALSE ) {
-            unset( $bib_field_select[ $i ] );
+        if ($bib_field_select_explicit[ $i ] === FALSE) {
+            unset($bib_field_select[ $i ]);
         }
     }
 
     // If the data is sound then continue
-    if ( $bib != FALSE ) {
+    if ($bib != FALSE) {
 
         // Pull an ISBN if we have it, prefer the last
         // which should be an ISBN 13 although may be something else :)
