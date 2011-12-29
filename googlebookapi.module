@@ -1,6 +1,6 @@
 <?php
 /** @file
- * 
+ *
  * GoogleBookAPI Module for Drupal 7.0
  *
  * Copyright 2011 Darrell Ulm.
@@ -37,8 +37,12 @@
  * GOOGLEBOOKS_CACHE_PERIOD is the time to keep data in the book cache
  *
  */
+
+// Current path of books.google.com API for data get.
 define("GOOGLE_BOOKS_API_ROOT", 'https://www.googleapis.com/books/v1/volumes?q=');
-define("GOOGLEBOOKS_CACHE_PERIOD", 24 * 60 * 60 ); // in secs
+
+// In seconds.
+define("GOOGLEBOOKS_CACHE_PERIOD", 24 * 60 * 60);
 
 
 /* Function: googlebookapi_bib_field_array()
@@ -48,59 +52,58 @@ define("GOOGLEBOOKS_CACHE_PERIOD", 24 * 60 * 60 ); // in secs
  *
  */
 function googlebookapi_bib_field_array() {
-  return array
-  (
-       'kind',
-       'id',
-       'etag',
-       'selfLink',
-       'volumeInfo',
-       'title',
-       'authors',
-       'publisher',
-       'publishedDate',
-       'description',
-       'industryIdentifiers',
-       'type',
-       'identifier',
-       'pageCount',
-       'dimensions',
-       'height',
-       'width',
-       'thickness',
-       'printType',
-       'mainCategory',
-       'categories',
-       'averageRating',
-       'ratingsCount',
-       'contentVersion',
-       'imageLinks',
-       'smallThumbnail',
-       'thumbnail',
-       'small',
-       'medium',
-       'large',
-       'extraLarge',
-       'language',
-       'previewLink',
-       'infoLink',
-       'canonicalVolumeLink',
-       'saleInfo',
-       'country',
-       'saleability',
-       'isEbook',
-       'listPrice',
-       'amount',
-       'currencyCode',
-       'buyLink',
-       'accessInfo',
-       'viewability',
-       'embeddable',
-       'publicDomain',
-       'textToSpeechPermission',
-       'epub',
-       'acsTokenLink',
-       'accessViewStatus',
+  return array(
+    'kind',
+    'id',
+    'etag',
+    'selfLink',
+    'volumeInfo',
+    'title',
+    'authors',
+    'publisher',
+    'publishedDate',
+    'description',
+    'industryIdentifiers',
+    'type',
+    'identifier',
+    'pageCount',
+    'dimensions',
+    'height',
+    'width',
+    'thickness',
+    'printType',
+    'mainCategory',
+    'categories',
+    'averageRating',
+    'ratingsCount',
+    'contentVersion',
+    'imageLinks',
+    'smallThumbnail',
+    'thumbnail',
+    'small',
+    'medium',
+    'large',
+    'extraLarge',
+    'language',
+    'previewLink',
+    'infoLink',
+    'canonicalVolumeLink',
+    'saleInfo',
+    'country',
+    'saleability',
+    'isEbook',
+    'listPrice',
+    'amount',
+    'currencyCode',
+    'buyLink',
+    'accessInfo',
+    'viewability',
+    'embeddable',
+    'publicDomain',
+    'textToSpeechPermission',
+    'epub',
+    'acsTokenLink',
+    'accessViewStatus',
   );
 }
 
@@ -120,56 +123,56 @@ function googlebookapi_bib_field_array() {
  *  should use the googlebookapi_cached_request( $path ) function.
  *
  */
-function googlebookapi_get_googlebook_data( $id, $version_num ) {
+function googlebookapi_get_googlebook_data($id, $version_num) {
 
-    //clean search string of spaces, turn into '+'
-     $id = googlebookapi_clean_search_id( $id );
+  // Clean search string of spaces, turn into '+'.
+   $id = googlebookapi_clean_search_id($id);
 
-    // Get all the arrays from the query
-    $bookkeys = googlebookapi_cached_request( $id );
+  // Get all the arrays from the query.
+  $bookkeys = googlebookapi_cached_request($id);
 
-    // Decode into array to be able to scan
-    $obj = json_decode( $bookkeys , TRUE );
+  // Decode into array to be able to scan.
+  $obj = json_decode($bookkeys , TRUE);
 
-    $versions = $obj['totalItems'];
+  $versions = $obj['totalItems'];
 
-    // Check the number of versions returned by Google Books
-    if ( $versions > 0 && $version_num < $versions ) {
+  // Check the number of versions returned by Google Books.
+  if ($versions > 0 && $version_num < $versions) {
 
-        // Grab the first result
-        $bookkeyresult = $obj['items'][$version_num];
+    // Grab the first result.
+    $bookkeyresult = $obj['items'][$version_num];
 
-        // extract the results into one big string with delimiters
-        $book_str = googlebookapi_json_extract($bookkeyresult);
+    // Extract the results into one big string with delimiters.
+    $book_str = googlebookapi_json_extract($bookkeyresult);
 
-        // Build array for this
-        $bib = array();
-        $fields = explode("|||", $book_str);
-        for ( $i = 1; $i < count( $fields ); $i += 2 ) {
-                $fieldname = $fields[ $i ];
-                if ( strpos( $fields[ $i + 1 ], "[[[" ) === FALSE ) {
-                    $value = trim( str_replace( "(((", "", $fields[ $i + 1 ]) );
-                }
-                else {
-                    $sub_value = "";
-                    $sub_fields = explode( "[[[", $fields[ $i + 1 ] );
-                    for ( $j = 1; $j < count( $sub_fields ); $j += 2 ) {
-                        if ( $j != 1 && ! empty( $sub_fields[ $j + 1 ] ) ) {
-                            $sub_value .= " | ";
-                        }
-                        $sub_value .= trim( str_replace( "(((", "", $sub_fields[ $j + 1 ] ) );
-                    }
-                    $value = $sub_value;
-                }
-                if ( ! empty($value) ) {
-                    googlebookapi_assign_bib_array($bib, $fieldname, $value );
-                }
-            }
-            return $bib;
+    // Build array for this.
+    $bib = array();
+    $fields = explode("|||", $book_str);
+    for ( $i = 1; $i < count($fields); $i += 2 ) {
+      $fieldname = $fields[ $i ];
+      if (strpos($fields[ $i + 1 ], "[[[") === FALSE) {
+        $value = trim(str_replace("(((", "", $fields[ $i + 1 ]));
+      }
+      else {
+        $sub_value = "";
+        $sub_fields = explode("[[[", $fields[ $i + 1 ]);
+        for ($j = 1; $j < count($sub_fields); $j += 2) {
+          if ($j != 1 && !empty( $sub_fields[ $j + 1 ])) {
+            $sub_value .= " | ";
+          }
+          $sub_value .= trim(str_replace("(((", "", $sub_fields[ $j + 1 ]));
+        }
+        $value = $sub_value;
+      }
+      if (!empty($value)) {
+        googlebookapi_assign_bib_array($bib, $fieldname, $value);
+      }
     }
-    else {
-        return FALSE;
-    }
+    return $bib;
+  }
+  else {
+    return FALSE;
+  }
 }
 
 
@@ -182,32 +185,32 @@ function googlebookapi_get_googlebook_data( $id, $version_num ) {
  *  and build up a string for easy expansion into a flat array.
  *
  */
-function googlebookapi_json_extract( & $barr ) {
+function googlebookapi_json_extract(&$barr) {
 
-    // Get the bib fields and go through the array
-    $bib_fields = googlebookapi_bib_field_array();
-    $book_html = "";
+  // Get the bib fields and go through the array.
+  $bib_fields = googlebookapi_bib_field_array();
+  $book_html = "";
 
-    // loop through array struture recursively
-    foreach ($barr as $key => $value) {
-            if ( ! is_array($value) && $value != ""  ) {
-                $effective_key = is_int($key) ? '[[[///' . $key . '[[[' : '|||' . $key . '|||';
-                $book_html .= "$effective_key ((($value(((";
-            }
-            else {
-                // If there is a sub array, call this same function to traverse it.
-                if ( is_array( $value ) ) {
-                    $sub_bib = googlebookapi_json_extract($value, $bib_fields);
-                }
-                else {
-                    $sub_bib = $value;
-                }
-                if ( $sub_bib != "" ) {
-                        $book_html .= "|||" . $key . "|||" . $sub_bib . "";
-                }
-            }
+  // Loop through array struture recursively.
+  foreach ($barr as $key => $value) {
+    if (! is_array($value) && $value != "" ) {
+      $effective_key = is_int($key) ? '[[[///' . $key . '[[[' : '|||' . $key . '|||';
+      $book_html .= "$effective_key ((($value(((";
     }
-    return $book_html;
+    else {
+      // If there is a sub array, call this same function to traverse it.
+      if (is_array($value)) {
+        $sub_bib = googlebookapi_json_extract($value, $bib_fields);
+      }
+      else {
+        $sub_bib = $value;
+      }
+      if ($sub_bib != "") {
+        $book_html .= "|||" . $key . "|||" . $sub_bib . "";
+      }
+    }
+  }
+  return $book_html;
 }
 
 
@@ -224,13 +227,13 @@ function googlebookapi_json_extract( & $barr ) {
  * or just print out this data field with the delimeters.
  *
  */
-function googlebookapi_assign_bib_array( & $bib_array, $index, $value ) {
-    if ( ! array_key_exists( $index, $bib_array ) ) {
-        $bib_array[ $index ] = $value;
-    }
-    else {
-        $bib_array[ $index ] = $bib_array[ $index ] . " | " . $value;
-    }
+function googlebookapi_assign_bib_array(&$bib_array, $index, $value) {
+  if ( ! array_key_exists( $index, $bib_array ) ) {
+    $bib_array[ $index ] = $value;
+  }
+  else {
+    $bib_array[ $index ] = $bib_array[ $index ] . " | " . $value;
+  }
 }
 
 
@@ -245,62 +248,59 @@ function googlebookapi_assign_bib_array( & $bib_array, $index, $value ) {
  * Callers can use this function to pull all the data Google Books API returns
  *
  */
-function googlebookapi_cached_request( $path ) {
+function googlebookapi_cached_request($path) {
 
-    // build the full path (and the cache key)
-    $url_bookkeys = GOOGLE_BOOKS_API_ROOT . $path ;
+  // Build the full path (and the cache key).
+  $url_bookkeys = GOOGLE_BOOKS_API_ROOT . $path ;
 
-    // See if it is cached
-    $cached = cache_get( $url_bookkeys, 'cache_googlebookapi' );
+  // See if it is cached.
+  $cached = cache_get($url_bookkeys, 'cache_googlebookapi');
 
-    // If is it IS cached, then just return the data from the cache.
-    if ( $cached !== FALSE ) {
-        // Check if the time has expired
-        if ( $cached->expire < time() ) {
-            cache_clear_all( $url_bookkeys, 'cache_googlebookapi' );
-        }
-    // var_dump( $cached );
-    return $cached->data;
+  // If is it IS cached, then just return the data from the cache.
+  if ($cached !== FALSE) {
+    // Check if the time has expired.
+    if ($cached->expire < time()) {
+      cache_clear_all($url_bookkeys, 'cache_googlebookapi');
     }
-    else {
-        // Do it the slow way, go get the new data
-        $url_data = drupal_http_request( $url_bookkeys );
+  return $cached->data;
+  }
+  else {
+    // Do it the slow way, go get the new data.
+    $url_data = drupal_http_request( $url_bookkeys );
+    $bookkeys = $url_data->data;
 
-        $bookkeys = $url_data->data;
+    // Set the cache.
+    cache_set($url_bookkeys, $bookkeys, 'cache_googlebookapi', time() + GOOGLEBOOKS_CACHE_PERIOD );
 
-        // Set the cache
-        cache_set($url_bookkeys, $bookkeys, 'cache_googlebookapi', time() + GOOGLEBOOKS_CACHE_PERIOD );
-
-        // Bookkeys is the data, so return it
-        return $bookkeys;
-    }
+    // Bookkeys is the data, so return it.
+    return $bookkeys;
+  }
 }
 
-/* Function: googlebookapi_get_googlebook_version_count( $id )
+/* Function: googlebookapi_get_googlebook_version_count($id)
  *
  */
-function googlebookapi_get_googlebook_version_count( $id ) {
+function googlebookapi_get_googlebook_version_count($id) {
 
-    // Cleanup the search ID
-    $id = googlebookapi_clean_search_id( $id );
+  // Cleanup the search ID.
+  $id = googlebookapi_clean_search_id($id);
 
-    // Get all the arrays from the query
-    $bookkeys = googlebookapi_cached_request( $id );
+  // Get all the arrays from the query.
+  $bookkeys = googlebookapi_cached_request($id);
 
-    // Decode into array to be able to scan
-    $obj = json_decode( $bookkeys , TRUE );
+  // Decode into array to be able to scan.
+  $obj = json_decode($bookkeys , TRUE);
 
-    return $obj['totalItems'];
+  return $obj['totalItems'];
 }
 
-/* Function: googlebookapi_clean_search_id( $id )
+/* Function: googlebookapi_clean_search_id($id)
  *
  */
-function googlebookapi_clean_search_id( $id ) {
+function googlebookapi_clean_search_id($id) {
     
-    //clean search string of spaces, turn into '+'
-    $id = trim($id);
-    $dirt_id = array(" ");
-    return str_replace( $dirt_id, "+", $id );
+  // clean search string of spaces, turn into '+'.
+  $id = trim($id);
+  $dirt_id = array(" ");
+  return str_replace( $dirt_id, "+", $id );
 }
-
