@@ -42,9 +42,9 @@ define('GOOGLE_BOOK_EXTERN_JS', 'https://www.google.com/jsapi');
 function googlebook_filter_googlebook_tips( $filter, $format, $long = FALSE ) {
   if ($long) {
     return t('Put a Google Book search term between double brackets like this:
-        {{The Hobbit}} or {{isbn:9780618154012}} or {{Rucker+Software}}
-        and this will filter the input to replace with Google Book data
-        and images from http://books.google.com');
+      {{The Hobbit}} or {{isbn:9780618154012}} or {{Rucker+Software}}
+      and this will filter the input to replace with Google Book data
+      and images from http://books.google.com');
   }
 }
 
@@ -56,27 +56,27 @@ function googlebook_filter_googlebook_tips( $filter, $format, $long = FALSE ) {
  *
  */
 function googlebook_filter_info() {
-    $filters['googlebook'] = array(
-        'title' => t('Google Book'),
-        'description' => t('Insert Book Information from Google Books'),
-        'process callback' => 'googlebook_filter_process',
-        'settings callback' => 'googlebook_filter_settings',
-        'cache' => FALSE,
-        'default settings' => array(
-            'worldcat' => 1,
-            'openlibrary' =>  1,
-            'librarything' => 1,
-            'image' => 1,
-            'reader' => 0,
-            'reader_height' => 400,
-            'reader_width' => 300,
-            'image_height' => '',
-            'image_width' => '',
-            'bib_fields' => googlebookapi_bib_field_array(),
-        ),
-    'tips callback' => 'googlebook_filter_googlebook_tips',
-    );
-    return $filters;
+  $filters['googlebook'] = array(
+    'title' => t('Google Book'),
+    'description' => t('Insert Book Information from Google Books'),
+    'process callback' => 'googlebook_filter_process',
+    'settings callback' => 'googlebook_filter_settings',
+    'cache' => FALSE,
+    'default settings' => array(
+      'worldcat' => 1,
+      'openlibrary' =>  1,
+      'librarything' => 1,
+      'image' => 1,
+      'reader' => 0,
+      'reader_height' => 400,
+      'reader_width' => 300,
+      'image_height' => '',
+      'image_width' => '',
+      'bib_fields' => googlebookapi_bib_field_array(),
+    ),
+  'tips callback' => 'googlebook_filter_googlebook_tips',
+  );
+  return $filters;
 }
 
 
@@ -87,78 +87,78 @@ function googlebook_filter_info() {
  *
  */
 function googlebook_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
-      $settings['googlebook'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Google Book Filter'),
-        '#collapsible' => TRUE,
-        '#collapsed' => FALSE,
-      );
-      $settings['bib_fields'] = array(
-      '#type' => 'select',
-      '#multiple' => TRUE,
-      '#title' => 'Google Book Data Fields to Use',
-      '#required' => TRUE,
-      '#options' => googlebookapi_bib_field_array(),
-      '#default_value' => isset($filter->settings['bib_fields']) ? $filter->settings['bib_fields'] : googlebookapi_bib_field_array(),
-      );
-      $settings['worldcat'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Link to WorldCat'),
-        '#default_value' => isset($filter->settings['worldcat']) ? $filter->settings['worldcat'] : $defaults['worldcat'],
-      );
-      $settings['librarything'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Link to LibraryThing'),
-        '#default_value' => isset($filter->settings['librarything']) ? $filter->settings['librarything'] : $defaults['librarything'],
-      );
-      $settings['openlibrary'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Link to Open Library'),
-        '#default_value' => isset($filter->settings['openlibrary']) ? $filter->settings['openlibrary'] : $defaults['openlibrary'],
-      );
-      $settings['image'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Include Google book cover image'),
-        '#default_value' => isset($filter->settings['image']) ? $filter->settings['image'] : $defaults['image'],
-      );
-      $settings['image_height'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Image height'),
-        '#size' => 4,
-        '#maxlength' => 4,
-        '#description' => t('Height of Google cover image'),
-        '#default_value' => isset($filter->settings['image_height']) ? $filter->settings['image_height'] : $defaults['image_height'],
-      );
-      $settings['image_width'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Image width'),
-        '#size' => 4,
-        '#maxlength' => 4,
-        '#description' => t('Width of Google cover image'),
-        '#default_value' => isset($filter->settings['image_width']) ? $filter->settings['image_width'] : $defaults['image_width'],
-      );
-      $settings['reader'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Include the Google book reader'),
-        '#default_value' => isset($filter->settings['reader']) ? $filter->settings['reader'] : $defaults['reader'],
-      );
-      $settings['reader_height'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Reader height'),
-        '#size' => 4,
-        '#maxlength' => 4,
-        '#description' => t('Height of Google reader'),
-        '#default_value' => isset($filter->settings['reader_height']) ? $filter->settings['reader_height'] : $defaults['reader_height'],
-      );
-      $settings['reader_width'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Reader width'),
-        '#size' => 6,
-        '#maxlength' => 6,
-        '#description' => t('Width of Google reader'),
-        '#default_value' => isset($filter->settings['reader_width']) ? $filter->settings['reader_width'] : $defaults['reader_width'],
-      );
-      return $settings;
+  $settings['googlebook'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Google Book Filter'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $settings['bib_fields'] = array(
+    '#type' => 'select',
+    '#multiple' => TRUE,
+    '#title' => 'Google Book Data Fields to Use',
+    '#required' => TRUE,
+    '#options' => googlebookapi_bib_field_array(),
+    '#default_value' => isset($filter->settings['bib_fields']) ? $filter->settings['bib_fields'] : googlebookapi_bib_field_array(),
+   );
+  $settings['worldcat'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Link to WorldCat'),
+    '#default_value' => isset($filter->settings['worldcat']) ? $filter->settings['worldcat'] : $defaults['worldcat'],
+  );
+  $settings['librarything'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Link to LibraryThing'),
+    '#default_value' => isset($filter->settings['librarything']) ? $filter->settings['librarything'] : $defaults['librarything'],
+  );
+  $settings['openlibrary'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Link to Open Library'),
+    '#default_value' => isset($filter->settings['openlibrary']) ? $filter->settings['openlibrary'] : $defaults['openlibrary'],
+  );
+  $settings['image'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Include Google book cover image'),
+    '#default_value' => isset($filter->settings['image']) ? $filter->settings['image'] : $defaults['image'],
+  );
+  $settings['image_height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Image height'),
+    '#size' => 4,
+    '#maxlength' => 4,
+    '#description' => t('Height of Google cover image'),
+    '#default_value' => isset($filter->settings['image_height']) ? $filter->settings['image_height'] : $defaults['image_height'],
+  );
+  $settings['image_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Image width'),
+    '#size' => 4,
+    '#maxlength' => 4,
+    '#description' => t('Width of Google cover image'),
+    '#default_value' => isset($filter->settings['image_width']) ? $filter->settings['image_width'] : $defaults['image_width'],
+  );
+  $settings['reader'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Include the Google book reader'),
+    '#default_value' => isset($filter->settings['reader']) ? $filter->settings['reader'] : $defaults['reader'],
+  );
+  $settings['reader_height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Reader height'),
+    '#size' => 4,
+    '#maxlength' => 4,
+    '#description' => t('Height of Google reader'),
+    '#default_value' => isset($filter->settings['reader_height']) ? $filter->settings['reader_height'] : $defaults['reader_height'],
+  );
+  $settings['reader_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Reader width'),
+    '#size' => 6,
+    '#maxlength' => 6,
+    '#description' => t('Width of Google reader'),
+    '#default_value' => isset($filter->settings['reader_width']) ? $filter->settings['reader_width'] : $defaults['reader_width'],
+  );
+  return $settings;
 }
 
 
@@ -177,19 +177,19 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
   $counter = 0;
   for ($i = 0; $i < count($match[1]); $i++) {
     $book[$counter] = googlebook_retrieve_bookdata(
-    $match[1][$i],
-    $filter->settings['worldcat'],
-    $filter->settings['librarything'],
-    $filter->settings['openlibrary'],
-    $filter->settings['image'],
-    $filter->settings['reader'],
-    $filter->settings['bib_fields'],
-    $filter->settings['image_height'],
-    $filter->settings['image_width'],
-    $filter->settings['reader_height'],
-    $filter->settings['reader_width']
+      $match[1][$i],
+      $filter->settings['worldcat'],
+      $filter->settings['librarything'],
+      $filter->settings['openlibrary'],
+      $filter->settings['image'],
+      $filter->settings['reader'],
+      $filter->settings['bib_fields'],
+      $filter->settings['image_height'],
+      $filter->settings['image_width'],
+      $filter->settings['reader_height'],
+      $filter->settings['reader_width']
     );
-  $counter++;
+    $counter++;
   }
   $text = str_replace($tag, $book, $text);
   return $text;
@@ -218,176 +218,171 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
  *
  */
 function googlebook_retrieve_bookdata(
-    $id,
-    $worldcat_link,
-    $librarything_link,
-    $openlibrary_link,
-    $image_option,
-    $reader_option,
-    $bib_field_select,
-    $image_height,
-    $image_width,
-    $reader_height,
-    $reader_width
-    ) {
+  $id,
+  $worldcat_link,
+  $librarything_link,
+  $openlibrary_link,
+  $image_option,
+  $reader_option,
+  $bib_field_select,
+  $image_height,
+  $image_width,
+  $reader_height,
+  $reader_width
+  ) {
 
-    // Get all the Google Book permissible book data fieds
-    $bib_fields = googlebookapi_bib_field_array();
+  // Get all the Google Book permissible book data fields.
+  $bib_fields = googlebookapi_bib_field_array();
 
-    // Clear some variables so we don't need to do it later
-    $html_bookdata = "";
-    $html_text = "";
-    $html_fields = "";
-    $html_title = "";
-    $worldcat = "";
-    $librarything = "";
-    $openlibrary = "";
-    $extra_links = "";
-    $html_coverimage = "";
-    $google_viewer = "";
-    $page_curl = "";
-    $title_link = "";
-    $image_on = "";
-    $reader_on = "";
+  // Clear some variables so we don't need to do it later.
+  $html_bookdata = "";
+  $html_text = "";
+  $html_fields = "";
+  $html_title = "";
+  $worldcat = "";
+  $librarything = "";
+  $openlibrary = "";
+  $extra_links = "";
+  $html_coverimage = "";
+  $google_viewer = "";
+  $page_curl = "";
+  $title_link = "";
+  $image_on = "";
+  $reader_on = "";
 
-    $params = explode("|", $id);
+  $params = explode("|", $id);
 
-    $search_string = $params[0];
+  $search_string = $params[0];
 
-    unset( $params[0] );
-    array_walk($params, create_function('&$val', '$val = trim($val);'));
+  unset( $params[0] );
+  array_walk($params, create_function('&$val', '$val = trim($val);'));
 
-    // Set the fixed parameters explicitly (not the data fields)
-    googlebook_set_param($params, $worldcat_link, "worldcat", 1);
-    googlebook_set_param($params, $worldcat_link, "no_worldcat", 0);
-    googlebook_set_param($params, $openlibrary_link, "openlibrary", 1);
-    googlebook_set_param($params, $openlibrary_link, "no_openlibrary", 0);
-    googlebook_set_param($params, $librarything_link, "librarything", 1);
-    googlebook_set_param($params, $librarything_link, "no_librarything", 0);
-    googlebook_set_param($params, $page_curl, "pagecurl", 1);
-    googlebook_set_param($params, $page_curl, "no_pagecurl", 0);
-    googlebook_set_param($params, $title_link, "titlelink", 1);
-    googlebook_set_param($params, $title_link, "no_titlelink", 0);
-    googlebook_set_param($params, $image_on, "image", 1);
-    googlebook_set_param($params, $image_on, "no_image", 0);
-    googlebook_set_param($params, $reader_on, "reader", 1);
-    googlebook_set_param($params, $reader_on, "no_reader", 0);
+  // Set the fixed parameters explicitly (not the data fields).
+  googlebook_set_param($params, $worldcat_link, "worldcat", 1);
+  googlebook_set_param($params, $worldcat_link, "no_worldcat", 0);
+  googlebook_set_param($params, $openlibrary_link, "openlibrary", 1);
+  googlebook_set_param($params, $openlibrary_link, "no_openlibrary", 0);
+  googlebook_set_param($params, $librarything_link, "librarything", 1);
+  googlebook_set_param($params, $librarything_link, "no_librarything", 0);
+  googlebook_set_param($params, $page_curl, "pagecurl", 1);
+  googlebook_set_param($params, $page_curl, "no_pagecurl", 0);
+  googlebook_set_param($params, $title_link, "titlelink", 1);
+  googlebook_set_param($params, $title_link, "no_titlelink", 0);
+  googlebook_set_param($params, $image_on, "image", 1);
+  googlebook_set_param($params, $image_on, "no_image", 0);
+  googlebook_set_param($params, $reader_on, "reader", 1);
+  googlebook_set_param($params, $reader_on, "no_reader", 0);
 
-    // Get the Google Book data
-    $bib = googlebookapi_get_googlebook_data($search_string , 0);
+  // Get the Google Book data.
+  $bib = googlebookapi_get_googlebook_data($search_string , 0);
 
-    // Set the data field parameters explicitly
-    $bib_field_select_explicit = array();
-    foreach ( $bib_fields as $i => $field_name ) {
-        $bib_field_select_explicit[ $i ] = "";
-        googlebook_set_param($params, $bib_field_select_explicit[ $i ], $field_name, "$i");
-        googlebook_set_param($params, $bib_field_select_explicit[ $i ] , "no_" . $field_name, FALSE);
+  // Set the data field parameters explicitly.
+  $bib_field_select_explicit = array();
+  foreach ($bib_fields as $i => $field_name) {
+    $bib_field_select_explicit[ $i ] = "";
+    googlebook_set_param($params, $bib_field_select_explicit[ $i ], $field_name, "$i");
+    googlebook_set_param($params, $bib_field_select_explicit[ $i ] , "no_" . $field_name, FALSE);
+  }
+
+  //  Merge the selected options with the global bib field options.
+  //  Use the and operation to default to off.
+  foreach ($bib_field_select_explicit as $i => $field_name) {
+    if ($bib_field_select_explicit[ $i ]) {
+      $bib_field_select[ $i ] = $bib_field_select_explicit[ $i ];
+    }
+    if ($bib_field_select_explicit[ $i ] === FALSE) {
+      unset($bib_field_select[ $i ]);
+    }
+  }
+
+  // If the data is sound then continue.
+  if ($bib != FALSE) {
+
+    // Pull an ISBN if we have it, prefer the last
+    // which should be an ISBN 13 although may be something else :)
+    $identifier_list = explode("|", $bib['identifier']);
+    $num_of_identifiers = count($identifier_list);
+    $isbn = trim($identifier_list[ $num_of_identifiers - 1 ]);
+    $isbn = is_numeric($isbn) ? $isbn : "";
+
+    // Get the book links if any are found. None are checked for ISBN validity.
+    if (! empty($isbn)) {
+      if ($worldcat_link) {
+        $worldcat = '<a href="http://worldcat.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">WorldCat</a><br />';
+      }
+      if ($librarything_link) {
+        $librarything = '<a href="http://librarything.com/isbn/' . $isbn . '" rel="nofollow" target="_blank">LibraryThing</a><br />';
+      }
+      if ($openlibrary_link) {
+        $openlibrary = '<a href="http://openlibrary.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">Open Library</a><br />';
+      }
+      if (strlen($worldcat . $librarything . $openlibrary) > 0) {
+        $extra_links = "Link to:<br />";
+      }
     }
 
-    // Merge the selected options with the global bib field options
-    //  Use the and operation to default to off.
-    foreach ($bib_field_select_explicit as $i => $field_name) {
-        if ($bib_field_select_explicit[ $i ]) {
-            $bib_field_select[ $i ] = $bib_field_select_explicit[ $i ];
-        }
-        if ($bib_field_select_explicit[ $i ] === FALSE) {
-            unset($bib_field_select[ $i ]);
-        }
+    // Build up the HTML output for all the selected fields
+    $html_fields .= "<ul>";
+    foreach ($bib_field_select as $i => $k) {
+      $field = $bib_fields[ $i ];
+      $field_val = "";
+      if (isset($bib [ $field ])) {
+        $field_val = $bib [ $field ];
+      }
+      if (! empty($field_val)) {
+        $html_fields .= "<li>" . ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field))) . ": " . googlebook_make_html_link($field_val) . "</li>";
+      }
+    }
+    $html_fields .= "</ul>";
+
+    // Build the main title with a link
+    $title = $bib['title'];
+    if ($title_link == 1 || $title_link === "") {
+      $html_title = '<p>Title: <a href="' . htmlentities($bib['infoLink']) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></p>';
     }
 
-    // If the data is sound then continue
-    if ($bib != FALSE) {
+    // Build a coverimage
+    if (isset($bib['thumbnail']) && ($image_option == 1 || $image_on == 1) && $image_on !== 0) {
+      $img_link = $bib['thumbnail'];
+      if ( $page_curl == 1 ) {
+        $img_link = str_replace("&edge=nocurl", "", $img_link);
+        $img_link .= "&edge=curl";
+      }
+      if ($page_curl == 0) {
+        $img_link = str_replace("&edge=curl", "", $img_link);
+      }
+      $html_coverimage = "<img class='google_book_image' src='" . htmlentities($img_link) . "' alt='" . $title . "' height='" . $image_height . "' width='" . $image_width . "' />";
+      $html_coverimage = "<a href='" . htmlentities($bib['infoLink']) . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a>";
+    }
 
-        // Pull an ISBN if we have it, prefer the last
-        // which should be an ISBN 13 although may be something else :)
-        $identifier_list = explode("|", $bib['identifier']);
-        $num_of_identifiers = count($identifier_list);
-        $isbn = trim($identifier_list[ $num_of_identifiers - 1 ]);
-        $isbn = is_numeric($isbn) ? $isbn : "";
+    // View the book reader
+    if ( isset ( $bib['embeddable'] ) && ( $reader_option == 1 || $reader_on == 1 ) && $reader_on !== 0 ) {
 
-        // Get the book links if any are found. None are checked for ISBN validity.
-        if (! empty($isbn)) {
-            if ($worldcat_link) {
-                  $worldcat = '<a href="http://worldcat.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">WorldCat</a><br />';
-            }
-            if ($librarything_link) {
-                  $librarything = '<a href="http://librarything.com/isbn/' . $isbn . '" rel="nofollow" target="_blank">LibraryThing</a><br />';
-            }
-            if ($openlibrary_link) {
-                  $openlibrary = '<a href="http://openlibrary.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">Open Library</a><br />';
-            }
-            if (strlen($worldcat . $librarything . $openlibrary) > 0) {
-                $extra_links = "Link to:<br />";
-            }
+      drupal_render(drupal_get_form('googlebook_add_googlebooks_javascript'));
+
+      // add the gdrupal_add_jsoogle extern javascript if haven't already.
+      // drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => 0  ) );
+
+      $googlebook_js_string = '
+        google.load("books", "0");
+        function initialize' . $isbn . '() {
+          var viewer' . $isbn . ' = new google.books.DefaultViewer(document.getElementById("viewerCanvas' . $isbn . '"));
+          viewer' . $isbn . '.load("ISBN:' . $isbn . '");
         }
+        google.setOnLoadCallback(initialize' . $isbn . ');
+        ';
+      drupal_render(googlebook_add_googlebooks_viewer_inline($isbn ));
 
-        // Build up the HTML output for all the selected fields
-        $html_fields .= "<ul>";
-        foreach ($bib_field_select as $i => $k) {
-            $field = $bib_fields[ $i ];
-            $field_val = "";
-            if (isset($bib [ $field ])) {
-                $field_val = $bib [ $field ];
-            }
-            if (! empty($field_val)) {
-                $html_fields .= "<li>" . ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field))) . ": " . googlebook_make_html_link($field_val) . "</li>";
-            }
-        }
-        $html_fields .= "</ul>";
+      $google_viewer = '<div class="googleviewer" id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div>';
+      }
 
-        // Build the main title with a link
-        $title = $bib['title'];
-        if ( $title_link == 1 || $title_link === "" ) {
-            $html_title = '<p>Title: <a href="' . htmlentities( $bib['infoLink'] ) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></p>';
-        }
-
-        // Build a coverimage
-        if ( isset( $bib['thumbnail'] ) && ( $image_option == 1 || $image_on == 1 ) && $image_on !== 0 ) {
-            $img_link = $bib['thumbnail'];
-            if ( $page_curl == 1 ) {
-                $img_link = str_replace("&edge=nocurl", "", $img_link);
-                $img_link .= "&edge=curl";
-            }
-            if ( $page_curl == 0 ) {
-                $img_link = str_replace("&edge=curl", "", $img_link);
-            }
-            $html_coverimage = "<img class='google_book_image' src='" . htmlentities( $img_link ) . "' alt='" . $title . "' height='" . $image_height . "' width='" . $image_width . "' />";
-            $html_coverimage = "<a href='" . htmlentities( $bib['infoLink'] ) . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a>";
-        }
-
-        // View the book reader
-        if ( isset ( $bib['embeddable'] ) && ( $reader_option == 1 || $reader_on == 1 ) && $reader_on !== 0 ) {
-
-
-            //$html_text .=
-            drupal_render( drupal_get_form('googlebook_add_googlebooks_javascript') );
-            
-            // add the gdrupal_add_jsoogle extern javascript if haven't already
-            //drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => 0  ) );
-
-            $googlebook_js_string = '
-                google.load("books", "0");
-                function initialize' . $isbn . '() {
-                var viewer' . $isbn . ' = new google.books.DefaultViewer( document.getElementById( "viewerCanvas' . $isbn . '" ) );
-                viewer' . $isbn . '.load("ISBN:' . $isbn . '");
-                }
-                google.setOnLoadCallback(initialize' . $isbn . ');
-                ';
-            //drupal_add_js( $googlebook_js_string , array('type' => 'inline', 'weight' => 1  ) );
-
-            //$html_text .=
-            drupal_render( googlebook_add_googlebooks_viewer_inline( $isbn ) );
-
-            $google_viewer = '<div class="googleviewer" id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div>';
-        }
-
-      // Create the final text
+      // Create the final text.
       $html_text .= $html_title;
       $html_text .= $extra_links . $worldcat . $librarything . $openlibrary;
       $html_text .= $html_coverimage . $google_viewer;
       $html_text .= $html_fields;
 
-      //div whole class for themeing
+      //div whole class for themeing.
       $html_bookdata = '<div class="googlebooks" >' . $html_text . '<div style="clear:both;"></div></div>';
     }
   return $html_bookdata;
@@ -402,10 +397,10 @@ function googlebook_retrieve_bookdata(
  * $address : the biblio field, which might be an address
  *
  */
-function googlebook_make_html_link( $address ) {
-    if ( strpos($address, "https://") !== FALSE || strpos($address, "http://") !== FALSE ) {
-        return '<a href="' . htmlentities( $address ) . '" rel="nofollow" target="_blank"> link </a>';
-    }
+function googlebook_make_html_link($address) {
+  if (strpos($address, "https://") !== FALSE || strpos($address, "http://") !== FALSE) {
+    return '<a href="' . htmlentities($address) . '" rel="nofollow" target="_blank"> link </a>';
+  }
 return $address;
 }
 
@@ -421,10 +416,11 @@ return $address;
  * $set : What $flag_var will be set to if TRUE
  *
  */
-function googlebook_set_param( $params, &$flag_var, $value, $set ) {
-    if ( in_array( $value, $params ) === TRUE ) {
-        $flag_var = $set;
-    }
+function googlebook_set_param($params, &$flag_var, $value, $set) {
+
+  if (in_array($value, $params) === TRUE) {
+    $flag_var = $set;
+  }
 }
 
 /**
@@ -438,16 +434,15 @@ function googlebook_set_param( $params, &$flag_var, $value, $set ) {
 function googlebook_add_googlebooks_javascript() {
 
   $form['#attached']['js'] = array(
-      'data' => 'https://www.google.com/jsapi',
-      'type' => 'external',
-      'weight' => -1,
-      'options' => array(
-        //'#after_build' => TRUE,
-        '#no_cache' => TRUE
-        )
-      );
+    'data' => 'https://www.google.com/jsapi',
+    'type' => 'external',
+    'weight' => -1,
+    'options' => array(
+      '#no_cache' => TRUE,
+    ),
+  );
 
-    return $form;
+  return $form;
 }
 
 /**
@@ -460,27 +455,25 @@ function googlebook_add_googlebooks_javascript() {
  * Cannot use add_js because used in a filter
  *
  */
-function googlebook_add_googlebooks_viewer_inline( $isbn ) {
+function googlebook_add_googlebooks_viewer_inline($isbn) {
 
-    $googlebook_js_string = '
+  $googlebook_js_string = '
     google.load("books", "0");
     function initialize' . $isbn . '() {
-    var viewer' . $isbn . ' = new google.books.DefaultViewer( document.getElementById( "viewerCanvas' . $isbn . '" ) );
-    viewer' . $isbn . '.load("ISBN:' . $isbn . '");
+      var viewer' . $isbn . ' = new google.books.DefaultViewer(document.getElementById("viewerCanvas' . $isbn . '"));
+      viewer' . $isbn . '.load("ISBN:' . $isbn . '");
     }
     google.setOnLoadCallback(initialize' . $isbn . ');
-    ';
+  ';
 
-    $form['#attached']['js'] = array(
-      $googlebook_js_string => array(
-        'type' => 'inline',
-        'scope' => 'header',
-        'weight' => 1,
-      ),
-        //'#after_build' => TRUE,
-        '#no_cache' => TRUE
-    );
+  $form['#attached']['js'] = array(
+    $googlebook_js_string => array(
+      'type' => 'inline',
+      'scope' => 'header',
+      'weight' => 1,
+    ),
+    '#no_cache' => TRUE,
+  );
 
-    return $form;
+  return $form;
 }
-
