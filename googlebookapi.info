@@ -1,5 +1,3 @@
 name = Google Book API
 description = API for books.google.com, returns simple array
 core = 7.x
-project = "googlebookapi"
-files[] = googlebookapi.module

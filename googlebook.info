@@ -1,6 +1,4 @@
 name = Google Book
 description = Input filter module returning data from books.google.com
 core = 7.x
-project = "googlebook"
 dependencies[] = "googlebookapi"
-files[] = googlebook.module
