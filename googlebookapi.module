@@ -41,13 +41,13 @@ define("GOOGLE_BOOKS_API_ROOT", 'https://www.googleapis.com/books/v1/volumes?q='
 define("GOOGLEBOOKS_CACHE_PERIOD", 24 * 60 * 60 ); // in secs
 
 
-/* Function: bib_field_array()
+/* Function: googlebookapi_bib_field_array()
  *
  * These are the fields that are in the multi select list and are
  * displayable in google books. Just returns an array.
  *
  */
-function bib_field_array() {
+function googlebookapi_bib_field_array() {
   return array
   (
        'kind',
@@ -105,7 +105,7 @@ function bib_field_array() {
 }
 
 
-/*  Function: get_googlebook_data( $id )
+/*  Function: googlebookapi_get_googlebook_data( $id )
  *
  *  $id is the {{ $id }} passed from the filter text
  *
@@ -120,10 +120,10 @@ function bib_field_array() {
  *  should use the googlebookapi_cached_request( $path ) function.
  *
  */
-function get_googlebook_data( $id, $version_num ) {
+function googlebookapi_get_googlebook_data( $id, $version_num ) {
 
     //clean search string of spaces, turn into '+'
-     $id = clean_search_id( $id );
+     $id = googlebookapi_clean_search_id( $id );
 
     // Get all the arrays from the query
     $bookkeys = googlebookapi_cached_request( $id );
@@ -140,7 +140,7 @@ function get_googlebook_data( $id, $version_num ) {
         $bookkeyresult = $obj['items'][$version_num];
 
         // extract the results into one big string with delimiters
-        $book_str = json_extract($bookkeyresult);
+        $book_str = googlebookapi_json_extract($bookkeyresult);
 
         // Build array for this
         $bib = array();
@@ -162,7 +162,7 @@ function get_googlebook_data( $id, $version_num ) {
                     $value = $sub_value;
                 }
                 if ( ! empty($value) ) {
-                    assign_bib_array($bib, $fieldname, $value );
+                    googlebookapi_assign_bib_array($bib, $fieldname, $value );
                 }
             }
             return $bib;
@@ -173,7 +173,7 @@ function get_googlebook_data( $id, $version_num ) {
 }
 
 
-/*  Function: json_extract( &barr )
+/*  Function: googlebookapi_json_extract( &barr )
  *
  *  & barr : reference to JSON data from a single book search result.
  *
@@ -182,10 +182,10 @@ function get_googlebook_data( $id, $version_num ) {
  *  and build up a string for easy expansion into a flat array.
  *
  */
-function json_extract( & $barr ) {
+function googlebookapi_json_extract( & $barr ) {
 
     // Get the bib fields and go through the array
-    $bib_fields = bib_field_array();
+    $bib_fields = googlebookapi_bib_field_array();
     $book_html = "";
 
     // loop through array struture recursively
@@ -197,7 +197,7 @@ function json_extract( & $barr ) {
             else {
                 // If there is a sub array, call this same function to traverse it.
                 if ( is_array( $value ) ) {
-                    $sub_bib = json_extract($value, $bib_fields);
+                    $sub_bib = googlebookapi_json_extract($value, $bib_fields);
                 }
                 else {
                     $sub_bib = $value;
@@ -211,7 +211,7 @@ function json_extract( & $barr ) {
 }
 
 
-/* Function: assign_bib_array( &$bib_array, $index, $value )
+/* Function: googlebookapi_assign_bib_array( &$bib_array, $index, $value )
  *
  * & $bib_array : reference to Array to modify
  * $index : The array index
@@ -224,7 +224,7 @@ function json_extract( & $barr ) {
  * or just print out this data field with the delimeters.
  *
  */
-function assign_bib_array( & $bib_array, $index, $value ) {
+function googlebookapi_assign_bib_array( & $bib_array, $index, $value ) {
     if ( ! array_key_exists( $index, $bib_array ) ) {
         $bib_array[ $index ] = $value;
     }
@@ -276,13 +276,13 @@ function googlebookapi_cached_request( $path ) {
     }
 }
 
-/* Function: get_googlebook_version_count( $id )
+/* Function: googlebookapi_get_googlebook_version_count( $id )
  *
  */
-function get_googlebook_version_count( $id ) {
+function googlebookapi_get_googlebook_version_count( $id ) {
 
     // Cleanup the search ID
-    $id = clean_search_id( $id );
+    $id = googlebookapi_clean_search_id( $id );
 
     // Get all the arrays from the query
     $bookkeys = googlebookapi_cached_request( $id );
@@ -293,10 +293,10 @@ function get_googlebook_version_count( $id ) {
     return $obj['totalItems'];
 }
 
-/* Function: get_googlebook_version_count( $id )
+/* Function: googlebookapi_clean_search_id( $id )
  *
  */
-function clean_search_id( $id ) {
+function googlebookapi_clean_search_id( $id ) {
     
     //clean search string of spaces, turn into '+'
     $id = trim($id);
