@@ -1,6 +1,6 @@
 <?php
-/**
- * @file
+/** @file
+ * 
  * GoogleBook API Module for Drupal 7.0
  *
  * Copyright 2011 Darrell Ulm.
@@ -100,7 +100,7 @@ function googlebookapi_bib_field_array() {
        'textToSpeechPermission',
        'epub',
        'acsTokenLink',
-       'accessViewStatus'
+       'accessViewStatus',
   );
 }
 
