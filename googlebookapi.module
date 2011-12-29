@@ -45,7 +45,7 @@ define("GOOGLE_BOOKS_API_ROOT", 'https://www.googleapis.com/books/v1/volumes?q='
 define("GOOGLEBOOKS_CACHE_PERIOD", 24 * 60 * 60);
 
 
-/* Function: googlebookapi_bib_field_array()
+/** Function: googlebookapi_bib_field_array()
  *
  * These are the fields that are in the multi select list and are
  * displayable in google books. Just returns an array.
@@ -108,7 +108,7 @@ function googlebookapi_bib_field_array() {
 }
 
 
-/*  Function: googlebookapi_get_googlebook_data( $id )
+/**  Function: googlebookapi_get_googlebook_data( $id )
  *
  *  $id is the {{ $id }} passed from the filter text
  *
@@ -132,7 +132,7 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
   $bookkeys = googlebookapi_cached_request($id);
 
   // Decode into array to be able to scan.
-  $obj = json_decode($bookkeys , TRUE);
+  $obj = json_decode($bookkeys, TRUE);
 
   $versions = $obj['totalItems'];
 
@@ -148,7 +148,7 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
     // Build array for this.
     $bib = array();
     $fields = explode("|||", $book_str);
-    for ( $i = 1; $i < count($fields); $i += 2 ) {
+    for ($i = 1; $i < count($fields); $i += 2) {
       $fieldname = $fields[ $i ];
       if (strpos($fields[ $i + 1 ], "[[[") === FALSE) {
         $value = trim(str_replace("(((", "", $fields[ $i + 1 ]));
@@ -176,7 +176,7 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
 }
 
 
-/*  Function: googlebookapi_json_extract( &barr )
+/**  Function: googlebookapi_json_extract( &barr )
  *
  *  & barr : reference to JSON data from a single book search result.
  *
@@ -193,7 +193,7 @@ function googlebookapi_json_extract(&$barr) {
 
   // Loop through array struture recursively.
   foreach ($barr as $key => $value) {
-    if (! is_array($value) && $value != "" ) {
+    if (! is_array($value) && $value != "") {
       $effective_key = is_int($key) ? '[[[///' . $key . '[[[' : '|||' . $key . '|||';
       $book_html .= "$effective_key ((($value(((";
     }
@@ -214,7 +214,7 @@ function googlebookapi_json_extract(&$barr) {
 }
 
 
-/* Function: googlebookapi_assign_bib_array( &$bib_array, $index, $value )
+/** Function: googlebookapi_assign_bib_array( &$bib_array, $index, $value )
  *
  * & $bib_array : reference to Array to modify
  * $index : The array index
@@ -228,7 +228,7 @@ function googlebookapi_json_extract(&$barr) {
  *
  */
 function googlebookapi_assign_bib_array(&$bib_array, $index, $value) {
-  if ( ! array_key_exists( $index, $bib_array ) ) {
+  if (! array_key_exists($index, $bib_array )) {
     $bib_array[ $index ] = $value;
   }
   else {
@@ -237,7 +237,7 @@ function googlebookapi_assign_bib_array(&$bib_array, $index, $value) {
 }
 
 
-/* Function: _googlebook_cached_request( $path )
+/** Function: _googlebook_cached_request( $path )
  *
  * $path : The search string, without any additional parameters
  *
@@ -262,22 +262,22 @@ function googlebookapi_cached_request($path) {
     if ($cached->expire < time()) {
       cache_clear_all($url_bookkeys, 'cache_googlebookapi');
     }
-  return $cached->data;
+    return $cached->data;
   }
   else {
     // Do it the slow way, go get the new data.
-    $url_data = drupal_http_request( $url_bookkeys );
+    $url_data = drupal_http_request($url_bookkeys);
     $bookkeys = $url_data->data;
 
     // Set the cache.
-    cache_set($url_bookkeys, $bookkeys, 'cache_googlebookapi', time() + GOOGLEBOOKS_CACHE_PERIOD );
+    cache_set($url_bookkeys, $bookkeys, 'cache_googlebookapi', time() + GOOGLEBOOKS_CACHE_PERIOD);
 
     // Bookkeys is the data, so return it.
     return $bookkeys;
   }
 }
 
-/* Function: googlebookapi_get_googlebook_version_count($id)
+/** Function: googlebookapi_get_googlebook_version_count($id)
  *
  */
 function googlebookapi_get_googlebook_version_count($id) {
@@ -289,12 +289,12 @@ function googlebookapi_get_googlebook_version_count($id) {
   $bookkeys = googlebookapi_cached_request($id);
 
   // Decode into array to be able to scan.
-  $obj = json_decode($bookkeys , TRUE);
+  $obj = json_decode($bookkeys, TRUE);
 
   return $obj['totalItems'];
 }
 
-/* Function: googlebookapi_clean_search_id($id)
+/** Function: googlebookapi_clean_search_id($id)
  *
  */
 function googlebookapi_clean_search_id($id) {
@@ -302,5 +302,5 @@ function googlebookapi_clean_search_id($id) {
   // clean search string of spaces, turn into '+'.
   $id = trim($id);
   $dirt_id = array(" ");
-  return str_replace( $dirt_id, "+", $id );
+  return str_replace($dirt_id, "+", $id);
 }

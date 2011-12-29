@@ -361,8 +361,8 @@ function googlebook_retrieve_bookdata(
       drupal_render(drupal_get_form('googlebook_add_googlebooks_javascript'));
 
       // Add the gdrupal_add_jsoogle extern javascript if haven't already.
-      // Replaced: drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => 0  ) );
-
+      // Replaced: drupal_add_js( GOOGLE_BOOK_EXTERN_JS,
+      // Replaced: array('type' => 'external', 'weight' => 0  ) );
       $googlebook_js_string = '
         google.load("books", "0");
         function initialize' . $isbn . '() {
