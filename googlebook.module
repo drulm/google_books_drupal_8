@@ -1,6 +1,6 @@
 <?php
-/** @file
- * 
+/**
+ * @file
  * Googlebook Filter Module for Drupal 7.0
  *
  * Copyright 2011 Darrell Ulm.
@@ -20,12 +20,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -171,28 +171,28 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
  *
  */
 function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
-    preg_match_all('/{{(.*)}}/', $text, $match);
-    $tag = $match[0];
-    $book = array();
-    $counter = 0;
-    for ($i = 0; $i < count($match[1]); $i++) {
-        $book[$counter] = googlebook_retrieve_bookdata(
-            $match[1][$i],
-            $filter->settings['worldcat'],
-            $filter->settings['librarything'],
-            $filter->settings['openlibrary'],
-            $filter->settings['image'],
-            $filter->settings['reader'],
-            $filter->settings['bib_fields'],
-            $filter->settings['image_height'],
-            $filter->settings['image_width'],
-            $filter->settings['reader_height'],
-            $filter->settings['reader_width']
-            );
-        $counter++;
-    }
-    $text = str_replace($tag, $book, $text);
-    return $text;
+  preg_match_all('/{{(.*)}}/', $text, $match);
+  $tag = $match[0];
+  $book = array();
+  $counter = 0;
+  for ($i = 0; $i < count($match[1]); $i++) {
+    $book[$counter] = googlebook_retrieve_bookdata(
+    $match[1][$i],
+    $filter->settings['worldcat'],
+    $filter->settings['librarything'],
+    $filter->settings['openlibrary'],
+    $filter->settings['image'],
+    $filter->settings['reader'],
+    $filter->settings['bib_fields'],
+    $filter->settings['image_height'],
+    $filter->settings['image_width'],
+    $filter->settings['reader_height'],
+    $filter->settings['reader_width']
+    );
+  $counter++;
+  }
+  $text = str_replace($tag, $book, $text);
+  return $text;
 }
 
 
@@ -300,37 +300,37 @@ function googlebook_retrieve_bookdata(
 
         // Pull an ISBN if we have it, prefer the last
         // which should be an ISBN 13 although may be something else :)
-        $identifier_list = explode("|", $bib['identifier'] );
+        $identifier_list = explode("|", $bib['identifier']);
         $num_of_identifiers = count($identifier_list);
-        $isbn = trim( $identifier_list[ $num_of_identifiers - 1 ] );
-        $isbn = is_numeric( $isbn ) ? $isbn : "";
+        $isbn = trim($identifier_list[ $num_of_identifiers - 1 ]);
+        $isbn = is_numeric($isbn) ? $isbn : "";
 
         // Get the book links if any are found. None are checked for ISBN validity.
-        if ( ! empty( $isbn ) ) {
-            if ( $worldcat_link ) {
+        if (! empty($isbn)) {
+            if ($worldcat_link) {
                   $worldcat = '<a href="http://worldcat.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">WorldCat</a><br />';
             }
-            if ( $librarything_link ) {
+            if ($librarything_link) {
                   $librarything = '<a href="http://librarything.com/isbn/' . $isbn . '" rel="nofollow" target="_blank">LibraryThing</a><br />';
             }
-            if ( $openlibrary_link ) {
+            if ($openlibrary_link) {
                   $openlibrary = '<a href="http://openlibrary.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">Open Library</a><br />';
             }
-            if ( strlen( $worldcat . $librarything . $openlibrary ) > 0 ) {
+            if (strlen($worldcat . $librarything . $openlibrary) > 0) {
                 $extra_links = "Link to:<br />";
             }
         }
 
         // Build up the HTML output for all the selected fields
         $html_fields .= "<ul>";
-        foreach ( $bib_field_select as $i => $k ) {
+        foreach ($bib_field_select as $i => $k) {
             $field = $bib_fields[ $i ];
             $field_val = "";
-            if ( isset( $bib [ $field ] ) ) {
+            if (isset($bib [ $field ])) {
                 $field_val = $bib [ $field ];
             }
-            if ( ! empty( $field_val ) ) {
-                $html_fields .= "<li>" . ucfirst( preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field) ) ) . ": " . googlebook_make_html_link( $field_val ) . "</li>";
+            if (! empty($field_val)) {
+                $html_fields .= "<li>" . ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field))) . ": " . googlebook_make_html_link($field_val) . "</li>";
             }
         }
         $html_fields .= "</ul>";
