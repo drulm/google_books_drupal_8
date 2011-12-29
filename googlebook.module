@@ -35,12 +35,12 @@
 define('GOOGLE_BOOK_EXTERN_JS', 'https://www.google.com/jsapi');
 
 /**
- * Function: filter_googlebook_tips
+ * Function: googlebook_filter_googlebook_tips
  *
  * The filter tips hook for the googlebook filter module
  *
  */
-function filter_googlebook_tips( $filter, $format, $long = FALSE ) {
+function googlebook_filter_googlebook_tips( $filter, $format, $long = FALSE ) {
   if ($long) {
     return t('Put a Google Book search term between double brackets like this:
         {{The Hobbit}} or {{isbn:9780618154012}} or {{Rucker+Software}}
@@ -75,7 +75,7 @@ function googlebook_filter_info() {
             'image_width' => '',
             'bib_fields' => bib_field_array()
         ),
-    'tips callback' => 'filter_googlebook_tips',
+    'tips callback' => 'googlebook_filter_googlebook_tips',
     );
     return $filters;
 }
@@ -177,7 +177,7 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
     $book = array();
     $counter = 0;
     for ($i = 0; $i < count( $match[1] ); $i++) {
-        $book[$counter] = retrieve_bookdata(
+        $book[$counter] = googlebook_retrieve_bookdata(
                 $match[1][$i],
                 $filter->settings['worldcat'],
                 $filter->settings['librarything'],
@@ -198,7 +198,7 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
 
 
 /**
- *  Function: retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrary_link, $bib_field_select )
+ *  Function: googlebook_retrieve_bookdata( $id, $worldcat_link, $librarything_link, $openlibrary_link, $bib_field_select )
  *
  *  Gets the book data from Google Books / other sites and then displays it.
  *  $id is a valid Google Book query
@@ -213,7 +213,7 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
  *     data select
  *
  */
-function retrieve_bookdata(
+function googlebook_retrieve_bookdata(
         $id,
         $worldcat_link,
         $librarything_link,
@@ -254,20 +254,20 @@ function retrieve_bookdata(
     array_walk( $params, create_function( '&$val', '$val = trim($val);' ) );
 
     // Set the fixed parameters explicitly (not the data fields)
-    set_param( $params, $worldcat_link, "worldcat", 1 );
-    set_param( $params, $worldcat_link, "no_worldcat", 0 );
-    set_param( $params, $openlibrary_link, "openlibrary", 1 );
-    set_param( $params, $openlibrary_link, "no_openlibrary", 0 );
-    set_param( $params, $librarything_link, "librarything", 1 );
-    set_param( $params, $librarything_link, "no_librarything", 0 );
-    set_param( $params, $page_curl, "pagecurl", 1 );
-    set_param( $params, $page_curl, "no_pagecurl", 0 );
-    set_param( $params, $title_link, "titlelink", 1 );
-    set_param( $params, $title_link, "no_titlelink", 0 );
-    set_param( $params, $image_on, "image", 1 );
-    set_param( $params, $image_on, "no_image", 0 );
-    set_param( $params, $reader_on, "reader", 1 );
-    set_param( $params, $reader_on, "no_reader", 0 );
+    googlebook_set_param( $params, $worldcat_link, "worldcat", 1 );
+    googlebook_set_param( $params, $worldcat_link, "no_worldcat", 0 );
+    googlebook_set_param( $params, $openlibrary_link, "openlibrary", 1 );
+    googlebook_set_param( $params, $openlibrary_link, "no_openlibrary", 0 );
+    googlebook_set_param( $params, $librarything_link, "librarything", 1 );
+    googlebook_set_param( $params, $librarything_link, "no_librarything", 0 );
+    googlebook_set_param( $params, $page_curl, "pagecurl", 1 );
+    googlebook_set_param( $params, $page_curl, "no_pagecurl", 0 );
+    googlebook_set_param( $params, $title_link, "titlelink", 1 );
+    googlebook_set_param( $params, $title_link, "no_titlelink", 0 );
+    googlebook_set_param( $params, $image_on, "image", 1 );
+    googlebook_set_param( $params, $image_on, "no_image", 0 );
+    googlebook_set_param( $params, $reader_on, "reader", 1 );
+    googlebook_set_param( $params, $reader_on, "no_reader", 0 );
 
     // Get the Google Book data
     $bib = get_googlebook_data( $search_string , 0 );
@@ -276,8 +276,8 @@ function retrieve_bookdata(
     $bib_field_select_explicit = array();
     foreach ( $bib_fields as $i => $field_name ) {
         $bib_field_select_explicit[ $i ] = "";
-        set_param( $params, $bib_field_select_explicit[ $i ], $field_name, "$i" );
-        set_param( $params, $bib_field_select_explicit[ $i ] , "no_" . $field_name, FALSE );
+        googlebook_set_param( $params, $bib_field_select_explicit[ $i ], $field_name, "$i" );
+        googlebook_set_param( $params, $bib_field_select_explicit[ $i ] , "no_" . $field_name, FALSE );
     }
 
     // Merge the selected options with the global bib field options
@@ -326,7 +326,7 @@ function retrieve_bookdata(
                 $field_val = $bib [ $field ];
             }
             if ( ! empty( $field_val ) ) {
-                $html_fields .= "<li>" . ucfirst( preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field) ) ) . ": " . make_html_link( $field_val ) . "</li>";
+                $html_fields .= "<li>" . ucfirst( preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field) ) ) . ": " . googlebook_make_html_link( $field_val ) . "</li>";
             }
         }
         $html_fields .= "</ul>";
@@ -356,7 +356,7 @@ function retrieve_bookdata(
 
 
             //$html_text .=
-            drupal_render( drupal_get_form('add_googlebooks_javascript') );
+            drupal_render( drupal_get_form('googlebook_add_googlebooks_javascript') );
             
             // add the gdrupal_add_jsoogle extern javascript if haven't already
             //drupal_add_js( GOOGLE_BOOK_EXTERN_JS, array('type' => 'external', 'weight' => 0  ) );
@@ -372,7 +372,7 @@ function retrieve_bookdata(
             //drupal_add_js( $googlebook_js_string , array('type' => 'inline', 'weight' => 1  ) );
 
             //$html_text .=
-            drupal_render( add_googlebooks_viewer_inline( $isbn ) );
+            drupal_render( googlebook_add_googlebooks_viewer_inline( $isbn ) );
 
             $google_viewer = '<div class="googleviewer" id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div>';
         }
@@ -391,14 +391,14 @@ function retrieve_bookdata(
 
 
 /**
- * Function: make_html_link( $address )
+ * Function: googlebook_make_html_link( $address )
  *
  * If the bibli field looks like an address, make it a link
  *
  * $address : the biblio field, which might be an address
  *
  */
-function make_html_link( $address ) {
+function googlebook_make_html_link( $address ) {
     if ( strpos($address, "https://") !== FALSE || strpos($address, "http://") !== FALSE ) {
         return '<a href="' . htmlentities( $address ) . '" rel="nofollow" target="_blank"> link </a>';
     }
@@ -407,7 +407,7 @@ return $address;
 
 
 /**
- * Function: set_param( $params, &$flag_var, $value, $set )
+ * Function: googlebook_set_param( $params, &$flag_var, $value, $set )
  *
  * Sets a parameter variable by reference based on presence in array
  *
@@ -417,21 +417,21 @@ return $address;
  * $set : What $flag_var will be set to if TRUE
  *
  */
-function set_param( $params, &$flag_var, $value, $set ) {
+function googlebook_set_param( $params, &$flag_var, $value, $set ) {
     if ( in_array( $value, $params ) === TRUE ) {
         $flag_var = $set;
     }
 }
 
 /**
- * Function: add_googlebooks_javascript()
+ * Function: googlebook_add_googlebooks_javascript()
  *
  * Adds the external javascript for the google books viewer widget
  *
  * Cannot use add_js because used in a filter
  *
  */
-function add_googlebooks_javascript() {
+function googlebook_add_googlebooks_javascript() {
 
   $form['#attached']['js'] = array(
       'data' => 'https://www.google.com/jsapi',
@@ -447,7 +447,7 @@ function add_googlebooks_javascript() {
 }
 
 /**
- * Function: add_googlebooks_viewer_inline( $isbn )
+ * Function: googlebook_add_googlebooks_viewer_inline( $isbn )
  *
  * ($isbn) A validated ISBN from the Google Books API
  *
@@ -456,7 +456,7 @@ function add_googlebooks_javascript() {
  * Cannot use add_js because used in a filter
  *
  */
-function add_googlebooks_viewer_inline( $isbn ) {
+function googlebook_add_googlebooks_viewer_inline( $isbn ) {
 
     $googlebook_js_string = '
     google.load("books", "0");
