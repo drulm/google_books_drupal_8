@@ -127,7 +127,7 @@ function googlebookapi_bib_field_array() {
 function googlebookapi_get_googlebook_data($id, $version_num) {
 
   // Clean search string of spaces, turn into '+'.
-   $id = googlebookapi_clean_search_id($id);
+  $id = googlebookapi_clean_search_id($id);
 
   // Get all the arrays from the query.
   $bookkeys = googlebookapi_cached_request($id);
