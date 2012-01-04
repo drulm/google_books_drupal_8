@@ -352,7 +352,7 @@ function googlebook_retrieve_bookdata(
       if ($page_curl == 0) {
         $img_link = str_replace("&edge=curl", "", $img_link);
       }
-      $html_coverimage = "<img class='google_book_image' src='" . htmlentities($img_link) . "' alt='" . $title . "' height='" . $image_height . "' width='" . $image_width . "' />";
+      $html_coverimage = "<img class='googlebookimage' src='" . htmlentities($img_link) . "' alt='" . $title . "' height='" . $image_height . "' width='" . $image_width . "' />";
       $html_coverimage = "<a href='" . htmlentities($bib['infoLink']) . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a>";
     }
 
