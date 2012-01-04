@@ -109,9 +109,10 @@ function googlebookapi_bib_field_array() {
 }
 
 
-/**  Function: googlebookapi_get_googlebook_data( $id )
+/**  Function: googlebookapi_get_googlebook_data($id)
  *
  *  $id is the {{ $id }} passed from the filter text
+ *  $version_num is the version of the book returned from the search to use
  *
  *
  *  Gets the book data from Google Books
@@ -177,9 +178,9 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
 }
 
 
-/**  Function: googlebookapi_json_extract( &barr )
+/**  Function: googlebookapi_json_extract(&$barr)
  *
- *  & barr : reference to JSON data from a single book search result.
+ *  &$barr : reference to JSON data from a single book search result.
  *
  *   Choose the first volume of the search and turn it into
  *  a flat array for easy access. Use simple recursion to scan the JSON
@@ -215,9 +216,9 @@ function googlebookapi_json_extract(&$barr) {
 }
 
 
-/** Function: googlebookapi_assign_bib_array( &$bib_array, $index, $value )
+/** Function: googlebookapi_assign_bib_array(&$bib_array, $index, $value)
  *
- * & $bib_array : reference to Array to modify
+ * &$bib_array : reference to Array to modify
  * $index : The array index
  * $value : The value to assign to the array
  *
@@ -238,7 +239,7 @@ function googlebookapi_assign_bib_array(&$bib_array, $index, $value) {
 }
 
 
-/** Function: _googlebook_cached_request( $path )
+/** Function: _googlebook_cached_request($path)
  *
  * $path : The search string, without any additional parameters
  *

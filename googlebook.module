@@ -165,7 +165,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
 /**
  * Function: googlebook_filter_process()
  *
- * Same code as used by BookPost Module
+ * Similar to code from Book Post Module (source)
  *
  * Good for migration to googlebook for Drupal7
  *
@@ -198,11 +198,6 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
 
 /**
  *  Function: googlebook_retrieve_bookdata(
- *      $id
- *      $worldcat_link
- *      $librarything_link
- *      $openlibrary_link
- *      $bib_field_select
  *
  *  Gets the book data from Google Books / other sites and then displays it.
  *  $id is a valid Google Book query
@@ -211,10 +206,16 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
  *
  *  $id : The full string pulled from inside the {{$id}} filter
  *  $worldcat_link : True if setting for Worldcat link on
- *  $librarything_link : True if setting for Library Thing link on
- *  $openlibrary_link : True if setting for openlibrary is on
- *  $bib_field_select : This is the array of True/False for the multi-field
+ *  $librarything_link  : True if setting for Library Thing link on
+ *  $openlibrary_link   : True if setting for openlibrary is on
+ *  $bib_field_select   : This is the array of True/False for the multi-field
  *    data select
+ *  $image_option       : Default param, display the book cover
+ *  $reader_option      : Default param to display book reader Javascript
+ *  $image_height       : Default height of Image
+ *  $image_width        : Default width of Image
+ *  $reader_height      : Default Height of Reader
+ *  $reader_width       : Default Width of Reader
  *
  */
 function googlebook_retrieve_bookdata(
@@ -338,7 +339,7 @@ function googlebook_retrieve_bookdata(
     // Build the main title with a link.
     $title = $bib['title'];
     if ($title_link == 1 || $title_link === "") {
-      $html_title = '<p>Title: <a href="' . htmlentities($bib['infoLink']) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></p>';
+      $html_title = '<div class="googlebooktitle">Title: <a href="' . htmlentities($bib['infoLink']) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></div>';
     }
 
     // Build a coverimage.
@@ -373,14 +374,14 @@ function googlebook_retrieve_bookdata(
         ';
       drupal_render(googlebook_add_googlebooks_viewer_inline($isbn));
 
-      $google_viewer = '<div class="googleviewer" id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div>';
+      $google_viewer = '<div class="googleviewer" id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div><p></p><br />';
     }
 
     // Create the final text.
     $html_text .= $html_title;
-    $html_text .= $extra_links . $worldcat . $librarything . $openlibrary;
     $html_text .= $html_coverimage . $google_viewer;
-    $html_text .= $html_fields;
+    $html_text .= '<div class="googlebooklinks">' . $extra_links . $worldcat . $librarything . $openlibrary . '</div>';
+    $html_text .= '<div class="googlebookdata">' . $html_fields . '</div>';
 
     // Div whole class for themeing.
     $html_bookdata = '<div class="googlebooks" >' . $html_text . '<div style="clear:both;"></div></div>';
@@ -390,7 +391,7 @@ function googlebook_retrieve_bookdata(
 
 
 /**
- * Function: googlebook_make_html_link( $address )
+ * Function: googlebook_make_html_link($address)
  *
  * If the bibli field looks like an address, make it a link
  *
@@ -406,7 +407,7 @@ function googlebook_make_html_link($address) {
 
 
 /**
- * Function: googlebook_set_param( $params, &$flag_var, $value, $set )
+ * Function: googlebook_set_param($params, &$flag_var, $value, $set)
  *
  * Sets a parameter variable by reference based on presence in array
  *
@@ -446,7 +447,7 @@ function googlebook_add_googlebooks_javascript() {
 }
 
 /**
- * Function: googlebook_add_googlebooks_viewer_inline( $isbn )
+ * Function: googlebook_add_googlebooks_viewer_inline($isbn)
  *
  * ($isbn) A validated ISBN from the Google Books API
  *
