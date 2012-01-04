@@ -316,7 +316,7 @@ function googlebook_retrieve_bookdata(
       if ($openlibrary_link) {
         $openlibrary = '<a href="http://openlibrary.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">Open Library</a><br />';
       }
-      if (strlen($worldcat . $librarything . $openlibrary) > 0) {
+      if (drupal_strlen($worldcat . $librarything . $openlibrary) > 0) {
         $extra_links = "Link to:<br />";
       }
     }
@@ -330,7 +330,7 @@ function googlebook_retrieve_bookdata(
         $field_val = $bib [ $field ];
       }
       if (! empty($field_val)) {
-        $html_fields .= "<li>" . ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field))) . ": " . googlebook_make_html_link($field_val) . "</li>";
+        $html_fields .= "<li>" . drupal_ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field))) . ": " . googlebook_make_html_link($field_val) . "</li>";
       }
     }
     $html_fields .= "</ul>";
