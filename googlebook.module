@@ -100,7 +100,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
     '#required' => TRUE,
     '#options' => googlebookapi_bib_field_array(),
     '#default_value' => isset($filter->settings['bib_fields']) ? $filter->settings['bib_fields'] : googlebookapi_bib_field_array(),
-   );
+  );
   $settings['worldcat'] = array(
     '#type' => 'checkbox',
     '#title' => t('Link to WorldCat'),
