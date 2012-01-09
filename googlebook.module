@@ -61,15 +61,15 @@ function googlebook_filter_info() {
     'description' => t('Insert Book Information from Google Books'),
     'process callback' => 'googlebook_filter_process',
     'settings callback' => 'googlebook_filter_settings',
-    'cache' => FALSE,
+    'cache' => TRUE,
     'default settings' => array(
       'worldcat' => 1,
       'openlibrary' =>  1,
       'librarything' => 1,
       'image' => 1,
       'reader' => 0,
-      'reader_height' => 400,
-      'reader_width' => 300,
+      'reader_height' => 500,
+      'reader_width' => 400,
       'image_height' => '',
       'image_width' => '',
       'bib_fields' => googlebookapi_bib_field_array(),
@@ -87,76 +87,102 @@ function googlebook_filter_info() {
  *
  */
 function googlebook_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
+
   $settings['googlebook'] = array(
     '#type' => 'fieldset',
     '#title' => t('Google Book Filter'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $settings['bib_fields'] = array(
+  $settings['googlebook']['bib_fields'] = array(
     '#type' => 'select',
     '#multiple' => TRUE,
-    '#title' => 'Google Book Data Fields to Use',
+    '#title' => 'Google Book Data Fields',
     '#required' => TRUE,
     '#options' => googlebookapi_bib_field_array(),
-    '#default_value' => isset($filter->settings['bib_fields']) ? $filter->settings['bib_fields'] : googlebookapi_bib_field_array(),
+    '#description' => t('Hold control to select multiple fields.'),
+    '#default_value' => isset($filter->settings['googlebook']['bib_fields']) ? $filter->settings['googlebook']['bib_fields'] : googlebookapi_bib_field_array(),
   );
-  $settings['worldcat'] = array(
+
+  $settings['googlebook_link'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Google Book External Link Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#description' => t('Turn on/off the links to external pages linking to book.'),
+  );
+  $settings['googlebook_link']['worldcat'] = array(
     '#type' => 'checkbox',
     '#title' => t('Link to WorldCat'),
-    '#default_value' => isset($filter->settings['worldcat']) ? $filter->settings['worldcat'] : $defaults['worldcat'],
+    '#default_value' => isset($filter->settings['googlebook_link']['worldcat']) ? $filter->settings['googlebook_link']['worldcat'] : $defaults['worldcat'],
   );
-  $settings['librarything'] = array(
+  $settings['googlebook_link']['librarything'] = array(
     '#type' => 'checkbox',
     '#title' => t('Link to LibraryThing'),
-    '#default_value' => isset($filter->settings['librarything']) ? $filter->settings['librarything'] : $defaults['librarything'],
+    '#default_value' => isset($filter->settings['googlebook_link']['librarything']) ? $filter->settings['googlebook_link']['librarything'] : $defaults['librarything'],
   );
-  $settings['openlibrary'] = array(
+  $settings['googlebook_link']['openlibrary'] = array(
     '#type' => 'checkbox',
     '#title' => t('Link to Open Library'),
-    '#default_value' => isset($filter->settings['openlibrary']) ? $filter->settings['openlibrary'] : $defaults['openlibrary'],
+    '#default_value' => isset($filter->settings['googlebook_link']['openlibrary']) ? $filter->settings['googlebook_link']['openlibrary'] : $defaults['openlibrary'],
   );
-  $settings['image'] = array(
+
+  $settings['googlebook_image'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Google Book Image Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#description' => t('Turn on/off the Google Book cover image and set the default size.'),
+  );
+  $settings['googlebook_image']['image'] = array(
     '#type' => 'checkbox',
     '#title' => t('Include Google book cover image'),
-    '#default_value' => isset($filter->settings['image']) ? $filter->settings['image'] : $defaults['image'],
+    '#default_value' => isset($filter->settings['googlebook_image']['image']) ? $filter->settings['googlebook_image']['image'] : $defaults['image'],
   );
-  $settings['image_height'] = array(
+  $settings['googlebook_image']['image_height'] = array(
     '#type' => 'textfield',
     '#title' => t('Image height'),
     '#size' => 4,
     '#maxlength' => 4,
     '#description' => t('Height of Google cover image'),
-    '#default_value' => isset($filter->settings['image_height']) ? $filter->settings['image_height'] : $defaults['image_height'],
+    '#default_value' => isset($filter->settings['googlebook_image']['image_height']) ? $filter->settings['googlebook_image']['image_height'] : $defaults['image_height'],
   );
-  $settings['image_width'] = array(
+  $settings['googlebook_image']['image_width'] = array(
     '#type' => 'textfield',
     '#title' => t('Image width'),
     '#size' => 4,
     '#maxlength' => 4,
     '#description' => t('Width of Google cover image'),
-    '#default_value' => isset($filter->settings['image_width']) ? $filter->settings['image_width'] : $defaults['image_width'],
+    '#default_value' => isset($filter->settings['googlebook_image']['image_width']) ? $filter->settings['googlebook_image']['image_width'] : $defaults['image_width'],
   );
-  $settings['reader'] = array(
+
+  $settings['googlebook_reader'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Google Book Reader Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#description' => t('Turn on/off the Javascript Google Reader and set the default size.'),
+  );
+  $settings['googlebook_reader']['reader'] = array(
     '#type' => 'checkbox',
     '#title' => t('Include the Google book reader'),
-    '#default_value' => isset($filter->settings['reader']) ? $filter->settings['reader'] : $defaults['reader'],
+    '#default_value' => isset($filter->settings['googlebook_reader']['reader']) ? $filter->settings['googlebook_reader']['reader'] : $defaults['reader'],
   );
-  $settings['reader_height'] = array(
+  $settings['googlebook_reader']['reader_height'] = array(
     '#type' => 'textfield',
     '#title' => t('Reader height'),
     '#size' => 4,
     '#maxlength' => 4,
     '#description' => t('Height of Google reader'),
-    '#default_value' => isset($filter->settings['reader_height']) ? $filter->settings['reader_height'] : $defaults['reader_height'],
+    '#default_value' => isset($filter->settings['googlebook_reader']['reader_height']) ? $filter->settings['googlebook_reader']['reader_height'] : $defaults['reader_height'],
   );
-  $settings['reader_width'] = array(
+  $settings['googlebook_reader']['reader_width'] = array(
     '#type' => 'textfield',
     '#title' => t('Reader width'),
     '#size' => 6,
     '#maxlength' => 6,
     '#description' => t('Width of Google reader'),
-    '#default_value' => isset($filter->settings['reader_width']) ? $filter->settings['reader_width'] : $defaults['reader_width'],
+    '#default_value' => isset($filter->settings['googlebook_reader']['reader_width']) ? $filter->settings['googlebook_reader']['reader_width'] : $defaults['reader_width'],
   );
   return $settings;
 }
@@ -178,16 +204,16 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
   for ($i = 0; $i < count($match[1]); $i++) {
     $book[$counter] = googlebook_retrieve_bookdata(
       $match[1][$i],
-      $filter->settings['worldcat'],
-      $filter->settings['librarything'],
-      $filter->settings['openlibrary'],
-      $filter->settings['image'],
-      $filter->settings['reader'],
-      $filter->settings['bib_fields'],
-      $filter->settings['image_height'],
-      $filter->settings['image_width'],
-      $filter->settings['reader_height'],
-      $filter->settings['reader_width']
+      $filter->settings['googlebook_link']['worldcat'],
+      $filter->settings['googlebook_link']['librarything'],
+      $filter->settings['googlebook_link']['openlibrary'],
+      $filter->settings['googlebook_image']['image'],
+      $filter->settings['googlebook_reader']['reader'],
+      $filter->settings['googlebook']['bib_fields'],
+      $filter->settings['googlebook_image']['image_height'],
+      $filter->settings['googlebook_image']['image_width'],
+      $filter->settings['googlebook_reader']['reader_height'],
+      $filter->settings['googlebook_reader']['reader_width']
     );
     $counter++;
   }
