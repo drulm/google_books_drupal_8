@@ -465,7 +465,7 @@ function googlebook_add_googlebooks_javascript() {
     'type' => 'external',
     'weight' => -1,
     'options' => array(
-      '#no_cache' => TRUE,
+      '#no_cache' => FALSE,
     ),
   );
 
