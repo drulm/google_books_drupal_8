@@ -1,8 +1,7 @@
 GOOGLE BOOK MODULE
 ----------------------
 
-Author:
-Darrell Ulm
+Author: Darrell Ulm
 
 The googlebook module is a filter module and an API for the
 http://books.google.com, that allows a user to insert rich Google Book data

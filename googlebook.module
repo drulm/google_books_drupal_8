@@ -3,10 +3,10 @@
  * @file
  * Googlebook Filter Module for Drupal 7.0
  *
- * Copyright 2011 Darrell Ulm.
+ * @author Darrell Ulm.
  *
- * Based initialy on the BookPost module for Drupal 6 by Aaron Rubinstein,
- *   and partially based on the the OpenLibrary API for Drupal 6
+ * Inspired by the BookPost (Open Library) module for
+ * Drupal 6 by Aaron Rubinstein, and on the the OpenLibrary API for Drupal 6.
  *
  * The googlebook module is a filter module
  * that allows a user to insert rich Google Book
@@ -28,18 +28,28 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 define('GOOGLE_BOOK_EXTERN_JS', 'https://www.google.com/jsapi');
 
 /**
- * Function: googlebook_filter_googlebook_tips
+ * Implements: googlebook_filter_googlebook_tips($filter, $format, $long=FALSE)
  *
- * The filter tips hook for the googlebook filter module
+ * The filter tips callback for the googlebook filter module
  *
+ * @param $filter
+ *   The filter variable.
+ *
+ * @param $format
+ *   Format of the filter.
+ *
+ * @param $long
+ *   Display this filter tip.
+ *
+ * @return
+ *   The translated help text for the filter.
  */
-function googlebook_filter_googlebook_tips( $filter, $format, $long = FALSE ) {
+function googlebook_filter_googlebook_tips($filter, $format, $long = FALSE) {
   if ($long) {
     return t('Put a Google Book search term between double brackets like this:
       {{The Hobbit}} or {{isbn:9780618154012}} or {{Rucker+Software}}
@@ -50,10 +60,12 @@ function googlebook_filter_googlebook_tips( $filter, $format, $long = FALSE ) {
 
 
 /**
- * Implements googlebook_filter_info()
+ * Implements: googlebook_filter_info()
  *
- * Filter info hook for googlebook filter
+ * Filter info hook for googlebook filter with initial values.
  *
+ * @return
+ *   Returns the initialized filter information.
  */
 function googlebook_filter_info() {
   $filters['googlebook'] = array(
@@ -81,10 +93,27 @@ function googlebook_filter_info() {
 
 
 /**
- * Implements googlebook_filter_settings
+ * Implements: googlebook_filter_settings(...)
  *
- * The filter form hook for the googlebook filter
+ * The form for the filter hook for googlebook filter
  *
+ * @param $form
+ *   The form.
+ *
+ * @param &form_state
+ *   State of the form.
+ *
+ * @param $filter
+ *   The filter information.
+ *
+ * @param $format
+ *   The format of the form.
+ *
+ * @param $defaults
+ *   Default values.
+ *
+ * @param $filters
+ *   The filters.
  */
 function googlebook_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
 
@@ -189,11 +218,27 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
 
 
 /**
- * Function: googlebook_filter_process()
+ * Implements: googlebook_filter_process()
  *
- * Similar to code from Book Post Module (source)
+ * This is the filter process for the google book filter module.
  *
- * Good for migration to googlebook for Drupal7
+ * @param $text
+ *
+ *
+ * @param $filter
+ *
+ *
+ * @param $format
+ *
+ *
+ * @param $langcode
+ *
+ *
+ * @param $cache
+ *
+ *
+ * @param $cache_id
+ *
  *
  */
 function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
