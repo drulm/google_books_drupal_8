@@ -31,16 +31,15 @@
  */
 
 
-/* Define Section
- *
+/*
  * GOOGLE_BOOKS_API_ROOT is the path for the cURL request
- * GOOGLEBOOKS_CACHE_PERIOD is the time to keep data in the book cache
+ *
  */
-
-// Current path of books.google.com API for data get.
 define("GOOGLE_BOOKS_API_ROOT", 'https://www.googleapis.com/books/v1/volumes?q=');
 
-// In seconds.
+/*
+ * GOOGLEBOOKS_CACHE_PERIOD is the time to keep data in the book cache in secs.
+ */
 define("GOOGLEBOOKS_CACHE_PERIOD", 24 * 60 * 60);
 
 
@@ -48,9 +47,9 @@ define("GOOGLEBOOKS_CACHE_PERIOD", 24 * 60 * 60);
  * Implements: googlebookapi_bib_field_array()
  *
  * These are the fields that are in the multi select list and are
- * displayable in google books. 
+ * displayable in google books.
  *
- * @return
+ * @return array
  *   Returns array of book data field names returned from books.google.com.
  */
 function googlebookapi_bib_field_array() {
@@ -120,14 +119,14 @@ function googlebookapi_bib_field_array() {
  * caller needs *everything* google returns (which is fine) then the user
  * should use the googlebookapi_cached_request( $path ) function.
  *
- * @param $id
+ * @param string $id
  *   The {{ $id }} passed from the filter text.
  *
- * @param $version_num
+ * @param int $version_num
  *   The version of the book returned from the search to use
  *
- * @return
- *   Array of field names used to index the book data for each field.
+ * @return array
+ *   Field names used to index the book data for each field.
  */
 function googlebookapi_get_googlebook_data($id, $version_num) {
 
@@ -189,10 +188,10 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
  * a flat array for easy access. Use simple recursion to scan the JSON
  * and build up a string for easy expansion into a flat array.
  *
- * @param &$barr
+ * @param array &$barr
  *   Reference (for speed) to JSON data from a single book search result.
  *
- * @return
+ * @return string
  *   One big string of all book data with delimiters used to expand to arrays.
  */
 function googlebookapi_json_extract(&$barr) {
@@ -203,7 +202,7 @@ function googlebookapi_json_extract(&$barr) {
 
   // Loop through array struture recursively.
   foreach ($barr as $key => $value) {
-    if (! is_array($value) && $value != "") {
+    if (!is_array($value) && $value != "") {
       $effective_key = is_int($key) ? '[[[///' . $key . '[[[' : '|||' . $key . '|||';
       $book_html .= "$effective_key ((($value(((";
     }
@@ -233,17 +232,18 @@ function googlebookapi_json_extract(&$barr) {
  * function can then get all the data from the field by using explode()
  * or just print out this data field with the delimeters.
  *
- * @param &$bib_array
+ * @param array &$bib_array
  *   Reference to Array to modify.
  *
- * @param $index
+ * @param string $index
  *   The array index.
  *
- * @param $value
+ * @param string $value
  *   The value to assign to the array.
  */
 function googlebookapi_assign_bib_array(&$bib_array, $index, $value) {
-  if (! array_key_exists($index, $bib_array)) {
+
+  if (!array_key_exists($index, $bib_array)) {
     $bib_array[ $index ] = $value;
   }
   else {
@@ -260,10 +260,10 @@ function googlebookapi_assign_bib_array(&$bib_array, $index, $value) {
  * then returns it. Callers can use this function to pull all the
  * data Google Books API returns.
  *
- * @param $path
+ * @param string $path
  *   The search string, without any additional parameters.
  *
- * @return
+ * @return array
  *   Returns the cached JSON data for book located in cache, or fresh data.
  */
 function googlebookapi_cached_request($path) {
@@ -300,10 +300,10 @@ function googlebookapi_cached_request($path) {
  *
  * Gets the number of versions in the books.google.com JSON data.
  *
- * @param $id
+ * @param string $id
  *   The raw search string.
  *
- * @return
+ * @return int
  *   The count of the number of book versions returned in the JSON data.
  */
 function googlebookapi_get_googlebook_version_count($id) {
@@ -323,10 +323,10 @@ function googlebookapi_get_googlebook_version_count($id) {
 /**
  * Implements: googlebookapi_clean_search_id($id)
  *
- * @param $id
+ * @param string $id
  *   The raw search string.
  *
- * @return
+ * @return string
  *   The search string cleaned.
  */
 function googlebookapi_clean_search_id($id) {

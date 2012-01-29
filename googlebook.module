@@ -40,16 +40,16 @@ define('GOOGLE_BOOK_EXTERN_JS', 'https://www.google.com/jsapi');
  *
  * The filter tips callback for the googlebook filter module
  *
- * @param $filter
- *   The filter variable.
+ * @param object $filter
+ *   The filter variable StdClass object.
  *
- * @param $format
- *   Format of the filter.
+ * @param object $format
+ *   Format of the filter StdClass object.
  *
  * @param bool $long
  *   Display this filter tip.
  *
- * @return
+ * @return string
  *   The translated help text for the filter.
  */
 function googlebook_filter_googlebook_tips($filter, $format, $long = FALSE) {
@@ -67,7 +67,7 @@ function googlebook_filter_googlebook_tips($filter, $format, $long = FALSE) {
  *
  * Filter info hook for googlebook filter with initial values.
  *
- * @return
+ * @return array
  *   Returns the initialized filter information.
  */
 function googlebook_filter_info() {
@@ -89,7 +89,7 @@ function googlebook_filter_info() {
       'image_width' => '',
       'bib_fields' => googlebookapi_bib_field_array(),
     ),
-  'tips callback' => 'googlebook_filter_googlebook_tips',
+    'tips callback' => 'googlebook_filter_googlebook_tips',
   );
   return $filters;
 }
@@ -100,26 +100,28 @@ function googlebook_filter_info() {
  *
  * The form for the filter hook for googlebook filter.
  *
- * @param $form
- *   The form.
+ * @param array $form
+ *   The array of form elements.
  *
- * @param &form_state
- *   State of the form.
+ * @param array &form_state
+ *   State of the form information.
  *
- * @param $filter
- *   The filter information.
+ * @param object $filter
+ *   The filter information in a StdClass object.
  *
- * @param $format
- *   The format of the form.
+ * @param object $format
+ *   The format of the form in a StdClass object.
  *
- * @param $defaults
- *   Default values.
+ * @param array $defaults
+ *   Default values array for form elements.
  *
- * @param $filters
- *   The filters.
+ * @param array $filters
+ *   The filters array containing index of objects, each a filter.
+ *
+ * @return array
+ *   Returns the array of form settings for the filter setting page.
  */
 function googlebook_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
-
   $settings['googlebook'] = array(
     '#type' => 'fieldset',
     '#title' => t('Google Book Filter'),
@@ -225,26 +227,26 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
  *
  * This is the main filter callback process for the google book filter module.
  *
- * @param $text
+ * @param string $text
  *   Text to match.
  *
- * @param $filter
- *   The filter information.
+ * @param object $filter
+ *   The filter as information stdClass object.
  *
- * @param $format
- *   The text format type.
+ * @param object $format
+ *   The text format type stdClass object.
  *
- * @param $langcode
+ * @param string $langcode
  *   The language code.
  *
- * @param $cache
- *   The cache.
+ * @param bool $cache
+ *   TRUE if cachable, FALSE if not.
  *
- * @param $cache_id
+ * @param string $cache_id
  *   The ID of the cache.
  *
- * @return
- *   Returns the filtered HTML for googlebooks.
+ * @return string
+ *   Returns string of the filtered HTML for googlebooks.
  */
 function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
   preg_match_all('/{{(.*)}}/', $text, $match);
@@ -279,40 +281,40 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
  * $id is a valid Google Book query. This is the main filter processing
  * function that does the work.
  *
- * @param $id
+ * @param string $id
  *   The full string pulled from inside the {{$id}} filter.
  *
- * @param $worldcat_link
+ * @param string $worldcat_link
  *   True if setting for Worldcat link on.
  *
- * @param $librarything_link
+ * @param string $librarything_link
  *   True if setting for Library Thing link on.
  *
- * @param $openlibrary_link
+ * @param string $openlibrary_link
  *   True if setting for openlibrary is on.
  *
- * @param $bib_field_select
- *   This is the array of True/False for the multi-field.
- *
- * @param $image_option
+ * @param string $image_option
  *   Default param, display the book cover.
  *
- * @param $reader_option
+ * @param string $reader_option
  *   Default param to display book reader Javascript.
  *
- * @param $image_height
+ * @param string $bib_field_select
+ *   This is the array of True/False for the multi-field.
+ *
+ * @param string $image_height
  *   Default height of Image.
  *
- * @param $image_width
+ * @param string $image_width
  *   Default width of Image.
  *
- * @param $reader_height
+ * @param string $reader_height
  *   Default Height of Reader.
  *
- * @param $reader_width
+ * @param string $reader_width
  *   Default Width of Reader.
  *
- * @return
+ * @return string
  *   Returns the HTML data for googlebook after filtering.
  */
 function googlebook_retrieve_bookdata(
@@ -328,7 +330,6 @@ function googlebook_retrieve_bookdata(
   $reader_height,
   $reader_width
 ) {
-
   // Get all the Google Book permissible book data fields.
   $bib_fields = googlebookapi_bib_field_array();
 
@@ -404,7 +405,7 @@ function googlebook_retrieve_bookdata(
     $isbn = is_numeric($isbn) ? $isbn : "";
 
     // Get the book links if any are found. None are checked for ISBN validity.
-    if (! empty($isbn)) {
+    if (!empty($isbn)) {
       if ($worldcat_link) {
         $worldcat = '<a href="http://worldcat.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">WorldCat</a><br />';
       }
@@ -427,7 +428,7 @@ function googlebook_retrieve_bookdata(
       if (isset($bib [ $field ])) {
         $field_val = $bib [ $field ];
       }
-      if (! empty($field_val)) {
+      if (!empty($field_val)) {
         $html_fields .= "<li>" . drupal_ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $field))) . ": " . googlebook_make_html_link($field_val) . "</li>";
       }
     }
@@ -492,10 +493,10 @@ function googlebook_retrieve_bookdata(
  *
  * If the biblio field looks like an address, make it a link.
  *
- * @param $address
- *   the biblio field, which might be an address.
+ * @param string $address
+ *   The biblio field string, which might be an address.
  *
- * @return
+ * @return string
  *   Returns an HTML <a></a> link if there is a valid address in $address.
  */
 function googlebook_make_html_link($address) {
@@ -511,20 +512,19 @@ function googlebook_make_html_link($address) {
  *
  * Sets a parameter variable by reference based on presence in array.
  *
- * @param $params
+ * @param array $params
  *   The parameter array.
  *
- * @param &$flag_var
+ * @param int|string $flag_var
  *   The parameter variable to set.
  *
- * @param $value
+ * @param string $value
  *   The var to find in the array (needle).
  *
- * @param $set
+ * @param int|bool $set
  *   What $flag_var will be set to if TRUE.
  */
 function googlebook_set_param($params, &$flag_var, $value, $set) {
-
   if (in_array($value, $params) === TRUE) {
     $flag_var = $set;
   }
@@ -536,7 +536,8 @@ function googlebook_set_param($params, &$flag_var, $value, $set) {
  * Adds the external javascript for the google books viewer widget.
  * Cannot use add_js because used in a filter.
  *
- * @return The form to embed javascript.
+ * @return array
+ *   The form to embed javascript.
  */
 function googlebook_add_googlebooks_javascript() {
 
@@ -558,10 +559,10 @@ function googlebook_add_googlebooks_javascript() {
  * Add javascript for a Google Books viewer for a particular ISBN.
  * Cannot use add_js because used in a filter.
  *
- * @param $isbn
+ * @param string $isbn
  *   A validated ISBN from the Google Books API.
  *
- * @return
+ * @return array
  *   Returns the form with the Google Books JavaScript viewer code embeded.
  */
 function googlebook_add_googlebooks_viewer_inline($isbn) {
