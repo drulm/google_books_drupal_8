@@ -30,6 +30,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Holds the address of the books.google.com JSON call
+ */
 define('GOOGLE_BOOK_EXTERN_JS', 'https://www.google.com/jsapi');
 
 /**
@@ -43,7 +46,7 @@ define('GOOGLE_BOOK_EXTERN_JS', 'https://www.google.com/jsapi');
  * @param $format
  *   Format of the filter.
  *
- * @param $long
+ * @param bool $long
  *   Display this filter tip.
  *
  * @return
@@ -93,9 +96,9 @@ function googlebook_filter_info() {
 
 
 /**
- * Implements: googlebook_filter_settings(...)
+ * Implements: googlebook_filter_settings
  *
- * The form for the filter hook for googlebook filter
+ * The form for the filter hook for googlebook filter.
  *
  * @param $form
  *   The form.
@@ -218,28 +221,30 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
 
 
 /**
- * Implements: googlebook_filter_process()
+ * Implements: googlebook_filter_process
  *
- * This is the filter process for the google book filter module.
+ * This is the main filter callback process for the google book filter module.
  *
  * @param $text
- *
+ *   Text to match.
  *
  * @param $filter
- *
+ *   The filter information.
  *
  * @param $format
- *
+ *   The text format type.
  *
  * @param $langcode
- *
+ *   The language code.
  *
  * @param $cache
- *
+ *   The cache.
  *
  * @param $cache_id
+ *   The ID of the cache.
  *
- *
+ * @return
+ *   Returns the filtered HTML for googlebooks.
  */
 function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
   preg_match_all('/{{(.*)}}/', $text, $match);
@@ -268,26 +273,47 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
 
 
 /**
- *  Function: googlebook_retrieve_bookdata(
+ * Implements: googlebook_retrieve_bookdata
  *
- *  Gets the book data from Google Books / other sites and then displays it.
- *  $id is a valid Google Book query
+ * Gets the book data from Google Books / other sites and then displays it.
+ * $id is a valid Google Book query. This is the main filter processing
+ * function that does the work.
  *
- *  This is the main filter processing function that does the work.
+ * @param $id
+ *   The full string pulled from inside the {{$id}} filter.
  *
- *  $id : The full string pulled from inside the {{$id}} filter
- *  $worldcat_link : True if setting for Worldcat link on
- *  $librarything_link  : True if setting for Library Thing link on
- *  $openlibrary_link   : True if setting for openlibrary is on
- *  $bib_field_select   : This is the array of True/False for the multi-field
- *    data select
- *  $image_option       : Default param, display the book cover
- *  $reader_option      : Default param to display book reader Javascript
- *  $image_height       : Default height of Image
- *  $image_width        : Default width of Image
- *  $reader_height      : Default Height of Reader
- *  $reader_width       : Default Width of Reader
+ * @param $worldcat_link
+ *   True if setting for Worldcat link on.
  *
+ * @param $librarything_link
+ *   True if setting for Library Thing link on.
+ *
+ * @param $openlibrary_link
+ *   True if setting for openlibrary is on.
+ *
+ * @param $bib_field_select
+ *   This is the array of True/False for the multi-field.
+ *
+ * @param $image_option
+ *   Default param, display the book cover.
+ *
+ * @param $reader_option
+ *   Default param to display book reader Javascript.
+ *
+ * @param $image_height
+ *   Default height of Image.
+ *
+ * @param $image_width
+ *   Default width of Image.
+ *
+ * @param $reader_height
+ *   Default Height of Reader.
+ *
+ * @param $reader_width
+ *   Default Width of Reader.
+ *
+ * @return
+ *   Returns the HTML data for googlebook after filtering.
  */
 function googlebook_retrieve_bookdata(
   $id,
@@ -371,7 +397,7 @@ function googlebook_retrieve_bookdata(
   if ($bib != FALSE) {
 
     // Pull an ISBN if we have it, prefer the last
-    // which should be an ISBN 13 although may be something else :)
+    // which should be an ISBN 13 although may be something else.
     $identifier_list = explode("|", $bib['identifier']);
     $num_of_identifiers = count($identifier_list);
     $isbn = trim($identifier_list[ $num_of_identifiers - 1 ]);
@@ -462,12 +488,15 @@ function googlebook_retrieve_bookdata(
 
 
 /**
- * Function: googlebook_make_html_link($address)
+ * Implements: googlebook_make_html_link($address)
  *
- * If the bibli field looks like an address, make it a link
+ * If the biblio field looks like an address, make it a link.
  *
- * $address : the biblio field, which might be an address
+ * @param $address
+ *   the biblio field, which might be an address.
  *
+ * @return
+ *   Returns an HTML <a></a> link if there is a valid address in $address.
  */
 function googlebook_make_html_link($address) {
   if (strpos($address, "https://") !== FALSE || strpos($address, "http://") !== FALSE) {
@@ -478,15 +507,21 @@ function googlebook_make_html_link($address) {
 
 
 /**
- * Function: googlebook_set_param($params, &$flag_var, $value, $set)
+ * Implements: googlebook_set_param($params, &$flag_var, $value, $set)
  *
- * Sets a parameter variable by reference based on presence in array
+ * Sets a parameter variable by reference based on presence in array.
  *
- * $params : The parameter array
- * &$flag_var : The parameter variable to set
- * $value : the var to find in the array (needle)
- * $set : What $flag_var will be set to if TRUE
+ * @param $params
+ *   The parameter array.
  *
+ * @param &$flag_var
+ *   The parameter variable to set.
+ *
+ * @param $value
+ *   The var to find in the array (needle).
+ *
+ * @param $set
+ *   What $flag_var will be set to if TRUE.
  */
 function googlebook_set_param($params, &$flag_var, $value, $set) {
 
@@ -498,10 +533,10 @@ function googlebook_set_param($params, &$flag_var, $value, $set) {
 /**
  * Function: googlebook_add_googlebooks_javascript()
  *
- * Adds the external javascript for the google books viewer widget
+ * Adds the external javascript for the google books viewer widget.
+ * Cannot use add_js because used in a filter.
  *
- * Cannot use add_js because used in a filter
- *
+ * @return The form to embed javascript.
  */
 function googlebook_add_googlebooks_javascript() {
 
@@ -520,12 +555,14 @@ function googlebook_add_googlebooks_javascript() {
 /**
  * Function: googlebook_add_googlebooks_viewer_inline($isbn)
  *
- * ($isbn) A validated ISBN from the Google Books API
+ * Add javascript for a Google Books viewer for a particular ISBN.
+ * Cannot use add_js because used in a filter.
  *
- * Add javascript for a Google Books viewer for a particular ISBN
+ * @param $isbn
+ *   A validated ISBN from the Google Books API.
  *
- * Cannot use add_js because used in a filter
- *
+ * @return
+ *   Returns the form with the Google Books JavaScript viewer code embeded.
  */
 function googlebook_add_googlebooks_viewer_inline($isbn) {
 
