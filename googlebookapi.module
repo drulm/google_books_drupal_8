@@ -137,15 +137,15 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
   $bookkeys = googlebookapi_cached_request($id);
 
   // Decode into array to be able to scan.
-  $obj = json_decode($bookkeys, TRUE);
+  $json_array_google_book_data = drupal_json_decode($bookkeys, TRUE);
 
-  $versions = $obj['totalItems'];
+  $versions = $json_array_google_book_data['totalItems'];
 
   // Check the number of versions returned by Google Books.
   if ($versions > 0 && $version_num < $versions) {
 
     // Grab the first result.
-    $bookkeyresult = $obj['items'][$version_num];
+    $bookkeyresult = $json_array_google_book_data['items'][$version_num];
 
     // Extract the results into one big string with delimiters.
     $book_str = googlebookapi_json_extract($bookkeyresult);
@@ -315,9 +315,9 @@ function googlebookapi_get_googlebook_version_count($id) {
   $bookkeys = googlebookapi_cached_request($id);
 
   // Decode into array to be able to scan.
-  $obj = json_decode($bookkeys, TRUE);
+  $json_array_google_book_data = drupal_json_decode($bookkeys, TRUE);
 
-  return $obj['totalItems'];
+  return $json_array_google_book_data['totalItems'];
 }
 
 /**

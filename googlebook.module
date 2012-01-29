@@ -131,7 +131,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
   $settings['googlebook']['bib_fields'] = array(
     '#type' => 'select',
     '#multiple' => TRUE,
-    '#title' => 'Google Book Data Fields',
+    '#title' => t('Google Book Data Fields'),
     '#required' => TRUE,
     '#options' => googlebookapi_bib_field_array(),
     '#description' => t('Hold control to select multiple fields.'),
@@ -252,9 +252,8 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
   preg_match_all('/{{(.*)}}/', $text, $match);
   $tag = $match[0];
   $book = array();
-  $counter = 0;
-  for ($i = 0; $i < count($match[1]); $i++) {
-    $book[$counter] = googlebook_retrieve_bookdata(
+  foreach ($match[1] as $i => $val) {
+      $book[$i] = googlebook_retrieve_bookdata(
       $match[1][$i],
       $filter->settings['googlebook_link']['worldcat'],
       $filter->settings['googlebook_link']['librarything'],
@@ -267,7 +266,6 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
       $filter->settings['googlebook_reader']['reader_height'],
       $filter->settings['googlebook_reader']['reader_width']
     );
-    $counter++;
   }
   $text = str_replace($tag, $book, $text);
   return $text;
@@ -416,7 +414,7 @@ function googlebook_retrieve_bookdata(
         $openlibrary = '<a href="http://openlibrary.org/isbn/' . $isbn . '" rel="nofollow" target="_blank">Open Library</a><br />';
       }
       if (drupal_strlen($worldcat . $librarything . $openlibrary) > 0) {
-        $extra_links = "Link to:<br />";
+        $extra_links = t("Link to") . ":<br />";
       }
     }
 
@@ -437,7 +435,7 @@ function googlebook_retrieve_bookdata(
     // Build the main title with a link.
     $title = $bib['title'];
     if ($title_link == 1 || $title_link === "") {
-      $html_title = '<div class="googlebooktitle">Title: <a href="' . htmlentities($bib['infoLink']) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></div>';
+      $html_title = '<div class="googlebooktitle">' . t('Title') . ': <a href="' . htmlentities($bib['infoLink']) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></div>';
     }
 
     // Build a coverimage.
