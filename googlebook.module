@@ -451,7 +451,7 @@ function googlebook_retrieve_bookdata(
  */
 function googlebook_make_html_link($address) {
   if (valid_url($address, $absolute = TRUE)) {
-    return '<a href="' . htmlentities($address) . '" rel="nofollow" target="_blank"> link </a>';
+    return '<a href="' . htmlentities($address) . '" rel="nofollow" target="_blank"> t(link) </a>';
   }
   return $address;
 }
