@@ -50,20 +50,21 @@ if (isset($thumbnail) && ($image_option == 1 || $image_on == 1) && $image_on !==
 endif;
 
 // Show the google book viewer if selected and isbn exists.
-if (!empty($googlebook_js_string)){
+if (!empty($googlebook_js_string)):
   print "<script type='text/javascript' src='" . GOOGLE_BOOK_EXTERN_JS . "'></script>";
   print "<script type='text/javascript'>" . $googlebook_js_string . "</script>";
   $google_viewer = '<div class="googleviewer" id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div><p></p><br />';
   print $google_viewer;
-}
+endif;
 
 // Output the biblio fields in the array.
 print "<ul>";
-foreach ($bib as $bib_index) {
-  if (isset (${$bib_index})) {
+foreach ($bib as $bib_index):
+  if (isset (${$bib_index})):
     print "<li>" . drupal_ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $bib_index))) . ": " . googlebook_make_html_link(${$bib_index}) . "</li>";
-  }
-}
+  endif;
+endforeach;
+
 print "</ul>";
 print "</div>";
 ?>
