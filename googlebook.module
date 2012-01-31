@@ -431,6 +431,7 @@ function googlebook_retrieve_bookdata(
   $vars['reader_height'] = $reader_height;
   $vars['reader_width'] = $reader_width;
   $vars['googlebook_js_string'] = $googlebook_js_string;
+  $vars['info_link'] = $bib['infoLink'];
 
   // Send the variables to the theme.
   $output = theme('preprocess_method', $vars);
@@ -451,7 +452,7 @@ function googlebook_retrieve_bookdata(
  */
 function googlebook_make_html_link($address) {
   if (valid_url($address, $absolute = TRUE)) {
-    return '<a href="' . htmlentities($address) . '" rel="nofollow" target="_blank"> t(link) </a>';
+    return '<a href="' . htmlentities($address) . '" rel="nofollow" target="_blank">' . t('link') . '</a>';
   }
   return $address;
 }
@@ -510,7 +511,8 @@ function googlebook_theme() {
     'image_on',
     'reader_on',
     'html_coverimage',
-    'google_viewer'
+    'google_viewer',
+    'info_link'
     );
 
   // Return the array describing the template name and vars.
