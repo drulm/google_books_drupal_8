@@ -416,7 +416,7 @@ function googlebook_retrieve_bookdata(
     }
   }
 
-  //Build up remaining output to send to template
+  // Build up remaining output to send to template.
   $vars = $selected_bibs;
   $vars['isbn'] = $isbn;
   $vars['title_link'] = $title_link;
@@ -450,7 +450,7 @@ function googlebook_retrieve_bookdata(
  *   Returns an HTML <a></a> link if there is a valid address in $address.
  */
 function googlebook_make_html_link($address) {
-  if (strpos($address, "https://") !== FALSE || strpos($address, "http://") !== FALSE) {
+  if (valid_url($address, $absolute = TRUE)) {
     return '<a href="' . htmlentities($address) . '" rel="nofollow" target="_blank"> link </a>';
   }
   return $address;
@@ -482,13 +482,13 @@ function googlebook_set_param($params, &$flag_var, $value, $set) {
 
 
 /**
-* Implements: googlebook_theme
-*
-* Sets up the theme page for the googlebook filter.
-*
-* @return array
-*   The return array defines the .tpl page
-*/
+ * Implements: googlebook_theme
+ *
+ * Sets up the theme page for the googlebook filter.
+ *
+ * @return array
+ *   The return array defines the .tpl page
+ */
 function googlebook_theme() {
   // Get the biblio fields returned by books.google.com.
   $bib_fields = googlebookapi_bib_field_array();
