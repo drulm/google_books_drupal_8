@@ -333,6 +333,7 @@ function googlebook_retrieve_bookdata(
 
   // Clear some variables so we don't need to do it later.
   $google_viewer = "";
+  $title_link = "";
 
   // Separate parameters by '|' delimiter and clean data.
   $params = explode("|", $id);

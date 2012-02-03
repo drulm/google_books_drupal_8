@@ -15,7 +15,7 @@ print '<div class="googlebook">';
 $bib = googlebookapi_bib_field_array();
 
 // Build the main title with a link.
-if (($title_link == 1 || $title_link === "") && isset($info_link) && isset($title)):
+if ($title_link !== 0 && isset($info_link) && isset($title)):
   print '<div class="googlebooktitle">' . t('Title') . ': <a href="' . htmlentities($info_link) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></div>';
 endif;
 
