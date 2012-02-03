@@ -11,9 +11,6 @@
 
 print '<div class="googlebook">';
 
-// Get the data array.
-$bib = googlebookapi_bib_field_array();
-
 // Build the main title with a link.
 if ($title_link !== 0 && isset($info_link) && isset($title)):
   print '<div class="googlebooktitle"><a href="' . htmlentities($info_link) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></div>';
@@ -57,6 +54,5 @@ foreach ($bib as $bib_index):
   endif;
 endforeach;
 
-print "</ul>";
-print "</div>";
+print "</ul></div>";
 ?>

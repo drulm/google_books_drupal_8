@@ -436,6 +436,7 @@ function googlebook_retrieve_bookdata(
   $vars['librarything_link'] = $librarything_link;
   $vars['openlibrary_link'] = $openlibrary_link;
   $vars['worldcat_link'] = $worldcat_link;
+  $vars['info_link'] = $bib['infoLink'];
   $vars['image_option'] = $image_option;
   $vars['image_on'] = $image_on;
   $vars['page_curl'] = $page_curl;
@@ -444,8 +445,9 @@ function googlebook_retrieve_bookdata(
   $vars['reader_height'] = $reader_height;
   $vars['reader_width'] = $reader_width;
   $vars['googlebook_js_string'] = $googlebook_js_string;
-  $vars['info_link'] = $bib['infoLink'];
   $vars['img_link'] = $img_link;
+  // Important, to pass all the bib fields.
+  $vars['bib'] = googlebookapi_bib_field_array();
 
   // Send the variables to the theme.
   $output = theme('preprocess_method', $vars);
