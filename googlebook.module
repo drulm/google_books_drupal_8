@@ -334,6 +334,7 @@ function googlebook_retrieve_bookdata(
   // Clear some variables so we don't need to do it later.
   $google_viewer = "";
   $title_link = "";
+  $img_link = "";
 
   // Separate parameters by '|' delimiter and clean data.
   $params = explode("|", $id);
@@ -401,6 +402,17 @@ function googlebook_retrieve_bookdata(
       }
     }
 
+    if (isset($bib['thumbnail']) && ($image_option == 1 || $image_on == 1) && $image_on !== 0) {
+      $img_link = $bib['thumbnail'];
+      if ($page_curl == 1) {
+        $img_link = str_replace("&edge=nocurl", "", $img_link);
+        $img_link .= "&edge=curl";
+      }
+      if ($page_curl == 0) {
+        $img_link = str_replace("&edge=curl", "", $img_link);
+      }
+    }
+
     $googlebook_js_string = "";
     // View the book reader.
     if (isset($bib['embeddable']) && ($reader_option == 1 || $reader_on == 1) && $reader_on !== 0) {
@@ -433,6 +445,7 @@ function googlebook_retrieve_bookdata(
   $vars['reader_width'] = $reader_width;
   $vars['googlebook_js_string'] = $googlebook_js_string;
   $vars['info_link'] = $bib['infoLink'];
+  $vars['img_link'] = $img_link;
 
   // Send the variables to the theme.
   $output = theme('preprocess_method', $vars);

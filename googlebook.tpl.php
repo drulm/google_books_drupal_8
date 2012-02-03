@@ -16,7 +16,7 @@ $bib = googlebookapi_bib_field_array();
 
 // Build the main title with a link.
 if ($title_link !== 0 && isset($info_link) && isset($title)):
-  print '<div class="googlebooktitle">' . t('Title') . ': <a href="' . htmlentities($info_link) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></div>';
+  print '<div class="googlebooktitle"><a href="' . htmlentities($info_link) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></div>';
 endif;
 
 // Show the book links if any are found. None are checked for ISBN validity.
@@ -36,15 +36,7 @@ if (!empty($isbn) || TRUE):
 endif;
 
 // Build a coverimage if user selected.
-if (isset($thumbnail) && ($image_option == 1 || $image_on == 1) && $image_on !== 0):
-  $img_link = $thumbnail;
-  if ($page_curl == 1):
-    $img_link = str_replace("&edge=nocurl", "", $img_link);
-    $img_link .= "&edge=curl";
-  endif;
-  if ($page_curl == 0):
-    $img_link = str_replace("&edge=curl", "", $img_link);
-  endif;
+if ($img_link != ""):
   $html_coverimage = "<img class='googlebookimage' src='" . htmlentities($img_link) . "' alt='" . $title . "' height='" . $image_height . "' width='" . $image_width . "' />";
   print "<a href='" . htmlentities($info_link) . "' rel='nofollow' target='_blank'>" . $html_coverimage . "</a>";
 endif;
