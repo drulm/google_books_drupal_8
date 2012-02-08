@@ -450,7 +450,7 @@ function googlebook_retrieve_bookdata(
   $vars['bib'] = googlebookapi_bib_field_array();
 
   // Send the variables to the theme.
-  $output = theme('preprocess_method', $vars);
+  $output = theme('googlebook_theme_template', $vars);
   return $output;
 }
 
@@ -533,7 +533,7 @@ function googlebook_theme() {
 
   // Return the array describing the template name and vars.
   return array(
-    'preprocess_method' => array(
+    'googlebook_theme_template' => array(
       'template' => 'googlebook',
       'arguments' => $bib_fields,
     ),
