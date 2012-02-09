@@ -148,7 +148,7 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
     $bookkeyresult = $json_array_google_book_data['items'][$version_num];
 
     // Extract the results into one big string with delimiters.
-    $book_str = googlebookapi_json_extract($bookkeyresult);
+    $book_str = googlebookapi_demark_and_flatten($bookkeyresult);
 
     // Build array for this.
     $bib = array();
@@ -182,7 +182,7 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
 
 
 /**
- * Implements googlebookapi_json_extract(&$barr)
+ * Implements googlebookapi_demark_and_flatten(&$barr)
  *
  * Choose the first volume of the search and turn it into
  * a flat array for easy access. Use simple recursion to scan the JSON
@@ -194,7 +194,7 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
  * @return string
  *   One big string of all book data with delimiters used to expand to arrays.
  */
-function googlebookapi_json_extract(&$barr) {
+function googlebookapi_demark_and_flatten(&$barr) {
 
   // Get the bib fields and go through the array.
   $bib_fields = googlebookapi_bib_field_array();
@@ -209,7 +209,7 @@ function googlebookapi_json_extract(&$barr) {
     else {
       // If there is a sub array, call this same function to traverse it.
       if (is_array($value)) {
-        $sub_bib = googlebookapi_json_extract($value, $bib_fields);
+        $sub_bib = googlebookapi_demark_and_flatten($value, $bib_fields);
       }
       else {
         $sub_bib = $value;
