@@ -35,6 +35,16 @@
  */
 define('GOOGLE_BOOK_EXTERN_JS', 'https://www.google.com/jsapi');
 
+/*
+ * Has the Google book reader height default.
+ */
+define('GOOGLE_BOOK_DEFAULT_READER_HEIGHT', '500');
+
+/*
+ * Has the Google book reader width default.
+ */
+define('GOOGLE_BOOK_DEFAULT_READER_WIDTH', '400');
+
 /**
  * Implements: googlebook_filter_googlebook_tips($filter, $format, $long=FALSE)
  *
@@ -55,7 +65,7 @@ define('GOOGLE_BOOK_EXTERN_JS', 'https://www.google.com/jsapi');
 function googlebook_filter_googlebook_tips($filter, $format, $long = FALSE) {
   if ($long) {
     return t('Put a Google Book search term between double brackets like this:
-      {{The Hobbit}} or {{isbn:9780618154012}} or {{Rucker+Software}}
+      [googlebook:The Hobbit] or [googlebook:9780618154012] or [googlebook:Rucker+Software]
       and this will filter the input to replace with Google Book data
       and images from http://books.google.com');
   }
@@ -83,8 +93,8 @@ function googlebook_filter_info() {
       'librarything' => 1,
       'image' => 1,
       'reader' => 0,
-      'reader_height' => 500,
-      'reader_width' => 400,
+      'reader_height' => GOOGLE_BOOK_DEFAULT_READER_WIDTH,
+      'reader_width' => GOOGLE_BOOK_DEFAULT_READER_HEIGHT,
       'image_height' => '',
       'image_width' => '',
       'bib_fields' => googlebookapi_bib_field_array(),
@@ -178,6 +188,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
     '#title' => t('Image height'),
     '#size' => 4,
     '#maxlength' => 4,
+    '#element_validate' => array('_googlebook_image_or_reader_valid_int_size'),
     '#description' => t('Height of Google cover image'),
     '#default_value' => isset($filter->settings['googlebook_image']['image_height']) ? check_plain($filter->settings['googlebook_image']['image_height']) : $defaults['image_height'],
   );
@@ -186,6 +197,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
     '#title' => t('Image width'),
     '#size' => 4,
     '#maxlength' => 4,
+    '#element_validate' => array('_googlebook_image_or_reader_valid_int_size'),
     '#description' => t('Width of Google cover image'),
     '#default_value' => isset($filter->settings['googlebook_image']['image_width']) ? check_plain($filter->settings['googlebook_image']['image_width']) : $defaults['image_width'],
   );
@@ -207,6 +219,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
     '#title' => t('Reader height'),
     '#size' => 4,
     '#maxlength' => 4,
+    '#element_validate' => array('_googlebook_image_or_reader_valid_int_size'),
     '#description' => t('Height of Google reader'),
     '#default_value' => isset($filter->settings['googlebook_reader']['reader_height']) ? check_plain($filter->settings['googlebook_reader']['reader_height']) : $defaults['reader_height'],
   );
@@ -215,10 +228,29 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
     '#title' => t('Reader width'),
     '#size' => 6,
     '#maxlength' => 6,
+    '#element_validate' => array('_googlebook_image_or_reader_valid_int_size'),
     '#description' => t('Width of Google reader'),
     '#default_value' => isset($filter->settings['googlebook_reader']['reader_width']) ? check_plain($filter->settings['googlebook_reader']['reader_width']) : $defaults['reader_width'],
   );
   return $settings;
+}
+
+/**
+ * Implements: _googlebook_image_or_reader_valid_int_size
+ *
+ *
+ * @param array $element
+ *   The form element to validate.
+ *
+ * @param array $form_state
+ *   The state of the form.
+ */
+function _googlebook_image_or_reader_valid_int_size($element, &$form_state) {
+  $image_size_parameter = trim($element['#value']);
+  $element_title = $element['#title'];
+  if ((!is_numeric($image_size_parameter) || intval($image_size_parameter)<1) && !empty($image_size_parameter)) {
+    form_error($element, t('@title option must contain a valid value. You may either leave the numeric field empty or enter a value greater than 0. For example 75 or 100 or 400.', array('@title' => $element_title)));
+  }
 }
 
 
@@ -249,7 +281,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
  *   Returns string of the filtered HTML for googlebooks.
  */
 function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
-  preg_match_all('/{{(.*)}}/', $text, $match);
+  preg_match_all('/\[googlebook:(.*)\]/', $text, $match);
   $tag = $match[0];
   $book = array();
   foreach ($match[1] as $i => $val) {
@@ -429,6 +461,13 @@ function googlebook_retrieve_bookdata(
     }
   }
 
+  // Set the default reader size if needed.
+  if (trim($reader_height) == '') {
+    $reader_height = GOOGLE_BOOK_DEFAULT_READER_HEIGHT;
+  }
+  if (trim($reader_width) == '') {
+    $reader_width = GOOGLE_BOOK_DEFAULT_READER_WIDTH;
+  }
   // Build up remaining output to send to template.
   $vars = $selected_bibs;
   $vars['isbn'] = $isbn;
