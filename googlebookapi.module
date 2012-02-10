@@ -270,15 +270,16 @@ function googlebookapi_cached_request($path) {
 
   // Build the full path (and the cache key).
   $url_bookkeys = GOOGLE_BOOKS_API_ROOT . $path ;
+  $bookkeys_hash = hash('sha256', $url_bookkeys);
 
   // See if it is cached.
-  $cached = cache_get($url_bookkeys, 'cache_googlebookapi');
+  $cached = cache_get($bookkeys_hash, 'cache_googlebookapi');
 
   // If is it IS cached, then just return the data from the cache.
   if ($cached !== FALSE) {
     // Check if the time has expired.
     if ($cached->expire < REQUEST_TIME) {
-      cache_clear_all($url_bookkeys, 'cache_googlebookapi');
+      cache_clear_all($bookkeys_hash, 'cache_googlebookapi');
     }
     return $cached->data;
   }
@@ -288,7 +289,7 @@ function googlebookapi_cached_request($path) {
     $bookkeys = $url_data->data;
 
     // Set the cache.
-    cache_set($url_bookkeys, $bookkeys, 'cache_googlebookapi', REQUEST_TIME + GOOGLEBOOKS_CACHE_PERIOD);
+    cache_set($bookkeys_hash, $bookkeys, 'cache_googlebookapi', REQUEST_TIME + GOOGLEBOOKS_CACHE_PERIOD);
 
     // Bookkeys is the data, so return it.
     return $bookkeys;

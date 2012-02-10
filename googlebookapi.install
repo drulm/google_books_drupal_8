@@ -23,6 +23,8 @@
 
 /**
  * Implements hook_schema().
+ *
+ * @param Returns the database schema.
  */
 function googlebookapi_schema() {
   $schema['cache_googlebookapi'] = drupal_get_schema_unprocessed('system', 'cache');
