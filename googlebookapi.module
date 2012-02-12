@@ -152,18 +152,18 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
     $bib = array();
     $fields = explode("|||", $book_str);
     for ($i = 1; $i < count($fields); $i += 2) {
-      $fieldname = $fields[ $i ];
-      if (strpos($fields[ $i + 1 ], "[[[") === FALSE) {
-        $value = trim(str_replace("(((", "", $fields[ $i + 1 ]));
+      $fieldname = $fields[$i];
+      if (strpos($fields[$i + 1], "[[[") === FALSE) {
+        $value = trim(str_replace("(((", "", $fields[$i + 1]));
       }
       else {
         $sub_value = "";
-        $sub_fields = explode("[[[", $fields[ $i + 1 ]);
+        $sub_fields = explode("[[[", $fields[$i + 1]);
         for ($j = 1; $j < count($sub_fields); $j += 2) {
-          if ($j != 1 && !empty( $sub_fields[ $j + 1 ])) {
+          if ($j != 1 && !empty($sub_fields[$j + 1])) {
             $sub_value .= " | ";
           }
-          $sub_value .= trim(str_replace("(((", "", $sub_fields[ $j + 1 ]));
+          $sub_value .= trim(str_replace("(((", "", $sub_fields[$j + 1]));
         }
         $value = $sub_value;
       }
@@ -242,10 +242,10 @@ function googlebookapi_demark_and_flatten(&$barr) {
 function googlebookapi_assign_bib_array(&$bib_array, $index, $value) {
 
   if (!array_key_exists($index, $bib_array)) {
-    $bib_array[ $index ] = $value;
+    $bib_array[$index] = $value;
   }
   else {
-    $bib_array[ $index ] = $bib_array[ $index ] . " | " . $value;
+    $bib_array[$index] = $bib_array[$index] . " | " . $value;
   }
 }
 
@@ -284,6 +284,10 @@ function googlebookapi_cached_request($path) {
   else {
     // Do it the slow way, go get the new data.
     $url_data = drupal_http_request($url_bookkeys);
+    if (isset($url_data->error) || !isset($url_data->data)) {
+      drupal_set_message($message = t('Googlebooks: Could not retrieve data from google.com. @err', array('@err' => check_plain($url_data->error))), $type = 'error');
+      return NULL;
+    }
     $bookkeys = $url_data->data;
 
     // Set the cache if return from request is not NULL.

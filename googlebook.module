@@ -64,7 +64,7 @@ define('GOOGLE_BOOK_DEFAULT_READER_WIDTH', '400');
  */
 function googlebook_filter_googlebook_tips($filter, $format, $long = FALSE) {
   if ($long) {
-    return t('Put a Google Book search term between double brackets like this:
+    return t('Put a Google Book search term between square brackets like this:
       [googlebook:The Hobbit] or [googlebook:9780618154012] or [googlebook:Rucker+Software]
       and this will filter the input to replace with Google Book data
       and images from http://books.google.com');
@@ -381,7 +381,7 @@ function googlebook_retrieve_bookdata(
     // Clean the data from Google.
     array_map('filter_xss', $bib);
 
-    unset( $params[0] );
+    unset($params[0]);
     array_walk($params, create_function('&$val', '$val = trim($val);'));
 
     // Set the fixed parameters explicitly (not the data fields).
@@ -403,19 +403,19 @@ function googlebook_retrieve_bookdata(
     // Set the data field parameters explicitly.
     $bib_field_select_explicit = array();
     foreach ($bib_fields as $i => $field_name) {
-      $bib_field_select_explicit[ $i ] = "";
-      googlebook_set_param($params, $bib_field_select_explicit[ $i ], $field_name, "$i");
-      googlebook_set_param($params, $bib_field_select_explicit[ $i ], "no_" . $field_name, FALSE);
+      $bib_field_select_explicit[$i] = "";
+      googlebook_set_param($params, $bib_field_select_explicit[$i], $field_name, "$i");
+      googlebook_set_param($params, $bib_field_select_explicit[$i], "no_" . $field_name, FALSE);
     }
 
     // Merge the selected options with the global bib field options.
     // Use the and operation to default to off.
     foreach ($bib_field_select_explicit as $i => $field_name) {
-      if ($bib_field_select_explicit[ $i ]) {
-        $bib_field_select[ $i ] = $bib_field_select_explicit[ $i ];
+      if ($bib_field_select_explicit[$i]) {
+        $bib_field_select[$i] = $bib_field_select_explicit[$i];
       }
-      if ($bib_field_select_explicit[ $i ] === FALSE) {
-        unset($bib_field_select[ $i ]);
+      if ($bib_field_select_explicit[$i] === FALSE) {
+        unset($bib_field_select[$i]);
       }
     }
 
@@ -425,7 +425,7 @@ function googlebook_retrieve_bookdata(
       // which should be an ISBN 13 although may be something else.
       $identifier_list = explode("|", $bib['identifier']);
       $num_of_identifiers = count($identifier_list);
-      $isbn = trim($identifier_list[ $num_of_identifiers - 1 ]);
+      $isbn = trim($identifier_list[$num_of_identifiers - 1]);
       $isbn = is_numeric($isbn) ? $isbn : "";
 
       // Build up the the selected bib fields fields.
@@ -514,7 +514,7 @@ function googlebook_retrieve_bookdata(
  */
 function googlebook_make_html_link($address) {
   if (valid_url($address, $absolute = TRUE)) {
-    return '<a href="' . htmlentities($address) . '" rel="nofollow" target="_blank">' . t('link') . '</a>';
+    return l(t('link'), htmlentities($address), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
   }
   return $address;
 }
