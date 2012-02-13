@@ -8,12 +8,14 @@
  * This is the default template file for the googlebook filter.
  *
  */
+?>
 
-print '<div class="googlebook">';
-
+<div class="googlebook">
+  
+<?php
 // Build the main title with a link.
 if ($title_link !== 0 && isset($info_link) && isset($title)):
-  print '<div class="googlebooktitle"><a href="' . htmlentities($info_link) . '" rel="nofollow" target="_blank"><i>' . $title . '</i></a></div>';
+  print '<div class="googlebooktitle"><i>' . l($title, check_url($info_link), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank'))) . '</i></a></div>';
 endif;
 
 // Show the book links if any are found. None are checked for ISBN validity.
@@ -45,14 +47,17 @@ if (!empty($googlebook_js_string)):
   $google_viewer = '<div class="googleviewer" id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div><p></p><br />';
   print $google_viewer;
 endif;
+?>
 
+<ul>
+
+<?php
 // Output the biblio fields in the array.
-print "<ul>";
 foreach ($bib as $bib_index):
   if (isset ($$bib_index)):
     print "<li>" . drupal_ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $bib_index))) . ": " . googlebook_make_html_link($$bib_index) . "</li>";
   endif;
 endforeach;
-
-print "</ul></div>";
 ?>
+
+</ul></div>

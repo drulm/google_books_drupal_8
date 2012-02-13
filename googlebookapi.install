@@ -22,7 +22,7 @@
  */
 
 /**
- * Implements hook_schema().
+ * Returns the schema for the googlebook module cache.
  *
  * @return array
  *   Returns the database schema.

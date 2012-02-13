@@ -46,9 +46,7 @@ define('GOOGLE_BOOK_DEFAULT_READER_HEIGHT', '500');
 define('GOOGLE_BOOK_DEFAULT_READER_WIDTH', '400');
 
 /**
- * Implements: googlebook_filter_googlebook_tips($filter, $format, $long=FALSE)
- *
- * The filter tips callback for the googlebook filter module
+ * Handles filter tips callback for the googlebook filter module.
  *
  * @param object $filter
  *   The filter variable StdClass object.
@@ -73,9 +71,7 @@ function googlebook_filter_googlebook_tips($filter, $format, $long = FALSE) {
 
 
 /**
- * Implements: googlebook_filter_info()
- *
- * Filter info hook for googlebook filter with initial values.
+ * Handles filter info hook for googlebook filter with initial values.
  *
  * @return array
  *   Returns the initialized filter information.
@@ -106,9 +102,7 @@ function googlebook_filter_info() {
 
 
 /**
- * Implements: googlebook_filter_settings
- *
- * The form for the filter hook for googlebook filter.
+ * Creates & returns the form for the filter hook for googlebook filter.
  *
  * @param array $form
  *   The array of form elements.
@@ -158,17 +152,17 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
   $settings['googlebook_link']['worldcat'] = array(
     '#type' => 'checkbox',
     '#title' => t('Link to WorldCat'),
-    '#default_value' => isset($filter->settings['googlebook_link']['worldcat']) ? check_plain($filter->settings['googlebook_link']['worldcat']) : $defaults['worldcat'],
+    '#default_value' => isset($filter->settings['googlebook_link']['worldcat']) ? $filter->settings['googlebook_link']['worldcat'] : $defaults['worldcat'],
   );
   $settings['googlebook_link']['librarything'] = array(
     '#type' => 'checkbox',
     '#title' => t('Link to LibraryThing'),
-    '#default_value' => isset($filter->settings['googlebook_link']['librarything']) ? check_plain($filter->settings['googlebook_link']['librarything']) : $defaults['librarything'],
+    '#default_value' => isset($filter->settings['googlebook_link']['librarything']) ? $filter->settings['googlebook_link']['librarything'] : $defaults['librarything'],
   );
   $settings['googlebook_link']['openlibrary'] = array(
     '#type' => 'checkbox',
     '#title' => t('Link to Open Library'),
-    '#default_value' => isset($filter->settings['googlebook_link']['openlibrary']) ? check_plain($filter->settings['googlebook_link']['openlibrary']) : $defaults['openlibrary'],
+    '#default_value' => isset($filter->settings['googlebook_link']['openlibrary']) ? $filter->settings['googlebook_link']['openlibrary'] : $defaults['openlibrary'],
   );
 
   $settings['googlebook_image'] = array(
@@ -181,7 +175,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
   $settings['googlebook_image']['image'] = array(
     '#type' => 'checkbox',
     '#title' => t('Include Google book cover image'),
-    '#default_value' => isset($filter->settings['googlebook_image']['image']) ? check_plain($filter->settings['googlebook_image']['image']) : $defaults['image'],
+    '#default_value' => isset($filter->settings['googlebook_image']['image']) ? $filter->settings['googlebook_image']['image'] : $defaults['image'],
   );
   $settings['googlebook_image']['image_height'] = array(
     '#type' => 'textfield',
@@ -190,7 +184,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
     '#maxlength' => 4,
     '#element_validate' => array('_googlebook_image_or_reader_valid_int_size'),
     '#description' => t('Height of Google cover image'),
-    '#default_value' => isset($filter->settings['googlebook_image']['image_height']) ? check_plain($filter->settings['googlebook_image']['image_height']) : $defaults['image_height'],
+    '#default_value' => isset($filter->settings['googlebook_image']['image_height']) ? $filter->settings['googlebook_image']['image_height'] : $defaults['image_height'],
   );
   $settings['googlebook_image']['image_width'] = array(
     '#type' => 'textfield',
@@ -199,7 +193,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
     '#maxlength' => 4,
     '#element_validate' => array('_googlebook_image_or_reader_valid_int_size'),
     '#description' => t('Width of Google cover image'),
-    '#default_value' => isset($filter->settings['googlebook_image']['image_width']) ? check_plain($filter->settings['googlebook_image']['image_width']) : $defaults['image_width'],
+    '#default_value' => isset($filter->settings['googlebook_image']['image_width']) ? $filter->settings['googlebook_image']['image_width'] : $defaults['image_width'],
   );
 
   $settings['googlebook_reader'] = array(
@@ -212,7 +206,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
   $settings['googlebook_reader']['reader'] = array(
     '#type' => 'checkbox',
     '#title' => t('Include the Google book reader'),
-    '#default_value' => isset($filter->settings['googlebook_reader']['reader']) ? check_plain($filter->settings['googlebook_reader']['reader']) : $defaults['reader'],
+    '#default_value' => isset($filter->settings['googlebook_reader']['reader']) ? $filter->settings['googlebook_reader']['reader'] : $defaults['reader'],
   );
   $settings['googlebook_reader']['reader_height'] = array(
     '#type' => 'textfield',
@@ -221,7 +215,7 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
     '#maxlength' => 4,
     '#element_validate' => array('_googlebook_image_or_reader_valid_int_size'),
     '#description' => t('Height of Google reader'),
-    '#default_value' => isset($filter->settings['googlebook_reader']['reader_height']) ? check_plain($filter->settings['googlebook_reader']['reader_height']) : $defaults['reader_height'],
+    '#default_value' => isset($filter->settings['googlebook_reader']['reader_height']) ? $filter->settings['googlebook_reader']['reader_height'] : $defaults['reader_height'],
   );
   $settings['googlebook_reader']['reader_width'] = array(
     '#type' => 'textfield',
@@ -230,14 +224,13 @@ function googlebook_filter_settings($form, &$form_state, $filter, $format, $defa
     '#maxlength' => 6,
     '#element_validate' => array('_googlebook_image_or_reader_valid_int_size'),
     '#description' => t('Width of Google reader'),
-    '#default_value' => isset($filter->settings['googlebook_reader']['reader_width']) ? check_plain($filter->settings['googlebook_reader']['reader_width']) : $defaults['reader_width'],
+    '#default_value' => isset($filter->settings['googlebook_reader']['reader_width']) ? $filter->settings['googlebook_reader']['reader_width'] : $defaults['reader_width'],
   );
   return $settings;
 }
 
 /**
- * Implements: _googlebook_image_or_reader_valid_int_size
- *
+ * Validation function for image sizes to check for positive int.
  *
  * @param array $element
  *   The form element to validate.
@@ -255,8 +248,6 @@ function _googlebook_image_or_reader_valid_int_size($element, &$form_state) {
 
 
 /**
- * Implements: googlebook_filter_process
- *
  * This is the main filter callback process for the google book filter module.
  *
  * @param string $text
@@ -305,11 +296,9 @@ function googlebook_filter_process($text, $filter, $format, $langcode, $cache, $
 
 
 /**
- * Implements: googlebook_retrieve_bookdata
- *
  * Gets the book data from Google Books / other sites and then displays it.
- * $id is a valid Google Book query. This is the main filter processing
- * function that does the work.
+ *
+ * This is the main filter processing function that does the work.
  *
  * @param string $id
  *   The full string pulled from inside the {{$id}} filter.
@@ -382,7 +371,7 @@ function googlebook_retrieve_bookdata(
     array_map('filter_xss', $bib);
 
     unset($params[0]);
-    array_walk($params, create_function('&$val', '$val = trim($val);'));
+    $params = array_map('trim', $params);
 
     // Set the fixed parameters explicitly (not the data fields).
     googlebook_set_param($params, $worldcat_link, "worldcat", 1);
@@ -502,9 +491,7 @@ function googlebook_retrieve_bookdata(
 
 
 /**
- * Implements: googlebook_make_html_link($address)
- *
- * If the biblio field looks like an address, make it a link.
+ * Takes book field data and makes it a link if it address present.
  *
  * @param string $address
  *   The biblio field string, which might be an address.
@@ -521,8 +508,6 @@ function googlebook_make_html_link($address) {
 
 
 /**
- * Implements: googlebook_set_param($params, &$flag_var, $value, $set)
- *
  * Sets a parameter variable by reference based on presence in array.
  *
  * @param array $params
@@ -545,8 +530,6 @@ function googlebook_set_param($params, &$flag_var, $value, $set) {
 
 
 /**
- * Implements: googlebook_theme
- *
  * Sets up the theme page for the googlebook filter.
  *
  * @return array
