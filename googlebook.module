@@ -526,6 +526,11 @@ function googlebook_init() {
     'group' => JS_THEME,
   );
   drupal_add_js(GOOGLE_BOOK_EXTERN_JS, $js_options);
+  $css_options = array(
+    'type' => 'file',
+    'group' => CSS_THEME,
+  );
+  drupal_add_css(drupal_get_path('module', 'googlebook') . "/googlebook.css", $css_options);
 }
 
 
@@ -603,9 +608,14 @@ function theme_googlebookbiblio($selected_bibs) {
   if (isset($selected_bibs)) {
     $html_string = '<ul class="googlebook_datafields">';
     foreach ($selected_bibs as $bib_index => $bib_value) {
-      $html_string .= "<li>";
-      $html_string .= drupal_ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $bib_index))) . ": " . googlebook_make_html_link($bib_value);
-      $html_string .= "</li>";
+      $bib_field_name = drupal_ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $bib_index)));
+      $bib_field_data = googlebook_make_html_link($bib_value);
+      $html_string .= '<li>';
+      $html_string .= '<span class="googlebook_field_name">'
+        . $bib_field_name
+        . '</span>: <span class="googlebook_field_data">'
+        . $bib_field_data;
+      $html_string .= "</span></li>";
     }
     $html_string .= "</ul>";
     return $html_string;

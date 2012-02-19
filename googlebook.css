@@ -1,0 +1,28 @@
+/**
+ * @file
+ * Googlebook CSS Drupal 7.0
+ *
+ * @author Darrell Ulm.
+ *
+ * This is the default css file for the googlebook filter.
+ *
+ */
+
+.googlebook_links {
+  margin-bottom: 8px;
+  text-align: center;
+}
+.googlebook_image {
+  margin-bottom: 4px;
+  margin-top: 4px;
+  text-align: center;
+}
+.googlebook_title {
+  font-weight: bold;
+  text-decoration: underline;
+  text-align: center;
+}
+.googlebook_field_name {
+  text-decoration: underline;
+  font-weight: bold;
+}
