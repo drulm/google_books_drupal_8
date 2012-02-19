@@ -356,6 +356,7 @@ function googlebook_retrieve_bookdata(
   $google_viewer = "";
   $title_link = "";
   $img_link = "";
+  $title_anchor = "";
 
   // Separate parameters by '|' delimiter and clean data.
   $params = explode("|", $id);
@@ -369,6 +370,7 @@ function googlebook_retrieve_bookdata(
   if ($bib != NULL) {
     // Clean the data from Google.
     array_map('filter_xss', $bib);
+    $bib['infoLink'] = check_url($bib['infoLink']);
 
     unset($params[0]);
     $params = array_map('trim', $params);
@@ -451,6 +453,28 @@ function googlebook_retrieve_bookdata(
           google.setOnLoadCallback(initialize' . $isbn . ');
           ';
       }
+
+      // Build the main title with a link.
+      if ($title_link !== 0 && isset($bib['infoLink']) && isset($bib['title'])) {
+        $title_anchor = l($bib['title'], check_url($bib['infoLink']), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
+      }
+
+      // Show the book links if any are found. Not checked for ISBN validity.
+      if (!empty($isbn) || TRUE) {
+        $worldcat = "";
+        if ($worldcat_link) {
+          $worldcat = l(t('WorldCat'), check_url("http://worldcat.org/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
+        }
+        $librarything = "";
+        if ($librarything_link) {
+          $librarything = l(t('Library Thing'), check_url("http://librarything.com/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
+        }
+        $openlibrary = "";
+        if ($openlibrary_link) {
+          $openlibrary = l(t('Open Library'), check_url("http://openlibrary.org/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
+        }
+      }
+
     }
 
     // Set the default reader size if needed.
@@ -460,13 +484,16 @@ function googlebook_retrieve_bookdata(
     if (trim($reader_width) == '') {
       $reader_width = GOOGLE_BOOK_DEFAULT_READER_WIDTH;
     }
+
     // Build up remaining output to send to template.
-    $vars = $selected_bibs;
+    // Pass all information fields for themers future use.
+    $vars['selected_bibs'] = $selected_bibs;
     $vars['isbn'] = $isbn;
-    $vars['title_link'] = $title_link;
-    $vars['librarything_link'] = $librarything_link;
-    $vars['openlibrary_link'] = $openlibrary_link;
-    $vars['worldcat_link'] = $worldcat_link;
+    $vars['title_anchor'] = $title_anchor;
+    $vars['title'] = $bib['title'];
+    $vars['librarything'] = $librarything;
+    $vars['openlibrary'] = $openlibrary;
+    $vars['worldcat'] = $worldcat;
     $vars['info_link'] = $bib['infoLink'];
     $vars['image_option'] = $image_option;
     $vars['image_on'] = $image_on;
@@ -477,16 +504,28 @@ function googlebook_retrieve_bookdata(
     $vars['reader_width'] = $reader_width;
     $vars['googlebook_js_string'] = $googlebook_js_string;
     $vars['img_link'] = $img_link;
-    // Important, to pass all the bib fields.
-    $vars['bib'] = googlebookapi_bib_field_array();
 
     // Send the variables to the theme.
-    $output = theme('googlebook_theme_template', $vars);
+    $output = theme('googlebook_aggregate', $vars);
     return $output;
   }
   else {
     return "";
   }
+}
+
+
+/**
+ * Load the global GoogleBook Javascript header.
+ *
+ * Employ the JS_THEME option for a good load.
+ */
+function googlebook_init() {
+  $js_options = array(
+    'type' => 'external',
+    'group' => JS_THEME,
+  );
+  drupal_add_js(GOOGLE_BOOK_EXTERN_JS, $js_options);
 }
 
 
@@ -501,7 +540,7 @@ function googlebook_retrieve_bookdata(
  */
 function googlebook_make_html_link($address) {
   if (valid_url($address, $absolute = TRUE)) {
-    return l(t('link'), htmlentities($address), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
+    return l(t('link'), $address, array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
   }
   return $address;
 }
@@ -536,35 +575,42 @@ function googlebook_set_param($params, &$flag_var, $value, $set) {
  *   The return array defines the .tpl page
  */
 function googlebook_theme() {
-  // Get the biblio fields returned by books.google.com.
-  $bib_fields = googlebookapi_bib_field_array();
-
-  // Now add the variable fields.
-  array_push($bib_fields,
-    'worldcat_link',
-    'librarything_link',
-    'openlibrary_link',
-    'image_option',
-    'reader_option',
-    'bib_field_select',
-    'image_height',
-    'image_width',
-    'reader_height',
-    'reader_width',
-    'page_curl',
-    'title_link',
-    'image_on',
-    'reader_on',
-    'html_coverimage',
-    'google_viewer',
-    'info_link'
-    );
-
   // Return the array describing the template name and vars.
   return array(
-    'googlebook_theme_template' => array(
+    // The main theme template googlebook.tpl.php
+    'googlebook_aggregate' => array(
       'template' => 'googlebook',
-      'arguments' => $bib_fields,
+      'arguments' => array('parameter' => NULL),
+    ),
+    // Theme function to print biblio fields.
+    'googlebookbiblio' => array(
+      'variables' => array(),
     ),
   );
+}
+
+
+/**
+ * Theme function for googlebook to print selected biblio fields.
+ *
+ * @param array $selected_bibs
+ *   Pass the selected biblios.
+ *
+ * @return string
+ *   Return the HTML.
+ */
+function theme_googlebookbiblio($selected_bibs) {
+  if (isset($selected_bibs)) {
+    $html_string = '<ul class="googlebook_datafields">';
+    foreach ($selected_bibs as $bib_index => $bib_value) {
+      $html_string .= "<li>";
+      $html_string .= drupal_ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $bib_index))) . ": " . googlebook_make_html_link($bib_value);
+      $html_string .= "</li>";
+    }
+    $html_string .= "</ul>";
+    return $html_string;
+  }
+  else {
+    return "";
+  }
 }
