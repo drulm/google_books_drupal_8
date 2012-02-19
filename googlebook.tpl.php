@@ -28,10 +28,6 @@
         'title' => $title,
         'width' => $image_width,
         'height' => $image_height,
-        'attributes' => array(
-          'rel' => 'nofollow',
-          'target' => '_blank',
-        ),
       ));
       endif;
     ?>

@@ -542,7 +542,7 @@ function googlebook_make_html_link($address) {
   if (valid_url($address, $absolute = TRUE)) {
     return l(t('link'), $address, array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
   }
-  return $address;
+  return check_plain($address);
 }
 
 
