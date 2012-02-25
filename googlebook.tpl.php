@@ -22,7 +22,7 @@
   <div class="googlebook_image">
     <?php
       if ($img_link != ""):
-        print $book_image_array;
+        print theme('image', $book_image_array);
       endif;
     ?>
   </div>

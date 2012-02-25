@@ -601,13 +601,13 @@ function googlebook_theme() {
 function googlebook_preprocess_googlebook_aggregate(&$variables) {
   // Setup the image array and call theme('image'.
   if ($variables["img_link"] != "") {
-      $variables["book_image_array"] = theme('image', array(
+      $variables["book_image_array"] = array(
         'path' => $variables["img_link"],
         'alt' => $variables["title"],
         'title' => $variables["title"],
         'width' => $variables["image_width"],
         'height' => $variables["image_height"],
-      ));
+      );
   }
 
   // Setup the list of biblio data.
