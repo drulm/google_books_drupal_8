@@ -89,8 +89,8 @@ function googlebook_filter_info() {
       'librarything' => 1,
       'image' => 1,
       'reader' => 0,
-      'reader_height' => GOOGLE_BOOK_DEFAULT_READER_WIDTH,
-      'reader_width' => GOOGLE_BOOK_DEFAULT_READER_HEIGHT,
+      'reader_height' => GOOGLE_BOOK_DEFAULT_READER_HEIGHT,
+      'reader_width' => GOOGLE_BOOK_DEFAULT_READER_WIDTH,
       'image_height' => '',
       'image_width' => '',
       'bib_fields' => googlebookapi_bib_field_array(),
@@ -428,6 +428,7 @@ function googlebook_retrieve_bookdata(
         }
       }
 
+      // Check if need to process the thumbnail, and setup.
       if (isset($bib['thumbnail']) && ($image_option == 1 || $image_on == 1) && $image_on !== 0) {
         $img_link = $bib['thumbnail'];
         if ($page_curl == 1) {
@@ -439,8 +440,8 @@ function googlebook_retrieve_bookdata(
         }
       }
 
+      // Setup the book reader.
       $googlebook_js_string = "";
-      // View the book reader.
       if (isset($bib['embeddable']) && ($reader_option == 1 || $reader_on == 1) && $reader_on !== 0) {
         // Build the special string for the googlebook viewer.
         // Handy for the themer.
@@ -494,10 +495,6 @@ function googlebook_retrieve_bookdata(
     $vars['librarything'] = $librarything;
     $vars['openlibrary'] = $openlibrary;
     $vars['worldcat'] = $worldcat;
-    $vars['info_link'] = $bib['infoLink'];
-    $vars['image_option'] = $image_option;
-    $vars['image_on'] = $image_on;
-    $vars['page_curl'] = $page_curl;
     $vars['image_height'] = $image_height;
     $vars['image_width'] = $image_width;
     $vars['reader_height'] = $reader_height;
@@ -623,4 +620,20 @@ function theme_googlebookbiblio($selected_bibs) {
   else {
     return "";
   }
+}
+
+// [yourModuleName|yourThemeName]_preprocess_[themeFunctionName]
+function googlebook_preprocess_googlebook_aggregate(&$variables) {
+  // Setup the image array and call theme('image'.
+  if ($variables["img_link"] != "") {
+      $variables["book_image_array"] = theme('image', array(
+        'path' => $variables["img_link"],
+        'alt' => $variables["title"],
+        'title' => $variables["title"],
+        'width' => $variables["image_width"],
+        'height' => $variables["image_height"],
+      ));
+  }
+  // Setup the data array of biblio items.
+  $variables["book_data_array"] = theme('googlebookbiblio', $variables["selected_bibs"]);
 }

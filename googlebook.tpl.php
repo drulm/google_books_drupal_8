@@ -15,20 +15,14 @@
 
   <!-- Print the title of the book. -->
   <div class="googlebook_title">
-      <?php print $title_anchor; ?>
+    <?php print $title_anchor; ?>
   </div>
 
   <!-- Build image theme function call for book cover. -->
   <div class="googlebook_image">
     <?php
       if ($img_link != ""):
-      print theme('image', array(
-        'path' => $img_link,
-        'alt' => $title,
-        'title' => $title,
-        'width' => $image_width,
-        'height' => $image_height,
-      ));
+        print $book_image_array;
       endif;
     ?>
   </div>
@@ -49,14 +43,20 @@
   <!-- Show the Google book viewer if needed. -->
   <!-- Embed direct because of the filter JavaScript issue in Drupal -->
   <?php
-  if (!empty($googlebook_js_string)):
-    print "<script type='text/javascript'>" . $googlebook_js_string . "</script>";
-    print '<div class="googleviewer" id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div><p></p><br />';
-  endif;
+    if (!empty($googlebook_js_string)):
+      print "<script type='text/javascript'>" . $googlebook_js_string . "</script>";
+      print '<div class="googlebook_reader" id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div>';
+    endif;
   ?>
 
-  <!-- List the selected and available Google Book data fields. -->
-  <?php
-  print theme('googlebookbiblio', $selected_bibs);
-  ?>
+  <div class="googlebook_datalist">
+    <!-- List the selected and available Google Book data fields. -->
+    <?php
+      print_r($book_data_array);
+    ?>
+  </div>
+  
+  <!-- Prevent overlap of next element. -->
+  <div style="clear:both;"></div>
+  
 </div>

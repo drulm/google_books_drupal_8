@@ -23,6 +23,11 @@
   text-align: center;
 }
 .googlebook_field_name {
-  text-decoration: underline;
   font-weight: bold;
+}
+.googlebook_reader {
+  margin-bottom: 40px;
+  margin-left: 12px;
+  margin-right: 12px;
+  float:right;
 }
