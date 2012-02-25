@@ -593,36 +593,11 @@ function googlebook_theme() {
 
 
 /**
- * Theme function for googlebook to print selected biblio fields.
+ * Theme preprocess function for googlebook_aggregate.
  *
- * @param array $selected_bibs
- *   Pass the selected biblios.
- *
- * @return string
- *   Return the HTML.
+ * @param array $variables
+ *   Pass by reference the theme variables.
  */
-function theme_googlebookbiblio($selected_bibs) {
-  if (isset($selected_bibs)) {
-    $html_string = '<ul class="googlebook_datafields">';
-    foreach ($selected_bibs as $bib_index => $bib_value) {
-      $bib_field_name = drupal_ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $bib_index)));
-      $bib_field_data = googlebook_make_html_link($bib_value);
-      $html_string .= '<li>';
-      $html_string .= '<span class="googlebook_field_name">'
-        . $bib_field_name
-        . '</span>: <span class="googlebook_field_data">'
-        . $bib_field_data;
-      $html_string .= "</span></li>";
-    }
-    $html_string .= "</ul>";
-    return $html_string;
-  }
-  else {
-    return "";
-  }
-}
-
-// [yourModuleName|yourThemeName]_preprocess_[themeFunctionName]
 function googlebook_preprocess_googlebook_aggregate(&$variables) {
   // Setup the image array and call theme('image'.
   if ($variables["img_link"] != "") {
@@ -634,6 +609,39 @@ function googlebook_preprocess_googlebook_aggregate(&$variables) {
         'height' => $variables["image_height"],
       ));
   }
+
   // Setup the data array of biblio items.
   $variables["book_data_array"] = theme('googlebookbiblio', $variables["selected_bibs"]);
+
+  // Setup the list of biblio data.
+  $processed_bibs = array();
+  foreach ($variables["selected_bibs"] as $bib_index => $bib_value) {
+    $bib_field_name = drupal_ucfirst(preg_replace('/[A-Z]/', ' $0', str_replace('_', ' ', $bib_index)));
+    $bib_field_data = googlebook_make_html_link($bib_value);
+    $processed_bibs[$bib_field_name] = $bib_field_data;
+  }
+  $variables["processed_bibs"] = $processed_bibs;
+}
+
+
+/**
+ * Theme function for googlebook to print selected biblio fields.
+ *
+ * @param array $selected_bibs
+ *   Pass the selected biblios.
+ *
+ * @return string
+ *   Return the HTML.
+ */
+function theme_googlebookbiblio($selected_bibs) {
+  $html_string = '<ul class="googlebook_datafields">';
+  foreach ($selected_bibs as $bib_field_name => $bib_field_data) {
+    $html_string .= '<li><span class="googlebook_field_name">'
+      . $bib_field_name
+      . '</span>: <span class="googlebook_field_data">'
+      . $bib_field_data
+      . "</span></li>";
+  }
+  $html_string .= "</ul>";
+  return $html_string;
 }
