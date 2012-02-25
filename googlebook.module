@@ -601,14 +601,17 @@ function googlebook_theme() {
 function googlebook_preprocess_googlebook_aggregate(&$variables) {
   // Setup the image array and call theme('image'.
   if ($variables["img_link"] != "") {
-      $variables["book_image_array"] = array(
+      $variables["book_image"] = theme('image', array(
         'path' => $variables["img_link"],
         'alt' => $variables["title"],
         'title' => $variables["title"],
         'width' => $variables["image_width"],
         'height' => $variables["image_height"],
-      );
+      ));
   }
+
+  // Setup the data array of biblio items.
+  $variables["book_data_array"] = theme('googlebookbiblio', $variables["selected_bibs"]);
 
   // Setup the list of biblio data.
   $processed_bibs = array();
@@ -617,7 +620,7 @@ function googlebook_preprocess_googlebook_aggregate(&$variables) {
     $bib_field_data = googlebook_make_html_link($bib_value);
     $processed_bibs[$bib_field_name] = $bib_field_data;
   }
-  $variables["processed_bibs"] = $processed_bibs;
+  $variables["bib_data"] = theme('googlebookbiblio', $processed_bibs);
 }
 
 

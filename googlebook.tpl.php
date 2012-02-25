@@ -22,7 +22,7 @@
   <div class="googlebook_image">
     <?php
       if ($img_link != ""):
-        print theme('image', $book_image_array);
+        print $book_image;
       endif;
     ?>
   </div>
@@ -52,7 +52,7 @@
   <div class="googlebook_datalist">
     <!-- List the selected and available Google Book data fields. -->
     <?php
-      print theme('googlebookbiblio', $variables["processed_bibs"])
+    print $bib_data;
     ?>
   </div>
   
