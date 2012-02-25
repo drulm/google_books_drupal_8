@@ -52,7 +52,7 @@
   <div class="googlebook_datalist">
     <!-- List the selected and available Google Book data fields. -->
     <?php
-      print_r($book_data_array);
+      print theme('googlebookbiblio', $variables["processed_bibs"])
     ?>
   </div>
   

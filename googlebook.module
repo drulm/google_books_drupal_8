@@ -610,9 +610,6 @@ function googlebook_preprocess_googlebook_aggregate(&$variables) {
       ));
   }
 
-  // Setup the data array of biblio items.
-  $variables["book_data_array"] = theme('googlebookbiblio', $variables["selected_bibs"]);
-
   // Setup the list of biblio data.
   $processed_bibs = array();
   foreach ($variables["selected_bibs"] as $bib_index => $bib_value) {
