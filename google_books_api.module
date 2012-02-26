@@ -276,7 +276,7 @@ function google_books_api_cached_request($path) {
     // Do it the slow way, go get the new data.
     $url_data = drupal_http_request($url_bookkeys);
     if (isset($url_data->error) || !isset($url_data->data)) {
-      drupal_set_message($message = t('Googlebooks: Could not retrieve data from google.com. @err', array('@err' => check_plain($url_data->error))), $type = 'error');
+      drupal_set_message(t('Googlebooks: Could not retrieve data from google.com. @err', array('@err' => $url_data->error)), $type = 'error');
       return NULL;
     }
     $bookkeys = $url_data->data;
