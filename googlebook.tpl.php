@@ -21,7 +21,7 @@
   <!-- Build image theme function call for book cover. -->
   <div class="googlebook_image">
     <?php
-      if ($img_link != ""):
+      if ($book_image != ""):
         print $book_image;
       endif;
     ?>
