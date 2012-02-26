@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * GoogleBook API Install
+ * Google Books API Install
  *
  * Author: Darrell Ulm.
  *
@@ -22,12 +22,12 @@
  */
 
 /**
- * Returns the schema for the googlebook module cache.
+ * Returns the schema for the google_books module cache.
  *
  * @return array
  *   Returns the database schema.
  */
-function googlebookapi_schema() {
-  $schema['cache_googlebookapi'] = drupal_get_schema_unprocessed('system', 'cache');
+function google_booksapi_schema() {
+  $schema['cache_google_books_api'] = drupal_get_schema_unprocessed('system', 'cache');
   return $schema;
 }

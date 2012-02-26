@@ -1,16 +1,16 @@
 <?php
 /**
  * @file
- * GoogleBookAPI Module for Drupal 7.0
+ * Google Books API Module for Drupal 7.0
  *
  * @author Darrell Ulm.
  *
  * Based initialy on the BookPost module for Drupal 6 by Aaron Rubinstein,
  * and partially based on the the OpenLibrary API for Drupal 6
  *
- * The Google Book search can be done with many types of search strings.
+ * The Google Books search can be done with many types of search strings.
  *
- * There are many search options with Google books. See
+ * There are many search options with Google Books. See
  * books.google.com documation for more information
  *
  * See the INSTALL.TXT file for specific information.
@@ -36,9 +36,9 @@
 define("GOOGLE_BOOKS_API_ROOT", 'https://www.googleapis.com/books/v1/volumes?q=');
 
 /*
- * GOOGLEBOOKS_CACHE_PERIOD is the time to keep data in the book cache in secs.
+ * GOOGLE_BOOKS_CACHE_PERIOD is the time to keep data in the book cache in secs.
  */
-define("GOOGLEBOOKS_CACHE_PERIOD", 24 * 60 * 60);
+define("GOOGLE_BOOKS_CACHE_PERIOD", 24 * 60 * 60);
 
 
 /**
@@ -47,7 +47,7 @@ define("GOOGLEBOOKS_CACHE_PERIOD", 24 * 60 * 60);
  * @return array
  *   Returns array of book data field names returned from books.google.com.
  */
-function googlebookapi_bib_field_array() {
+function google_books_api_bib_field_array() {
   return array(
     'kind',
     'id',
@@ -112,7 +112,7 @@ function googlebookapi_bib_field_array() {
  * Multiple data fields are delimited by '|' character in string.
  * This is the fuction to call if the caller only wants an array. If the
  * caller needs *everything* google returns (which is fine) then the user
- * should use the googlebookapi_cached_request( $path ) function.
+ * should use the google_books_api_cached_request( $path ) function.
  *
  * @param string $id
  *   The {{ $id }} passed from the filter text.
@@ -123,27 +123,27 @@ function googlebookapi_bib_field_array() {
  * @return array
  *   Field names used to index the book data for each field.
  */
-function googlebookapi_get_googlebook_data($id, $version_num) {
+function google_books_api_get_google_books_data($id, $version_num) {
 
   // Clean search string of spaces, turn into '+'.
-  $id = googlebookapi_clean_search_id($id);
+  $id = google_books_api_clean_search_id($id);
 
   // Get all the arrays from the query.
-  $bookkeys = googlebookapi_cached_request($id);
+  $bookkeys = google_books_api_cached_request($id);
 
   // Decode into array to be able to scan.
-  $json_array_google_book_data = drupal_json_decode($bookkeys, TRUE);
+  $json_array_google_books_data = drupal_json_decode($bookkeys, TRUE);
 
-  $versions = $json_array_google_book_data['totalItems'];
+  $versions = $json_array_google_books_data['totalItems'];
 
   // Check the number of versions returned by Google Books.
   if ($versions > 0 && $version_num < $versions) {
 
     // Grab the first result.
-    $bookkeyresult = $json_array_google_book_data['items'][$version_num];
+    $bookkeyresult = $json_array_google_books_data['items'][$version_num];
 
     // Extract the results into one big string with delimiters.
-    $book_str = googlebookapi_demark_and_flatten($bookkeyresult);
+    $book_str = google_books_api_demark_and_flatten($bookkeyresult);
 
     // Build array for this.
     $bib = array();
@@ -165,7 +165,7 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
         $value = $sub_value;
       }
       if (!empty($value)) {
-        googlebookapi_assign_bib_array($bib, $fieldname, $value);
+        google_books_api_assign_bib_array($bib, $fieldname, $value);
       }
     }
     return $bib;
@@ -185,10 +185,10 @@ function googlebookapi_get_googlebook_data($id, $version_num) {
  * @return string
  *   One big string of all book data with delimiters used to expand to arrays.
  */
-function googlebookapi_demark_and_flatten(&$barr) {
+function google_books_api_demark_and_flatten(&$barr) {
 
   // Get the bib fields and go through the array.
-  $bib_fields = googlebookapi_bib_field_array();
+  $bib_fields = google_books_api_bib_field_array();
   $book_html = "";
 
   // Loop through array struture recursively.
@@ -200,7 +200,7 @@ function googlebookapi_demark_and_flatten(&$barr) {
     else {
       // If there is a sub array, call this same function to traverse it.
       if (is_array($value)) {
-        $sub_bib = googlebookapi_demark_and_flatten($value, $bib_fields);
+        $sub_bib = google_books_api_demark_and_flatten($value, $bib_fields);
       }
       else {
         $sub_bib = $value;
@@ -231,7 +231,7 @@ function googlebookapi_demark_and_flatten(&$barr) {
  * @param string $value
  *   The value to assign to the array.
  */
-function googlebookapi_assign_bib_array(&$bib_array, $index, $value) {
+function google_books_api_assign_bib_array(&$bib_array, $index, $value) {
 
   if (!array_key_exists($index, $bib_array)) {
     $bib_array[$index] = $value;
@@ -255,20 +255,20 @@ function googlebookapi_assign_bib_array(&$bib_array, $index, $value) {
  * @return array
  *   Returns the cached JSON data for book located in cache, or fresh data.
  */
-function googlebookapi_cached_request($path) {
+function google_books_api_cached_request($path) {
 
   // Build the full path (and the cache key).
   $url_bookkeys = GOOGLE_BOOKS_API_ROOT . $path ;
   $bookkeys_hash = hash('sha256', $url_bookkeys);
 
   // See if it is cached.
-  $cached = cache_get($bookkeys_hash, 'cache_googlebookapi');
+  $cached = cache_get($bookkeys_hash, 'cache_google_books_api');
 
   // If is it IS cached, then just return the data from the cache.
   if ($cached !== FALSE) {
     // Check if the time has expired.
     if ($cached->expire < REQUEST_TIME) {
-      cache_clear_all($bookkeys_hash, 'cache_googlebookapi');
+      cache_clear_all($bookkeys_hash, 'cache_google_books_api');
     }
     return $cached->data;
   }
@@ -283,7 +283,7 @@ function googlebookapi_cached_request($path) {
 
     // Set the cache if return from request is not NULL.
     if ($bookkeys != NULL) {
-      cache_set($bookkeys_hash, $bookkeys, 'cache_googlebookapi', REQUEST_TIME + GOOGLEBOOKS_CACHE_PERIOD);
+      cache_set($bookkeys_hash, $bookkeys, 'cache_google_books_api', REQUEST_TIME + GOOGLE_BOOKS_CACHE_PERIOD);
     }
     // Bookkeys is the data, so return it.
     return $bookkeys;
@@ -299,17 +299,17 @@ function googlebookapi_cached_request($path) {
  * @return int
  *   The count of the number of book versions returned in the JSON data.
  */
-function googlebookapi_get_googlebook_version_count($id) {
+function google_books_api_get_googlebooks_version_count($id) {
 
   // Cleanup the search ID.
-  $id = googlebookapi_clean_search_id($id);
+  $id = google_books_api_clean_search_id($id);
 
   // Get all the arrays from the query.
-  $bookkeys = googlebookapi_cached_request($id);
+  $bookkeys = google_books_api_cached_request($id);
   if ($bookkeys != NULL) {
     // Decode into array to be able to scan.
-    $json_array_google_book_data = drupal_json_decode($bookkeys, TRUE);
-    return $json_array_google_book_data['totalItems'];
+    $json_array_google_books_data = drupal_json_decode($bookkeys, TRUE);
+    return $json_array_google_books_data['totalItems'];
   }
   else {
     return NULL;
@@ -325,7 +325,7 @@ function googlebookapi_get_googlebook_version_count($id) {
  * @return string
  *   The search string cleaned.
  */
-function googlebookapi_clean_search_id($id) {
+function google_books_api_clean_search_id($id) {
 
   // Clean search string of spaces, turn into '+'.
   $id = trim($id);

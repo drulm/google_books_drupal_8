@@ -1,4 +1,4 @@
-name = Google Book
+name = Google Books
 description = Input filter module returning data from books.google.com
 core = 7.x
-dependencies[] = "googlebookapi"
+dependencies[] = "google_books_api"
