@@ -14,30 +14,36 @@
 <div class="google_books">
 
   <!-- Print the title of the book. -->
+  <?php if ($title_anchor): ?>
   <div class="google_books_title">
     <?php print $title_anchor; ?>
   </div>
+  <?php endif; ?>
 
   <!-- Build image theme function call for book cover. -->
+  <?php if ($book_image): ?>
   <div class="google_books_image">
-    <?php
-      if ($book_image != ""):
-        print $book_image;
-      endif;
-    ?>
+    <?php print $book_image; ?>
   </div>
+  <?php endif; ?>
 
   <!-- Display links and leave empty divs for theming. -->
   <div class="google_books_links">
-    <div class="google_books_worldcat">
-      <?php print $worldcat; ?>
-    </div>
-    <div class="google_books_librarything">
-      <?php print $librarything; ?>
-    </div>
-    <div class="google_books_openlibrary">
-      <?php print $openlibrary; ?>
-    </div>
+    <?php if ($worldcat): ?>
+      <span class="google_books_worldcat">
+        <?php print $worldcat . "&nbsp;"; ?>
+      </span>
+    <?php endif; ?>
+    <?php if ($librarything): ?>
+      <span class="google_books_librarything">
+        <?php print $librarything . "&nbsp;" ; ?>
+      </span>
+    <?php endif; ?>
+    <?php if ($librarything): ?>
+      <span class="google_books_openlibrary">
+        <?php print $openlibrary; ?>
+      </span>
+    <?php endif; ?>
   </div>
 
   <!-- Show the Google Books viewer if needed. -->

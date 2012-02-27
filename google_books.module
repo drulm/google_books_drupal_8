@@ -474,11 +474,11 @@ function google_books_preprocess_google_books_aggregate(&$vars) {
     }
     $vars["librarything"] = "";
     if ($vars["librarything_link"]) {
-      $vars["librarything"] = l(t('Library Thing'), check_url("http://librarything.com/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
+      $vars["librarything"] = l(t('LibraryThing'), check_url("http://librarything.com/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
     }
     $vars["openlibrary"] = "";
     if ($vars["openlibrary_link"]) {
-      $vars["openlibrary"] = l(t('Open Library'), check_url("http://openlibrary.org/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
+      $vars["openlibrary"] = l(t('OpenLibrary'), check_url("http://openlibrary.org/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
     }
   }
 
