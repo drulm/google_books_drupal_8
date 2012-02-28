@@ -48,6 +48,8 @@ define('GOOGLE_BOOKS_DEFAULT_READER_WIDTH', '400');
 /**
  * Handles filter tips callback for the google_books filter module.
  *
+ * Callback for 'tips callback' within google_books_filter_info().
+ *
  * @param object $filter
  *   The filter variable StdClass object.
  *
@@ -59,8 +61,10 @@ define('GOOGLE_BOOKS_DEFAULT_READER_WIDTH', '400');
  *
  * @return string
  *   The translated help text for the filter.
+ *
+ * @see google_books_filter_info()
  */
-function google_books_filter_google_books_tips($filter, $format, $long = FALSE) {
+function google_books_filter_tips($filter, $format, $long = FALSE) {
   if ($long) {
     return t('Put a Google Books search term between square brackets like this:
       [google_books:The Hobbit] or [google_books:9780618154012] or [google_books:Rucker+Software]
@@ -71,10 +75,7 @@ function google_books_filter_google_books_tips($filter, $format, $long = FALSE) 
 
 
 /**
- * Handles filter info hook for google_books filter with initial values.
- *
- * @return array
- *   Returns the initialized filter information.
+ * Implements hook_filter_info().
  */
 function google_books_filter_info() {
   $filters['google_books'] = array(
@@ -95,14 +96,16 @@ function google_books_filter_info() {
       'image_width' => '',
       'bib_fields' => google_books_api_bib_field_array(),
     ),
-    'tips callback' => 'google_books_filter_google_books_tips',
+    'tips callback' => 'google_books_filter_tips',
   );
   return $filters;
 }
 
 
 /**
- * Creates & returns the form for the filter hook for google_books filter.
+ * Form constructor for google_books filter.
+ *
+ * Callback for 'settings callback' within google_books_filter_info().
  *
  * @param array $form
  *   The array of form elements.
@@ -124,6 +127,9 @@ function google_books_filter_info() {
  *
  * @return array
  *   Returns the array of form settings for the filter setting page.
+ *
+ * @see _google_books_image_or_reader_valid_int_size()
+ * @see google_books_filter_info()
  */
 function google_books_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
   $settings['google_books'] = array(
@@ -137,6 +143,7 @@ function google_books_filter_settings($form, &$form_state, $filter, $format, $de
     '#multiple' => TRUE,
     '#title' => t('Google Books Data Fields'),
     '#required' => TRUE,
+    '#size' => 20,
     '#options' => google_books_api_bib_field_array(),
     '#description' => t('Hold control to select multiple fields.'),
     '#default_value' => isset($filter->settings['google_books']['bib_fields']) ? $filter->settings['google_books']['bib_fields'] : google_books_api_bib_field_array(),
@@ -237,6 +244,8 @@ function google_books_filter_settings($form, &$form_state, $filter, $format, $de
  *
  * @param array $form_state
  *   The state of the form.
+ *
+ * @see google_books_filter_settings
  */
 function _google_books_image_or_reader_valid_int_size($element, &$form_state) {
   $image_size_parameter = trim($element['#value']);
@@ -249,6 +258,8 @@ function _google_books_image_or_reader_valid_int_size($element, &$form_state) {
 
 /**
  * This is the main filter callback process for the google book filter module.
+ *
+ * Stated @ api.drupal.org hook_filter_FILTER_process is not really a hook.
  *
  * @param string $text
  *   Text to match.
@@ -270,6 +281,8 @@ function _google_books_image_or_reader_valid_int_size($element, &$form_state) {
  *
  * @return string
  *   Returns string of the filtered HTML for google_books.
+ *
+ * @see google_books_filter_info()
  */
 function google_books_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
   preg_match_all('/\[google_books:(.*)\]/', $text, $match);
@@ -296,7 +309,7 @@ function google_books_filter_process($text, $filter, $format, $langcode, $cache,
 
 
 /**
- * Gets the book data from Google Books / other sites and then displays it.
+ * Gets the book data from Google Books and then displays it.
  *
  * This is the main filter processing function that does the work.
  *
@@ -335,6 +348,8 @@ function google_books_filter_process($text, $filter, $format, $langcode, $cache,
  *
  * @return string
  *   Returns the HTML data for google_books after filtering.
+ *
+ * @see google_books_filter_process
  */
 function google_books_retrieve_bookdata(
   $id,
@@ -453,10 +468,133 @@ function google_books_retrieve_bookdata(
 
 
 /**
- * Theme preprocess function for google_books_aggregate.
+ * Take a string of book identifiers, and choose one.
+ *
+ * @param string $identifiers
+ *   Takes a string of IDs delimited by '|' characters.
+ *
+ * @return string
+ *   This is the ISBN selected.
+ */
+function google_books_get_isbn($identifiers) {
+  // Pull an ISBN if we have it, prefer the last
+  // which should be an ISBN 13 although may be something else.
+  $identifier_list = explode("|", $identifiers);
+  $num_of_identifiers = count($identifier_list);
+  $isbn = trim($identifier_list[$num_of_identifiers - 1]);
+  return is_numeric($isbn) ? $isbn : "";
+}
+
+
+/**
+ * Takes book field data and makes it a link if it address present.
+ *
+ * @param string $address
+ *   The biblio field string, which might be an address.
+ *
+ * @return string
+ *   Returns an HTML <a></a> link if there is a valid address in $address.
+ */
+function google_books_make_html_link($address) {
+  if (valid_url($address, $absolute = TRUE)) {
+    return l(t('link'), $address, array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
+  }
+  return check_plain($address);
+}
+
+/**
+ * Implements hook_init().
+ */
+function google_books_init() {
+  $js_options = array(
+    'type' => 'external',
+    'group' => JS_THEME,
+  );
+  drupal_add_js(GOOGLE_BOOKS_EXTERN_JS, $js_options);
+  $css_options = array(
+    'type' => 'file',
+    'group' => CSS_THEME,
+  );
+  drupal_add_css(drupal_get_path('module', 'google_books') . "/google_books.css", $css_options);
+}
+
+
+/**
+ * Sets a parameter variable by reference based on presence in array.
+ *
+ * @param array $params
+ *   The parameter array.
+ *
+ * @param int|string $flag_var
+ *   The parameter variable to set.
+ *
+ * @param string $value
+ *   The var to find in the array (needle).
+ *
+ * @param int|bool $set
+ *   What $flag_var will be set to if TRUE.
+ */
+function google_books_set_param($params, &$flag_var, $value, $set) {
+  if (in_array($value, $params) === TRUE) {
+    $flag_var = $set;
+  }
+}
+
+
+/**
+ * Implements hook_theme().
+ */
+function google_books_theme() {
+  // Return the array describing the template name and vars.
+  return array(
+    // The main theme template google_books.tpl.php
+    'google_books_aggregate' => array(
+      'template' => 'google_books',
+      'arguments' => array('parameter' => NULL),
+    ),
+    // Theme function to print biblio fields.
+    'google_books_biblio' => array(
+      'variables' => array(),
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_preprocess_HOOK().
  *
  * @param array $vars
- *   Pass by reference the theme variables.
+ *   An associative array containing:
+ *   - title_anchor: Theme variable with title anchor.
+ *   - title_link: Should title be on or off.
+ *   - info_link: The cleaned link to the google information page.
+ *   - title: The text title.
+ *   - isbn: The ISBN if it exists for this Google Book.
+ *   - worldcat: Output link to WorldCat data on this book.
+ *   - worldcat_link: True or false to display WorldCat link.
+ *   - librarything: Output link to LibraryThing data on this book.
+ *   - librarything_link: True or false to display LibraryThing link.
+ *   - openlibrary: Output link to OpenLibrary data on this book.
+ *   - openlibrary_link: True or false to display OpenLibrary link.
+ *   - book_image: Theme output <img tag to theme output.
+ *   - image_option: Global option for image on or off.
+ *   - image_on: Per book option for image on or off.
+ *   - thumbnail: The cleaned image thumbnail URL.
+ *   - page_curl: Per book option to turn on/off page curl for image.
+ *   - reader_height: Option for reader height, per book.
+ *   - reader_width: Option for reader width, per book.
+ *   - image_height: Option for image height, per book.
+ *   - image_width: Option for image width, per book.
+ *   - google_books_js_string: Per book Google Books javascript.
+ *   - reader_option: Global option for Google Books reader on/off.
+ *   - reader_on: Per book option for Google Books reader on/off.
+ *   - embeddable: From Google, check if technology and licensing allows embed.
+ *   - book_data_array: From theme function, build the list of biblio data.
+ *   - selected_bibs: Array of biblio elements selected to include.
+ *   - bib_data: Final biblio data to display generated by theme function.
+ *
+ * @see theme_google_books_biblio()
+ * @see google_books_make_html_link()
  */
 function google_books_preprocess_google_books_aggregate(&$vars) {
   // Build the main title with a link.
@@ -543,111 +681,14 @@ function google_books_preprocess_google_books_aggregate(&$vars) {
 
 
 /**
- * Take a string of book identifiers, and choose one.
- *
- * @param string $identifiers
- *   Takes a string of IDs delimited by '|' characters.
- *
- * @return string
- *   This is the ISBN selected.
- */
-function google_books_get_isbn($identifiers) {
-  // Pull an ISBN if we have it, prefer the last
-  // which should be an ISBN 13 although may be something else.
-  $identifier_list = explode("|", $identifiers);
-  $num_of_identifiers = count($identifier_list);
-  $isbn = trim($identifier_list[$num_of_identifiers - 1]);
-  return is_numeric($isbn) ? $isbn : "";
-}
-
-
-/**
- * Takes book field data and makes it a link if it address present.
- *
- * @param string $address
- *   The biblio field string, which might be an address.
- *
- * @return string
- *   Returns an HTML <a></a> link if there is a valid address in $address.
- */
-function google_books_make_html_link($address) {
-  if (valid_url($address, $absolute = TRUE)) {
-    return l(t('link'), $address, array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
-  }
-  return check_plain($address);
-}
-
-/**
- * Load the global GoogleBook Javascript header.
- *
- * Employ the JS_THEME option for a good load.
- */
-function google_books_init() {
-  $js_options = array(
-    'type' => 'external',
-    'group' => JS_THEME,
-  );
-  drupal_add_js(GOOGLE_BOOKS_EXTERN_JS, $js_options);
-  $css_options = array(
-    'type' => 'file',
-    'group' => CSS_THEME,
-  );
-  drupal_add_css(drupal_get_path('module', 'google_books') . "/google_books.css", $css_options);
-}
-
-
-/**
- * Sets a parameter variable by reference based on presence in array.
- *
- * @param array $params
- *   The parameter array.
- *
- * @param int|string $flag_var
- *   The parameter variable to set.
- *
- * @param string $value
- *   The var to find in the array (needle).
- *
- * @param int|bool $set
- *   What $flag_var will be set to if TRUE.
- */
-function google_books_set_param($params, &$flag_var, $value, $set) {
-  if (in_array($value, $params) === TRUE) {
-    $flag_var = $set;
-  }
-}
-
-
-/**
- * Sets up the theme page for the google_books filter.
- *
- * @return array
- *   The return array defines the .tpl page
- */
-function google_books_theme() {
-  // Return the array describing the template name and vars.
-  return array(
-    // The main theme template google_books.tpl.php
-    'google_books_aggregate' => array(
-      'template' => 'google_books',
-      'arguments' => array('parameter' => NULL),
-    ),
-    // Theme function to print biblio fields.
-    'google_books_biblio' => array(
-      'variables' => array(),
-    ),
-  );
-}
-
-
-/**
- * Theme function for google_books to print selected biblio fields.
+ * Returns HTML for google_books.
  *
  * @param array $selected_bibs
- *   Pass the selected biblios.
+ *   An associative array containing:
+ *   - selected_bibs: Array of biblio: $index => $value defined in
+ *     google_books_api_bib_field_array()
  *
- * @return string
- *   Return the HTML.
+ * @ingroup themeable
  */
 function theme_google_books_biblio($selected_bibs) {
   $html_string = '<ul class="google_books_datafields">';
