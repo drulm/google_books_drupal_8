@@ -85,10 +85,10 @@ function google_books_filter_info() {
     'settings callback' => 'google_books_filter_settings',
     'cache' => TRUE,
     'default settings' => array(
-      'worldcat' => 1,
-      'openlibrary' =>  1,
-      'librarything' => 1,
-      'image' => 1,
+      'worldcat' => 0,
+      'openlibrary' =>  0,
+      'librarything' => 0,
+      'image' => 0,
       'reader' => 0,
       'reader_height' => GOOGLE_BOOKS_DEFAULT_READER_HEIGHT,
       'reader_width' => GOOGLE_BOOKS_DEFAULT_READER_WIDTH,
@@ -145,7 +145,8 @@ function google_books_filter_settings($form, &$form_state, $filter, $format, $de
     '#required' => TRUE,
     '#size' => 20,
     '#options' => google_books_api_bib_field_array(),
-    '#description' => t('Hold control to select multiple fields.'),
+    '#description' => t('Hold control to select multiple fields.
+      Also by checking this you are agreeing that you have the rights to display any of the information that you are going to display.'),
     '#default_value' => isset($filter->settings['google_books']['bib_fields']) ? $filter->settings['google_books']['bib_fields'] : google_books_api_bib_field_array(),
   );
 
@@ -177,7 +178,9 @@ function google_books_filter_settings($form, &$form_state, $filter, $format, $de
     '#title' => t('Google Books Image Settings'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
-    '#description' => t('Turn on/off the Google Books cover image and set the default size.'),
+    '#description' => t('Turn on/off the Google Books cover image and set the default size.
+      Also by checking this you are agreeing that you have the rights to display any of the
+      scanned book cover images that you are going to display.'),
   );
   $settings['google_books_image']['image'] = array(
     '#type' => 'checkbox',
@@ -208,7 +211,9 @@ function google_books_filter_settings($form, &$form_state, $filter, $format, $de
     '#title' => t('Google Books Reader Settings'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
-    '#description' => t('Turn on/off the Javascript Google Reader and set the default size.'),
+    '#description' => t('Turn on/off the Javascript Google Reader and set the default size.
+      Also by checking this you are agreeing that you have the rights to display any of the
+      scanned book content that you are going to display.'),
   );
   $settings['google_books_reader']['reader'] = array(
     '#type' => 'checkbox',
