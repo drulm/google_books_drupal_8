@@ -123,13 +123,13 @@ function google_books_api_bib_field_array() {
  * @return array
  *   Field names used to index the book data for each field.
  */
-function google_books_api_get_google_books_data($id, $version_num) {
-
+function google_books_api_get_google_books_data($id, $version_num, $api_key = NULL) {
+    
   // Clean search string of spaces, turn into '+'.
   $id = google_books_api_clean_search_id($id);
 
   // Get all the arrays from the query.
-  $bookkeys = google_books_api_cached_request($id);
+  $bookkeys = google_books_api_cached_request($id, $api_key);
 
   // Decode into array to be able to scan.
   $json_array_google_books_data = drupal_json_decode($bookkeys, TRUE);
@@ -255,7 +255,7 @@ function google_books_api_assign_bib_array(&$bib_array, $index, $value) {
  * @return array
  *   Returns the cached JSON data for book located in cache, or fresh data.
  */
-function google_books_api_cached_request($path) {
+function google_books_api_cached_request($path, $api_key = NULL) {
 
   // Build the full path (and the cache key).
   $url_bookkeys = GOOGLE_BOOKS_API_ROOT . $path ;
@@ -273,7 +273,10 @@ function google_books_api_cached_request($path) {
     return $cached->data;
   }
   else {
-    // Do it the slow way, go get the new data.
+    // Do it the slow way, go get the new data, and add API key if it exists.
+    if ($api_key) {
+      $url_bookkeys .= '&key=' . $api_key;
+    }
     $url_data = drupal_http_request($url_bookkeys);
     if (isset($url_data->error) || !isset($url_data->data)) {
       drupal_set_message(t('Googlebooks: Could not retrieve data from google.com. @err', array('@err' => $url_data->error)), $type = 'error');
@@ -299,13 +302,13 @@ function google_books_api_cached_request($path) {
  * @return int
  *   The count of the number of book versions returned in the JSON data.
  */
-function google_books_api_get_googlebooks_version_count($id) {
+function google_books_api_get_googlebooks_version_count($id, $api_key = NULL) {
 
   // Cleanup the search ID.
   $id = google_books_api_clean_search_id($id);
 
   // Get all the arrays from the query.
-  $bookkeys = google_books_api_cached_request($id);
+  $bookkeys = google_books_api_cached_request($id, $api_key);
   if ($bookkeys != NULL) {
     // Decode into array to be able to scan.
     $json_array_google_books_data = drupal_json_decode($bookkeys, TRUE);

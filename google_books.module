@@ -138,6 +138,14 @@ function google_books_filter_settings($form, &$form_state, $filter, $format, $de
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
+  $settings['google_books']['api_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Google Books API Key'),
+    '#size' => 60,
+    '#maxlength' => 80,
+    '#description' => t('Register your key at:') . ' ' . l(t('Google Code API Console'), 'https://code.google.com/apis/console'),
+    '#default_value' => isset($filter->settings['google_books']['api_key']) ? $filter->settings['google_books']['api_key'] : '',
+  );
   $settings['google_books']['bib_fields'] = array(
     '#type' => 'select',
     '#multiple' => TRUE,
@@ -305,7 +313,8 @@ function google_books_filter_process($text, $filter, $format, $langcode, $cache,
       $filter->settings['google_books_image']['image_height'],
       $filter->settings['google_books_image']['image_width'],
       $filter->settings['google_books_reader']['reader_height'],
-      $filter->settings['google_books_reader']['reader_width']
+      $filter->settings['google_books_reader']['reader_width'],
+      $filter->settings['google_books']['api_key']
     );
   }
   $text = str_replace($tag, $book, $text);
@@ -367,10 +376,15 @@ function google_books_retrieve_bookdata(
   $image_height,
   $image_width,
   $reader_height,
-  $reader_width
+  $reader_width,
+  $api_key
 ) {
   // Get all the Google Books permissible book data fields.
   $bib_fields = google_books_api_bib_field_array();
+  
+  // Set the API Key to NULL if blank.
+  $api_key = trim($api_key);
+  $api_key = $api_key == "" ? NULL : $api_key;
 
   // Separate parameters by '|' delimiter and clean data.
   $params = explode("|", $id);
@@ -379,7 +393,7 @@ function google_books_retrieve_bookdata(
 
   // Get the Google Books data.
   // Ignore if google_books_api_get_google_books_data returns NULL.
-  $bib = google_books_api_get_google_books_data($search_string, 0);
+  $bib = google_books_api_get_google_books_data($search_string, 0, $api_key);
   if ($bib != NULL) {
     // Clean the data from Google.
     array_map('filter_xss', $bib);
