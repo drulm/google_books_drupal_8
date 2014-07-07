@@ -1,7 +1,7 @@
-name : Google Books
+name: Google Books
 type: module
-description : 'Input filter module returning data from books.google.com'
-core : 8.x
+description: 'Input filter module returning data from books.google.com'
+core: 8.x
+package: User interface
 dependencies:
    - google_books_api
-
