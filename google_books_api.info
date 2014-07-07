@@ -1,3 +1,0 @@
-name = Google Books API
-description = API for books.google.com, returns simple array
-core = 7.x

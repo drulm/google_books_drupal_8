@@ -1,0 +1,7 @@
+name : Google Books
+type: module
+description : 'Input filter module returning data from books.google.com'
+core : 8.x
+dependencies:
+   - google_books_api
+
