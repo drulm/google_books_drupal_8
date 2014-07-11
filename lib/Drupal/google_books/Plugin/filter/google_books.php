@@ -2,7 +2,16 @@
 /**
  * @file
  * Google Books Filter Module for Drupal 7.0
- *
+ */
+
+namespace Drupal\google_books\Plugin\Filter;
+
+use Drupal\filter\Annotation\Filter;
+use Drupal\Core\Annotation\Translation;
+use Drupal\filter\Plugin\FilterBase;
+use Drupal\Component\Utility\String;
+
+/**
  * @author Darrell Ulm.
  *
  * Inspired by the BookPost (Open Library) module for
@@ -29,13 +38,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-namespace Drupal\google_books\Plugin\Filter;
-
-use Drupal\filter\Annotation\Filter;
-use Drupal\Core\Annotation\Translation;
-use Drupal\filter\Plugin\FilterBase;
-use Drupal\Component\Utility\String;
 
 /*
  * Holds the address of the books.google.com JSON call
@@ -71,6 +73,13 @@ define('GOOGLE_BOOKS_DEFAULT_READER_WIDTH', '400');
  *
  * @see google_books_filter_info()
  */
+
+class google_books extends FilterBase {
+
+  /**
+   * {@inheritdoc}
+   */
+
 function google_books_filter_tips($filter, $format, $long = FALSE) {
   if ($long) {
     return t('Put a Google Books search term between square brackets like this:
@@ -79,7 +88,6 @@ function google_books_filter_tips($filter, $format, $long = FALSE) {
       and images from http://books.google.com');
   }
 }
-
 
 /**
  * Implements hook_filter_info().
@@ -727,4 +735,7 @@ function theme_google_books_biblio($selected_bibs) {
   }
   $html_string .= "</ul>";
   return $html_string;
+}
+
+
 }
