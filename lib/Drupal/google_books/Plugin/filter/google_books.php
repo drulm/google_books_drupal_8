@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Google Books Filter Module for Drupal 7.0
+ * Google Books Filter Module for Drupal 8.0
  */
 
 namespace Drupal\google_books\Plugin\Filter;
@@ -76,10 +76,45 @@ define('GOOGLE_BOOKS_DEFAULT_READER_WIDTH', '400');
 
 class google_books extends FilterBase {
 
+ public function settingsForm(array $form, array &$form_state) {
+    $form['nowrap_expand'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Google Books Title.'),
+      '#description' => t('Google Books Desc.'),
+      '#default_value' => $this->settings['nowrap_expand'],
+    );
+    return $form;
+  }
+
   /**
    * {@inheritdoc}
    */
+  public function tips($long = FALSE) {
+    if ($long) {
+      return t('Text here 1');
+    }
+    else {
+      return t('Text here 2');
+    }
+  }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function process($text, $langcode, $cache, $cache_id) {
+    return $text;
+  }
+  
+// END OF CLASS 
+}
+
+
+
+
+// @TODO OLD CODE
+//=====================================================================================
+//=====================================================================================
+//=====================================================================================
 function google_books_filter_tips($filter, $format, $long = FALSE) {
   if ($long) {
     return t('Put a Google Books search term between square brackets like this:
@@ -737,5 +772,3 @@ function theme_google_books_biblio($selected_bibs) {
   return $html_string;
 }
 
-
-}
