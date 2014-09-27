@@ -10,5 +10,5 @@
  * Implements hook_page_build().
  */
 function google_books_api_page_build(&$page) {
-  $path = drupal_get_path('module', 'google_books_api');
+  //$path = drupal_get_path('module', 'google_books_api');
 }

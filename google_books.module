@@ -3,7 +3,7 @@
  * @file
  * Module file for google_books.
  *
- * @see \Drupal\google_books\Plugin\Filter\CodeFilter.
+ * @see \Drupal\google_books\Plugin\Filter\google_books.
  */
 
 /**
