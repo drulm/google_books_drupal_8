@@ -1,0 +1,15 @@
+# Schema for the configuration files of the google_books module.
+
+filter_settings.google_books:
+  type: filter
+  label: 'Google Books'
+  mapping:
+    allowed_html:
+      type: string
+      label: 'Allowed HTML'
+    filter_html_help:
+      type: boolean
+      label: 'HTML help'
+    filter_html_nofollow:
+      type: boolean
+      label: 'HTML nofollow'

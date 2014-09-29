@@ -7,6 +7,7 @@
 namespace Drupal\google_books\Plugin\Filter;
 
 use Drupal\filter\Annotation\Filter;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Annotation\Translation;
 use Drupal\filter\Plugin\FilterBase;
 use Drupal\Component\Utility\String;
@@ -90,8 +91,7 @@ class google_books extends FilterBase {
    * {@inheritdoc}
    */
   public function process($text, $langcode) {
-    $text = str_replace('[google_books:]', '@TODO integrate remainder of code!', $text);
-    return $text;
+    return new FilterProcessResult($text);
   }
   
   /**
@@ -106,22 +106,192 @@ class google_books extends FilterBase {
     }
   }
   
-  /*
- public function settingsForm(array $form, FormStateInterface $form_state) {
-    $form['nowrap_expand'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Google Books Title.'),
-      '#description' => t('Google Books Desc.'),
-      '#default_value' => $this->settings['nowrap_expand'],
-    );
-    return $form;
+  
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+  $form['google_books'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Google Books Filter'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['google_books']['api_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Google Books API Key'),
+    '#size' => 60,
+    '#maxlength' => 80,
+    '#description' => t('Register your key at:') . ' ' . l(t('Google Code API Console'), 'https://code.google.com/apis/console'),
+    '#default_value' => isset($this->settings['google_books']['api_key']) ? $this->settings['google_books']['api_key'] : '',
+  );
+  $form['google_books']['bib_fields'] = array(
+    '#type' => 'select',
+    '#multiple' => TRUE,
+    '#title' => t('Google Books Data Fields'),
+    '#required' => TRUE,
+    '#size' => 20,
+    '#options' => google_books_api_bib_field_array(),
+    '#description' => t('Hold control to select multiple fields.
+      Also by checking this you are agreeing that you have the rights to display any of the information that you are going to display.'),
+    '#default_value' => isset($this->settings['google_books']['bib_fields']) ? $this->settings['google_books']['bib_fields'] : google_books_api_bib_field_array(),
+  );
+
+  $form['google_books_link'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Google Books External Link Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#description' => t('Turn on/off the links to external pages linking to book.'),
+  );
+  $form['google_books_link']['worldcat'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Link to WorldCat'),
+    '#default_value' => $this->settings['google_books_link']['worldcat'],
+  );
+  $form['google_books_link']['librarything'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Link to LibraryThing'),
+    '#default_value' => $this->settings['google_books_link']['librarything'],
+  );
+  $form['google_books_link']['openlibrary'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Link to Open Library'),
+    '#default_value' => $this->settings['google_books_link']['openlibrary'],
+  );
+
+  $form['google_books_image'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Google Books Image Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#description' => t('Turn on/off the Google Books cover image and set the default size.
+      Also by checking this you are agreeing that you have the rights to display any of the
+      scanned book cover images that you are going to display.'),
+  );
+  $form['google_books_image']['image'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Include Google Books cover image'),
+    '#default_value' => $this->settings['google_books_image']['image'],
+  );
+  $form['google_books_image']['image_height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Image height'),
+    '#size' => 4,
+    '#maxlength' => 4,
+    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+    '#description' => t('Height of Google cover image'),
+    '#default_value' => $this->settings['google_books_image']['image_height'],
+  );
+  $form['google_books_image']['image_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Image width'),
+    '#size' => 4,
+    '#maxlength' => 4,
+    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+    '#description' => t('Width of Google cover image'),
+    '#default_value' => $this->settings['google_books_image']['image_width'],
+  );
+
+  $form['google_books_reader'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Google Books Reader Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#description' => t('Turn on/off the Javascript Google Reader and set the default size.
+      Also by checking this you are agreeing that you have the rights to display any of the
+      scanned book content that you are going to display.'),
+  );
+  $form['google_books_reader']['reader'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Include the Google Books reader'),
+    '#default_value' => $this->settings['google_books_reader']['reader'],
+  );
+  $form['google_books_reader']['reader_height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Reader height'),
+    '#size' => 4,
+    '#maxlength' => 4,
+    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+    '#description' => t('Height of Google reader'),
+    '#default_value' => $this->settings['google_books_reader']['reader_height'],
+  );
+  $form['google_books_reader']['reader_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Reader width'),
+    '#size' => 6,
+    '#maxlength' => 6,
+    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+    '#description' => t('Width of Google reader'),
+    '#default_value' => $this->settings['google_books_reader']['reader_width'],
+  );
+  return $form;
   }
-   */
   
 // END OF CLASS
 }
 
-  
+/**
+ * These are the fields that are displayable in google books.
+ *
+ * @return array
+ *   Returns array of book data field names returned from books.google.com.
+ */
+function google_books_api_bib_field_array() {
+  return array(
+    'kind',
+    'id',
+    'etag',
+    'selfLink',
+    'volumeInfo',
+    'title',
+    'authors',
+    'publisher',
+    'publishedDate',
+    'description',
+    'industryIdentifiers',
+    'type',
+    'identifier',
+    'pageCount',
+    'dimensions',
+    'height',
+    'width',
+    'thickness',
+    'printType',
+    'mainCategory',
+    'categories',
+    'averageRating',
+    'ratingsCount',
+    'contentVersion',
+    'imageLinks',
+    'smallThumbnail',
+    'thumbnail',
+    'small',
+    'medium',
+    'large',
+    'extraLarge',
+    'language',
+    'previewLink',
+    'infoLink',
+    'canonicalVolumeLink',
+    'saleInfo',
+    'country',
+    'saleability',
+    'isEbook',
+    'listPrice',
+    'amount',
+    'currencyCode',
+    'buyLink',
+    'accessInfo',
+    'viewability',
+    'embeddable',
+    'publicDomain',
+    'textToSpeechPermission',
+    'epub',
+    'acsTokenLink',
+    'accessViewStatus',
+    'webReaderLink',
+    'isAvailable',
+  );
+}
+
 
 
 // @TODO INTEGRATE OLD CODE
