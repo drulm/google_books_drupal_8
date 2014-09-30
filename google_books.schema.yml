@@ -4,12 +4,36 @@ filter_settings.google_books:
   type: filter
   label: 'Google Books'
   mapping:
-    allowed_html:
+    api_key:
       type: string
-      label: 'Allowed HTML'
-    filter_html_help:
+      label: 'Google Books API Key'
+    bib_fields:
+      type: select
+      label: 'Google Books Data Fields'
+    worldcat:
       type: boolean
-      label: 'HTML help'
-    filter_html_nofollow:
+      label: 'Link to WorldCat'
+    librarything:
       type: boolean
-      label: 'HTML nofollow'
+      label: 'Link to LibraryThing'
+    openlibrary:
+      type: boolean
+      label: 'Link to Open Library'
+    image:
+      type: boolean
+      label: 'Include Google Books cover image'
+    image_height:
+      type: int
+      label: 'Image height'
+    image_width:
+      type: int
+      label: 'Image width'
+    reader:
+      type: boolean
+      label: 'Include the Google Books reader'
+    reader_height:
+      type: int
+      label: 'Reader height'
+    reader_width:
+      type: int
+      label: 'Reader width'
