@@ -9,6 +9,6 @@
 /**
  * Implements hook_page_build().
  */
-function google_books_page_build(&$page) {
+/*function google_books_page_build(&$page) {
   $path = drupal_get_path('module', 'google_books');
-}
+}*/

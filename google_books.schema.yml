@@ -8,8 +8,17 @@ filter_settings.google_books:
       type: string
       label: 'Google Books API Key'
     bib_fields:
-      type: select
+      type: group
       label: 'Google Books Data Fields'
+      description: ''
+      identifier: ''
+      optional: false
+      widget: select
+      multiple: true
+      remember: true
+      default_group: All
+      default_group_multiple: {  }
+      group_items: {  }
     worldcat:
       type: boolean
       label: 'Link to WorldCat'

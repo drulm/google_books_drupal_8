@@ -82,7 +82,21 @@ define('GOOGLE_BOOKS_DEFAULT_READER_WIDTH', '400');
  *   id = "google_books",
  *   title = @Translation("Google Books"),
  *   description = @Translation("Pulls data from books.google.com and displays by 1st item found."),
- *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_REVERSIBLE
+ *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_REVERSIBLE,
+ *   settings = {
+ *     "worldcat" = FALSE,
+ *     "api_key" = "",
+ *     "bib_fields" = "",
+ *     "worldcat" = FALSE,
+ *     "librarything" = FALSE,
+ *     "openlibrary" = FALSE,
+ *     "image" = FALSE,
+ *     "image_height" = "",
+ *     "image_width" = "",
+ *     "reader" = FALSE,
+ *     "reader_height" = "",
+ *     "reader_width" = ""
+ *   }
  * )
  */
 class google_books extends FilterBase {
@@ -108,21 +122,23 @@ class google_books extends FilterBase {
   
   
   public function settingsForm(array $form, FormStateInterface $form_state) {
-  $form['google_books'] = array(
+/*  $form['google_books'] = array(
     '#type' => 'fieldset',
     '#title' => t('Google Books Filter'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['google_books']['api_key'] = array(
+ * 
+ */
+  $form['api_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Google Books API Key'),
     '#size' => 60,
     '#maxlength' => 80,
     '#description' => t('Register your key at:') . ' ' . l(t('Google Code API Console'), 'https://code.google.com/apis/console'),
-    '#default_value' => isset($this->settings['google_books']['api_key']) ? $this->settings['google_books']['api_key'] : '',
+    '#default_value' => $this->settings['api_key'],
   );
-  $form['google_books']['bib_fields'] = array(
+  $form['bib_fields'] = array(
     '#type' => 'select',
     '#multiple' => TRUE,
     '#title' => t('Google Books Data Fields'),
@@ -131,33 +147,33 @@ class google_books extends FilterBase {
     '#options' => google_books_api_bib_field_array(),
     '#description' => t('Hold control to select multiple fields.
       Also by checking this you are agreeing that you have the rights to display any of the information that you are going to display.'),
-    '#default_value' => isset($this->settings['google_books']['bib_fields']) ? $this->settings['google_books']['bib_fields'] : google_books_api_bib_field_array(),
+    '#default_value' => $this->settings['bib_fields'],
   );
-
-  $form['google_books_link'] = array(
+ /* $form['google_books_link'] = array(
     '#type' => 'fieldset',
     '#title' => t('Google Books External Link Settings'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
     '#description' => t('Turn on/off the links to external pages linking to book.'),
   );
-  $form['google_books_link']['worldcat'] = array(
+  * 
+  */
+  $form['worldcat'] = array(
     '#type' => 'checkbox',
     '#title' => t('Link to WorldCat'),
-    '#default_value' => $this->settings['google_books_link']['worldcat'],
+    '#default_value' => $this->settings['worldcat'],
   );
-  $form['google_books_link']['librarything'] = array(
+  $form['librarything'] = array(
     '#type' => 'checkbox',
     '#title' => t('Link to LibraryThing'),
-    '#default_value' => $this->settings['google_books_link']['librarything'],
+    '#default_value' => $this->settings['librarything'],
   );
-  $form['google_books_link']['openlibrary'] = array(
+  $form['openlibrary'] = array(
     '#type' => 'checkbox',
     '#title' => t('Link to Open Library'),
-    '#default_value' => $this->settings['google_books_link']['openlibrary'],
+    '#default_value' => $this->settings['openlibrary'],
   );
-
-  $form['google_books_image'] = array(
+ /* $form['google_books_image'] = array(
     '#type' => 'fieldset',
     '#title' => t('Google Books Image Settings'),
     '#collapsible' => TRUE,
@@ -166,31 +182,35 @@ class google_books extends FilterBase {
       Also by checking this you are agreeing that you have the rights to display any of the
       scanned book cover images that you are going to display.'),
   );
-  $form['google_books_image']['image'] = array(
+  * 
+  */
+  $form['image'] = array(
     '#type' => 'checkbox',
     '#title' => t('Include Google Books cover image'),
-    '#default_value' => $this->settings['google_books_image']['image'],
+    '#default_value' => $this->settings['image'],
   );
-  $form['google_books_image']['image_height'] = array(
+  $form['image_height'] = array(
     '#type' => 'textfield',
     '#title' => t('Image height'),
     '#size' => 4,
     '#maxlength' => 4,
-    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+    // @TODO Fix validator
+    // '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
     '#description' => t('Height of Google cover image'),
-    '#default_value' => $this->settings['google_books_image']['image_height'],
+    '#default_value' => $this->settings['image_height'],
   );
-  $form['google_books_image']['image_width'] = array(
+  $form['image_width'] = array(
     '#type' => 'textfield',
     '#title' => t('Image width'),
     '#size' => 4,
     '#maxlength' => 4,
-    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+    // @TODO Fix validator
+    // '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
     '#description' => t('Width of Google cover image'),
-    '#default_value' => $this->settings['google_books_image']['image_width'],
+    '#default_value' => $this->settings['image_width'],
   );
 
-  $form['google_books_reader'] = array(
+/*  $form['google_books_reader'] = array(
     '#type' => 'fieldset',
     '#title' => t('Google Books Reader Settings'),
     '#collapsible' => TRUE,
@@ -199,28 +219,32 @@ class google_books extends FilterBase {
       Also by checking this you are agreeing that you have the rights to display any of the
       scanned book content that you are going to display.'),
   );
-  $form['google_books_reader']['reader'] = array(
+ * 
+ */
+  $form['reader'] = array(
     '#type' => 'checkbox',
     '#title' => t('Include the Google Books reader'),
-    '#default_value' => $this->settings['google_books_reader']['reader'],
+    '#default_value' => $this->settings['reader'],
   );
-  $form['google_books_reader']['reader_height'] = array(
+  $form['reader_height'] = array(
     '#type' => 'textfield',
     '#title' => t('Reader height'),
     '#size' => 4,
     '#maxlength' => 4,
-    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+    // @TODO Fix validator
+    //'#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
     '#description' => t('Height of Google reader'),
-    '#default_value' => $this->settings['google_books_reader']['reader_height'],
+    '#default_value' => $this->settings['reader_height'],
   );
-  $form['google_books_reader']['reader_width'] = array(
+  $form['reader_width'] = array(
     '#type' => 'textfield',
     '#title' => t('Reader width'),
     '#size' => 6,
     '#maxlength' => 6,
-    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+    // @TODO Fix validator
+    //'#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
     '#description' => t('Width of Google reader'),
-    '#default_value' => $this->settings['google_books_reader']['reader_width'],
+    '#default_value' => $this->settings['reader_width'],
   );
   return $form;
   }
