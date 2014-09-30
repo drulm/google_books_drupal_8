@@ -10,7 +10,10 @@ use Drupal\filter\Annotation\Filter;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Annotation\Translation;
 use Drupal\filter\Plugin\FilterBase;
+use Drupal\filter\FilterProcessResult;
 use Drupal\Component\Utility\String;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\ClientInterface;
 
 /**
  * @author Darrell Ulm.
@@ -55,6 +58,18 @@ define('GOOGLE_BOOKS_DEFAULT_READER_HEIGHT', '500');
  */
 define('GOOGLE_BOOKS_DEFAULT_READER_WIDTH', '400');
 
+/*
+ * GOOGLE_BOOKS_API_ROOT is the path for the cURL request
+ */
+define("GOOGLE_BOOKS_API_ROOT", 'https://www.googleapis.com/books/v1/volumes?q=');
+
+/*
+ * GOOGLE_BOOKS_CACHE_PERIOD is the time to keep data in the book cache in secs.
+ */
+define("GOOGLE_BOOKS_CACHE_PERIOD", 24 * 60 * 60);
+
+
+
 /**
  * Handles filter tips callback for the google_books filter module.
  *
@@ -70,23 +85,24 @@ define('GOOGLE_BOOKS_DEFAULT_READER_WIDTH', '400');
  *   Display this filter tip.
  *
  * @return string
- *   The translated help text for the filter.
+ *   The translated help text fbibor the filter.
  *
  * @see google_books_filter_info()
  */
 
 /** 
  * Provides a filter to display any HTML as plain text.
+ * 
+ * @TODO Need to add  *     "bib_fields" = option_list,
  *
  * @Filter(
  *   id = "google_books",
  *   title = @Translation("Google Books"),
- *   description = @Translation("Pulls data from books.google.com and displays by 1st item found."),
+ *   descriptionb = @Translation("Pulls data from books.google.com and displays by 1st item found."),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_REVERSIBLE,
  *   settings = {
  *     "worldcat" = FALSE,
  *     "api_key" = "",
- *     "bib_fields" = "",
  *     "worldcat" = FALSE,
  *     "librarything" = FALSE,
  *     "openlibrary" = FALSE,
@@ -105,6 +121,7 @@ class google_books extends FilterBase {
    * {@inheritdoc}
    */
   public function process($text, $langcode) {
+    $text = google_books_filter_process($text);
     return new FilterProcessResult($text);
   }
   
@@ -122,198 +139,83 @@ class google_books extends FilterBase {
   
   
   public function settingsForm(array $form, FormStateInterface $form_state) {
-/*  $form['google_books'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Google Books Filter'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-  );
- * 
- */
-  $form['api_key'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Google Books API Key'),
-    '#size' => 60,
-    '#maxlength' => 80,
-    '#description' => t('Register your key at:') . ' ' . l(t('Google Code API Console'), 'https://code.google.com/apis/console'),
-    '#default_value' => $this->settings['api_key'],
-  );
-  $form['bib_fields'] = array(
-    '#type' => 'select',
-    '#multiple' => TRUE,
-    '#title' => t('Google Books Data Fields'),
-    '#required' => TRUE,
-    '#size' => 20,
-    '#options' => google_books_api_bib_field_array(),
-    '#description' => t('Hold control to select multiple fields.
-      Also by checking this you are agreeing that you have the rights to display any of the information that you are going to display.'),
-    '#default_value' => $this->settings['bib_fields'],
-  );
- /* $form['google_books_link'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Google Books External Link Settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#description' => t('Turn on/off the links to external pages linking to book.'),
-  );
-  * 
-  */
-  $form['worldcat'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Link to WorldCat'),
-    '#default_value' => $this->settings['worldcat'],
-  );
-  $form['librarything'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Link to LibraryThing'),
-    '#default_value' => $this->settings['librarything'],
-  );
-  $form['openlibrary'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Link to Open Library'),
-    '#default_value' => $this->settings['openlibrary'],
-  );
- /* $form['google_books_image'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Google Books Image Settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#description' => t('Turn on/off the Google Books cover image and set the default size.
-      Also by checking this you are agreeing that you have the rights to display any of the
-      scanned book cover images that you are going to display.'),
-  );
-  * 
-  */
-  $form['image'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Include Google Books cover image'),
-    '#default_value' => $this->settings['image'],
-  );
-  $form['image_height'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Image height'),
-    '#size' => 4,
-    '#maxlength' => 4,
-    // @TODO Fix validator
-    // '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
-    '#description' => t('Height of Google cover image'),
-    '#default_value' => $this->settings['image_height'],
-  );
-  $form['image_width'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Image width'),
-    '#size' => 4,
-    '#maxlength' => 4,
-    // @TODO Fix validator
-    // '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
-    '#description' => t('Width of Google cover image'),
-    '#default_value' => $this->settings['image_width'],
-  );
-
-/*  $form['google_books_reader'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Google Books Reader Settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#description' => t('Turn on/off the Javascript Google Reader and set the default size.
-      Also by checking this you are agreeing that you have the rights to display any of the
-      scanned book content that you are going to display.'),
-  );
- * 
- */
-  $form['reader'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Include the Google Books reader'),
-    '#default_value' => $this->settings['reader'],
-  );
-  $form['reader_height'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Reader height'),
-    '#size' => 4,
-    '#maxlength' => 4,
-    // @TODO Fix validator
-    //'#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
-    '#description' => t('Height of Google reader'),
-    '#default_value' => $this->settings['reader_height'],
-  );
-  $form['reader_width'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Reader width'),
-    '#size' => 6,
-    '#maxlength' => 6,
-    // @TODO Fix validator
-    //'#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
-    '#description' => t('Width of Google reader'),
-    '#default_value' => $this->settings['reader_width'],
-  );
-  return $form;
+    $form['api_key'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Google Books API Key'),
+      '#size' => 60,
+      '#maxlength' => 80,
+      '#description' => t('Register your key at:') . ' ' . l(t('Google Code API Console'), 'https://code.google.com/apis/console'),
+      '#default_value' => $this->settings['api_key'],
+    );
+    $form['worldcat'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Link to WorldCat'),
+      '#default_value' => $this->settings['worldcat'],
+    );
+    $form['librarything'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Link to LibraryThing'),
+      '#default_value' => $this->settings['librarything'],
+    );
+    $form['openlibrary'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Link to Open Library'),
+      '#default_value' => $this->settings['openlibrary'],
+    );
+    $form['image'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Include Google Books cover image'),
+      '#default_value' => $this->settings['image'],
+    );
+    $form['image_height'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Image height'),
+      '#size' => 4,
+      '#maxlength' => 4,
+      // @TODO Fix validator
+      // '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+      '#description' => t('Height of Google cover image'),
+      '#default_value' => $this->settings['image_height'],
+    );
+    $form['image_width'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Image width'),
+      '#size' => 4,
+      '#maxlength' => 4,
+      // @TODO Fix validator
+      // '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+      '#description' => t('Width of Google cover image'),
+      '#default_value' => $this->settings['image_width'],
+    );
+    $form['reader'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Include the Google Books reader'),
+      '#default_value' => $this->settings['reader'],
+    );
+    $form['reader_height'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Reader height'),
+      '#size' => 4,
+      '#maxlength' => 4,
+      // @TODO Fix validator
+      //'#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+      '#description' => t('Height of Google reader'),
+      '#default_value' => $this->settings['reader_height'],
+    );
+    $form['reader_width'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Reader width'),
+      '#size' => 6,
+      '#maxlength' => 6,
+      // @TODO Fix validator
+      //'#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
+      '#description' => t('Width of Google reader'),
+      '#default_value' => $this->settings['reader_width'],
+    );
+    return $form;
   }
-  
-// END OF CLASS
-}
 
-/**
- * These are the fields that are displayable in google books.
- *
- * @return array
- *   Returns array of book data field names returned from books.google.com.
- */
-function google_books_api_bib_field_array() {
-  return array(
-    'kind',
-    'id',
-    'etag',
-    'selfLink',
-    'volumeInfo',
-    'title',
-    'authors',
-    'publisher',
-    'publishedDate',
-    'description',
-    'industryIdentifiers',
-    'type',
-    'identifier',
-    'pageCount',
-    'dimensions',
-    'height',
-    'width',
-    'thickness',
-    'printType',
-    'mainCategory',
-    'categories',
-    'averageRating',
-    'ratingsCount',
-    'contentVersion',
-    'imageLinks',
-    'smallThumbnail',
-    'thumbnail',
-    'small',
-    'medium',
-    'large',
-    'extraLarge',
-    'language',
-    'previewLink',
-    'infoLink',
-    'canonicalVolumeLink',
-    'saleInfo',
-    'country',
-    'saleability',
-    'isEbook',
-    'listPrice',
-    'amount',
-    'currencyCode',
-    'buyLink',
-    'accessInfo',
-    'viewability',
-    'embeddable',
-    'publicDomain',
-    'textToSpeechPermission',
-    'epub',
-    'acsTokenLink',
-    'accessViewStatus',
-    'webReaderLink',
-    'isAvailable',
-  );
+// END OF CLASS
 }
 
 
@@ -322,14 +224,6 @@ function google_books_api_bib_field_array() {
 //=====================================================================================
 //=====================================================================================
 //=====================================================================================
-/*function google_books_filter_tips($filter, $format, $long = FALSE) {
-  if ($long) {
-    return t('Put a Google Books search term between square brackets like this:
-      [google_books:The Hobbit] or [google_books:9780618154012] or [google_books:Rucker+Software]
-      and this will filter the input to replace with Google Books data
-      and images from http://books.google.com');
-  }
-}*/
 
 /**
  * Implements hook_filter_info().
@@ -388,6 +282,7 @@ function google_books_filter_info() {
  * @see _google_books_image_or_reader_valid_int_size()
  * @see google_books_filter_info()
  */
+// @TODO Remove after.
 function google_books_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
   $settings['google_books'] = array(
     '#type' => 'fieldset',
@@ -517,6 +412,7 @@ function google_books_filter_settings($form, &$form_state, $filter, $format, $de
  *
  * @see google_books_filter_settings
  */
+// @TODO Convert this to D8
 function _google_books_image_or_reader_valid_int_size($element, &$form_state) {
   $image_size_parameter = trim($element['#value']);
   $element_title = $element['#title'];
@@ -554,12 +450,13 @@ function _google_books_image_or_reader_valid_int_size($element, &$form_state) {
  *
  * @see google_books_filter_info()
  */
-function google_books_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+// function google_books_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+function google_books_filter_process($text) {
   preg_match_all('/\[google_books:(.*)\]/', $text, $match);
   $tag = $match[0];
   $book = array();
   foreach ($match[1] as $i => $val) {
-      $book[$i] = google_books_retrieve_bookdata(
+    $book[$i] = google_books_retrieve_bookdata(
       $match[1][$i],
       $filter->settings['google_books_link']['worldcat'],
       $filter->settings['google_books_link']['librarything'],
@@ -979,3 +876,349 @@ function theme_google_books_biblio($selected_bibs) {
   return $html_string;
 }
 
+
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+// @TODO Convert and bring in google_books_api functions here
+
+
+
+/**
+ * @file
+ * Google Books API Module for Drupal 7.0
+ *
+ * @author Darrell Ulm.
+ *
+ * Based initialy on the BookPost module for Drupal 6 by Aaron Rubinstein,
+ * and partially based on the the OpenLibrary API for Drupal 6
+ *
+ * The Google Books search can be done with many types of search strings.
+ *
+ * There are many search options with Google Books. See
+ * books.google.com documation for more information
+ *
+ * See the INSTALL.TXT file for specific information.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ * These are the fields that are displayable in google books.
+ *
+ * @return array
+ *   Returns array of book data field names returned from books.google.com.
+ */
+function google_books_api_bib_field_array() {
+  return array(
+    'kind',
+    'id',
+    'etag',
+    'selfLink',
+    'volumeInfo',
+    'title',
+    'authors',
+    'publisher',
+    'publishedDate',
+    'description',
+    'industryIdentifiers',
+    'type',
+    'identifier',
+    'pageCount',
+    'dimensions',
+    'height',
+    'width',
+    'thickness',
+    'printType',
+    'mainCategory',
+    'categories',
+    'averageRating',
+    'ratingsCount',
+    'contentVersion',
+    'imageLinks',
+    'smallThumbnail',
+    'thumbnail',
+    'small',
+    'medium',
+    'large',
+    'extraLarge',
+    'language',
+    'previewLink',
+    'infoLink',
+    'canonicalVolumeLink',
+    'saleInfo',
+    'country',
+    'saleability',
+    'isEbook',
+    'listPrice',
+    'amount',
+    'currencyCode',
+    'buyLink',
+    'accessInfo',
+    'viewability',
+    'embeddable',
+    'publicDomain',
+    'textToSpeechPermission',
+    'epub',
+    'acsTokenLink',
+    'accessViewStatus',
+    'webReaderLink',
+    'isAvailable',
+  );
+}
+
+
+/**
+ * Gets the book data from Google Books and puts in flat array.
+ *
+ * Multiple data fields are delimited by '|' character in string.
+ * This is the fuction to call if the caller only wants an array. If the
+ * caller needs *everything* google returns (which is fine) then the user
+ * should use the google_books_api_cached_request( $path ) function.
+ *
+ * @param string $id
+ *   The {{ $id }} passed from the filter text.
+ *
+ * @param int $version_num
+ *   The version of the book returned from the search to use
+ *
+ * @return array
+ *   Field names used to index the book data for each field.
+ */
+function google_books_api_get_google_books_data($id, $version_num, $api_key = NULL) {
+    
+  // Clean search string of spaces, turn into '+'.
+  $id = google_books_api_clean_search_id($id);
+
+  // Get all the arrays from the query.
+  $bookkeys = google_books_api_cached_request($id, $api_key);
+
+  // Decode into array to be able to scan.
+  $json_array_google_books_data = drupal_json_decode($bookkeys, TRUE);
+
+  $versions = $json_array_google_books_data['totalItems'];
+
+  // Check the number of versions returned by Google Books.
+  if ($versions > 0 && $version_num < $versions) {
+
+    // Grab the first result.
+    $bookkeyresult = $json_array_google_books_data['items'][$version_num];
+
+    // Extract the results into one big string with delimiters.
+    $book_str = google_books_api_demark_and_flatten($bookkeyresult);
+
+    // Build array for this.
+    $bib = array();
+    $fields = explode("|||", $book_str);
+    for ($i = 1; $i < count($fields); $i += 2) {
+      $fieldname = $fields[$i];
+      if (strpos($fields[$i + 1], "[[[") === FALSE) {
+        $value = trim(str_replace("(((", "", $fields[$i + 1]));
+      }
+      else {
+        $sub_value = "";
+        $sub_fields = explode("[[[", $fields[$i + 1]);
+        for ($j = 1; $j < count($sub_fields); $j += 2) {
+          if ($j != 1 && !empty($sub_fields[$j + 1])) {
+            $sub_value .= " | ";
+          }
+          $sub_value .= trim(str_replace("(((", "", $sub_fields[$j + 1]));
+        }
+        $value = $sub_value;
+      }
+      if (!empty($value)) {
+        google_books_api_assign_bib_array($bib, $fieldname, $value);
+      }
+    }
+    return $bib;
+  }
+  else {
+    return NULL;
+  }
+}
+
+
+/**
+ * Pulls out only the biblio values we need.
+ *
+ * @param array &$barr
+ *   Reference (for speed) to JSON data from a single book search result.
+ *
+ * @return string
+ *   One big string of all book data with delimiters used to expand to arrays.
+ */
+function google_books_api_demark_and_flatten(&$barr) {
+
+  // Get the bib fields and go through the array.
+  $bib_fields = google_books_api_bib_field_array();
+  $book_html = "";
+
+  // Loop through array struture recursively.
+  foreach ($barr as $key => $value) {
+    if (!is_array($value) && $value != "") {
+      $effective_key = is_int($key) ? '[[[///' . $key . '[[[' : '|||' . $key . '|||';
+      $book_html .= "$effective_key ((($value(((";
+    }
+    else {
+      // If there is a sub array, call this same function to traverse it.
+      if (is_array($value)) {
+        $sub_bib = google_books_api_demark_and_flatten($value, $bib_fields);
+      }
+      else {
+        $sub_bib = $value;
+      }
+      if ($sub_bib != "") {
+        $book_html .= "|||" . $key . "|||" . $sub_bib . "";
+      }
+    }
+  }
+  return $book_html;
+}
+
+
+/**
+ * This function assigns the bib_array with index and value.
+ *
+ * If there is already data in the field, additional data items
+ * are appended with the string delimiter '|'. The caller of this
+ * function can then get all the data from the field by using explode()
+ * or just print out this data field with the delimeters.
+ *
+ * @param array &$bib_array
+ *   Reference to Array to modify.
+ *
+ * @param string $index
+ *   The array index.
+ *
+ * @param string $value
+ *   The value to assign to the array.
+ */
+function google_books_api_assign_bib_array(&$bib_array, $index, $value) {
+
+  if (!array_key_exists($index, $bib_array)) {
+    $bib_array[$index] = $value;
+  }
+  else {
+    $bib_array[$index] = $bib_array[$index] . " | " . $value;
+  }
+}
+
+
+/**
+ * This returns JSON data from the cache if present.
+ *
+ * Else goes out and pulls the data in from books.google.com, caches the data
+ * then returns it. Callers can use this function to pull all the
+ * data Google Books API returns.
+ *
+ * @param string $path
+ *   The search string, without any additional parameters.
+ *
+ * @return array
+ *   Returns the cached JSON data for book located in cache, or fresh data.
+ */
+function google_books_api_cached_request($path, $api_key = NULL) {
+
+  // Build the full path (and the cache key).
+  $url_bookkeys = GOOGLE_BOOKS_API_ROOT . $path ;
+  $bookkeys_hash = hash('sha256', $url_bookkeys);
+
+  // @TODO Convert to D8 cache
+  // See if it is cached.
+  // $cached = cache_get($bookkeys_hash, 'cache_google_books_api');
+  $cached = FALSE;
+  
+  // If is it IS cached, then just return the data from the cache.
+  if ($cached !== FALSE) {
+    // Check if the time has expired.
+    if ($cached->expire < REQUEST_TIME) {
+      cache_clear_all($bookkeys_hash, 'cache_google_books_api');
+    }
+    return $cached->data;
+  }
+  else {
+    // Do it the slow way, go get the new data, and add API key if it exists.
+    if ($api_key) {
+      $url_bookkeys .= '&key=' . $api_key;
+    }
+    // $url_data = drupal_http_request($url_bookkeys);
+    
+    /* $request = Drupal::httpClient()->get($url_bookkeys);
+    $request->addHeader('If-Modified-Since', gmdate(DATE_RFC1123, $last_fetched));
+    try {
+      $response = $request->send();
+      // Expected result.
+      $url_data = $response->getBody(TRUE);
+    }
+    catch (RequestException $e) {
+      watchdog_exception('google_books', $e);
+    } */
+    
+    if (isset($url_data->error) || !isset($url_data->data)) {
+      drupal_set_message(t('Googlebooks: Could not retrieve data from google.com. @err', array('@err' => $url_data->error)), $type = 'error');
+      return NULL;
+    }
+    $bookkeys = $url_data->data;
+
+    // Set the cache if return from request is not NULL.
+    if ($bookkeys != NULL) {
+      cache_set($bookkeys_hash, $bookkeys, 'cache_google_books_api', REQUEST_TIME + GOOGLE_BOOKS_CACHE_PERIOD);
+    }
+    // Bookkeys is the data, so return it.
+    return $bookkeys;
+  }
+}
+
+/**
+ * Gets the number of versions in the books.google.com JSON data.
+ *
+ * @param string $id
+ *   The raw search string.
+ *
+ * @return int
+ *   The count of the number of book versions returned in the JSON data.
+ */
+function google_books_api_get_googlebooks_version_count($id, $api_key = NULL) {
+
+  // Cleanup the search ID.
+  $id = google_books_api_clean_search_id($id);
+
+  // Get all the arrays from the query.
+  $bookkeys = google_books_api_cached_request($id, $api_key);
+  if ($bookkeys != NULL) {
+    // Decode into array to be able to scan.
+    $json_array_google_books_data = drupal_json_decode($bookkeys, TRUE);
+    return $json_array_google_books_data['totalItems'];
+  }
+  else {
+    return NULL;
+  }
+}
+
+/**
+ * Cleans the search ID to be used for Google API.
+ *
+ * @param string $id
+ *   The raw search string.
+ *
+ * @return string
+ *   The search string cleaned.
+ */
+function google_books_api_clean_search_id($id) {
+
+  // Clean search string of spaces, turn into '+'.
+  $id = trim($id);
+  $dirt_id = array(" ");
+  return str_replace($dirt_id, "+", $id);
+}
