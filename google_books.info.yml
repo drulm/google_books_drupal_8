@@ -1,6 +1,7 @@
 name: Google Books
 type: module
-description: 'Input filter module returning data from books.google.com'
-core: 8.x
+description: "Input filter module returning data from books.google.com"
 package: User interface
-
+core: 8.x
+dependencies:
+  - editor
