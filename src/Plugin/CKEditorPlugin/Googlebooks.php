@@ -1,16 +1,21 @@
 <?php
 /**
  * @file
- * Google Books Filter Module for Drupal 8.0
+ * Contains \Drupal\google_books\Plugin\CKEditorPlugin\Googlebooks.
  */
 
-namespace Drupal\google_books\Plugin\Filter;
+namespace Drupal\google_books\Plugin\CKEditorPlugin;
 
-use Drupal\filter\Annotation\Filter;
+use Drupal\Core\Url;
+use Drupal\ckeditor\CKEditorPluginBase;
+use Drupal\ckeditor\Annotation\CKEditorPlugin;
+use Drupal\Component\Plugin\PluginBase;
+use Drupal\ckeditor\CKEditorPluginInterface;
+use Drupal\ckeditor\CKEditorPluginContextualInterface;
+use Drupal\ckeditor\CKEditorPluginConfigurableInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Annotation\Translation;
-use Drupal\filter\Plugin\FilterBase;
-use Drupal\filter\FilterProcessResult;
+use Drupal\editor\Entity\Editor;
 use Drupal\Component\Utility\String;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\ClientInterface;
@@ -95,77 +100,111 @@ define("GOOGLE_BOOKS_CACHE_PERIOD", 24 * 60 * 60);
  * 
  * @TODO Need to add  *     "bib_fields" = option_list,
  *
- * @Filter(
+ * Defines the "linebreaks" plugin.
+ *
+ * @CKEditorPlugin(
  *   id = "google_books",
- *   title = @Translation("Google Books"),
- *   descriptionb = @Translation("Pulls data from books.google.com and displays by 1st item found."),
- *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_REVERSIBLE,
- *   settings = {
- *     "worldcat" = FALSE,
- *     "api_key" = "",
- *     "worldcat" = FALSE,
- *     "librarything" = FALSE,
- *     "openlibrary" = FALSE,
- *     "image" = FALSE,
- *     "image_height" = "",
- *     "image_width" = "",
- *     "reader" = FALSE,
- *     "reader_height" = "",
- *     "reader_width" = ""
- *   }
+ *   label = @Translation("Googlebooks"),
+ *   module = "google_books"
  * )
  */
-class google_books extends FilterBase {
-  
+
+class Googlebooks extends PluginBase implements CKEditorPluginInterface, CKEditorPluginContextualInterface, CKEditorPluginConfigurableInterface {  
   /**
    * {@inheritdoc}
    */
-  public function process($text, $langcode) {
-    $text = google_books_filter_process($text);
-    return new FilterProcessResult($text);
+  public function isInternal() {
+    return FALSE;
   }
   
   /**
    * {@inheritdoc}
    */
-  public function tips($long = FALSE) {
+  public function getDependencies(Editor $editor) {
+    return array();
+  }
+  
+ /**
+   * {@inheritdoc}
+   */
+  public function getFile() {
+    return FALSE;
+  }
+  
+  /**
+   * {@inheritdoc}
+   */
+  public function isEnabled(Editor $editor) {
+    // If the module is enabled, this plugin should be enabled.
+    return TRUE;
+  }
+  
+  /**
+   * {@inheritdoc}
+   */
+  public function getLibraries(Editor $editor) {
+    return array();
+  }
+  
+  /**
+   * {@inheritdoc}
+   */
+  /*public function process($text, $langcode) {
+    $text = google_books_filter_process($text);
+    return new FilterProcessResult($text);
+  }*/
+  
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfig(Editor $editor) {
+    return array(
+      'googlebooks_method' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['api_key'] : "",
+    );
+  }
+  
+  /**
+   * {@inheritdoc}
+   */
+  /*public function tips($long = FALSE) {
     if ($long) {
       return t('Put a Google Books search term between square brackets like this:
         [google_books:The Hobbit] or [google_books:9780618154012] or [google_books:Rucker+Software]
         and this will filter the input to replace with Google Books data
         and images from http://books.google.com');
     }
-  }
+  }*/
   
   
-  public function settingsForm(array $form, FormStateInterface $form_state) {
+  public function settingsForm(array $form, FormStateInterface $form_state, Editor $editor) {
+    //$link_url = 'https://code.google.com/apis/console';
     $form['api_key'] = array(
       '#type' => 'textfield',
       '#title' => t('Google Books API Key'),
       '#size' => 60,
       '#maxlength' => 80,
-      '#description' => t('Register your key at:') . ' ' . l(t('Google Code API Console'), 'https://code.google.com/apis/console'),
-      '#default_value' => $this->settings['api_key'],
+      '#description' => t('Register your key at: (fill in link later)'),
+      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['api_key'] : "",
     );
     $form['worldcat'] = array(
       '#type' => 'checkbox',
       '#title' => t('Link to WorldCat'),
-      '#default_value' => $this->settings['worldcat'],
+      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['worldcat'] : FALSE,
     );
     $form['librarything'] = array(
       '#type' => 'checkbox',
       '#title' => t('Link to LibraryThing'),
-      '#default_value' => $this->settings['librarything'],
+      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['librarything'] : FALSE,
     );
     $form['openlibrary'] = array(
       '#type' => 'checkbox',
       '#title' => t('Link to Open Library'),
-      '#default_value' => $this->settings['openlibrary'],
+      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['openlibrary'] : FALSE,
     );
     $form['image'] = array(
       '#type' => 'checkbox',
       '#title' => t('Include Google Books cover image'),
-      '#default_value' => $this->settings['image'],
+      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['image'] : FALSE,
     );
     $form['image_height'] = array(
       '#type' => 'textfield',
@@ -175,7 +214,7 @@ class google_books extends FilterBase {
       // @TODO Fix validator
       // '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
       '#description' => t('Height of Google cover image'),
-      '#default_value' => $this->settings['image_height'],
+      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['image_height'] : FALSE,
     );
     $form['image_width'] = array(
       '#type' => 'textfield',
@@ -185,12 +224,12 @@ class google_books extends FilterBase {
       // @TODO Fix validator
       // '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
       '#description' => t('Width of Google cover image'),
-      '#default_value' => $this->settings['image_width'],
+      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['image_width'] : FALSE,
     );
     $form['reader'] = array(
       '#type' => 'checkbox',
       '#title' => t('Include the Google Books reader'),
-      '#default_value' => $this->settings['reader'],
+      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['reader'] : FALSE,
     );
     $form['reader_height'] = array(
       '#type' => 'textfield',
@@ -200,7 +239,7 @@ class google_books extends FilterBase {
       // @TODO Fix validator
       //'#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
       '#description' => t('Height of Google reader'),
-      '#default_value' => $this->settings['reader_height'],
+      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['reader_height'] : FALSE,
     );
     $form['reader_width'] = array(
       '#type' => 'textfield',
@@ -210,7 +249,7 @@ class google_books extends FilterBase {
       // @TODO Fix validator
       //'#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
       '#description' => t('Width of Google reader'),
-      '#default_value' => $this->settings['reader_width'],
+      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['reader_width'] : FALSE,
     );
     return $form;
   }
