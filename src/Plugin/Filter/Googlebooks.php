@@ -11,6 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
+use GuzzleHttp\Client;
 
 /*
  * Holds the address of the books.google.com JSON call
@@ -155,7 +156,26 @@ class Googlebooks extends FilterBase {
    * {@inheritdoc}
    */
   public function process($text, $langcode) {
-    $text .= " More Text";
+    preg_match_all('/\[google_books:(.*)\]/', $text, $match);
+    $tag = $match[0];
+    $book = array();
+    foreach ($match[1] as $i => $val) {
+      $book[$i] = google_books_retrieve_bookdata(
+        $match[1][$i],
+        $filter->settings['google_books_link']['worldcat'],
+        $filter->settings['google_books_link']['librarything'],
+        $filter->settings['google_books_link']['openlibrary'],
+        $filter->settings['google_books_image']['image'],
+        $filter->settings['google_books_reader']['reader'],
+        $filter->settings['google_books']['bib_fields'],
+        $filter->settings['google_books_image']['image_height'],
+        $filter->settings['google_books_image']['image_width'],
+        $filter->settings['google_books_reader']['reader_height'],
+        $filter->settings['google_books_reader']['reader_width'],
+        $filter->settings['google_books']['api_key']
+      );
+    }
+    $text = str_replace($tag, $book, $text);
     return new FilterProcessResult(_filter_url($text, $this));
   }
  
@@ -182,7 +202,9 @@ class Googlebooks extends FilterBase {
         and images from http://books.google.com');
     }
   }
-  
+
+}
+
 /**
  * This is the main filter callback process for the google book filter module.
  *
@@ -212,7 +234,7 @@ class Googlebooks extends FilterBase {
  * @see google_books_filter_info()
  */
   // function google_books_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
-  private function google_books_filter_process($text) {
+  function google_books_filter_process($text) {
     preg_match_all('/\[google_books:(.*)\]/', $text, $match);
     $tag = $match[0];
     $book = array();
@@ -279,7 +301,7 @@ class Googlebooks extends FilterBase {
    *
    * @see google_books_filter_process
    */
-  private function google_books_retrieve_bookdata(
+  function google_books_retrieve_bookdata(
     $id,
     $worldcat_link,
     $librarything_link,
@@ -408,7 +430,7 @@ class Googlebooks extends FilterBase {
    * @return string
    *   This is the ISBN selected.
    */
-  private function google_books_get_isbn($identifiers) {
+  function google_books_get_isbn($identifiers) {
     // Pull an ISBN if we have it, prefer the last
     // which should be an ISBN 13 although may be something else.
     $identifier_list = explode("|", $identifiers);
@@ -427,7 +449,7 @@ class Googlebooks extends FilterBase {
    * @return string
    *   Returns an HTML <a></a> link if there is a valid address in $address.
    */
-  private function google_books_make_html_link($address) {
+  function google_books_make_html_link($address) {
     if (valid_url($address, $absolute = TRUE)) {
       return l(t('link'), $address, array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
     }
@@ -450,7 +472,7 @@ class Googlebooks extends FilterBase {
    * @param int|bool $set
    *   What $flag_var will be set to if TRUE.
    */
-  private function google_books_set_param($params, &$flag_var, $value, $set) {
+  function google_books_set_param($params, &$flag_var, $value, $set) {
     if (in_array($value, $params) === TRUE) {
       $flag_var = $set;
     }
@@ -462,7 +484,7 @@ class Googlebooks extends FilterBase {
   * @return array
   *   Returns array of book data field names returned from books.google.com.
   */
- private function google_books_api_bib_field_array() {
+ function google_books_api_bib_field_array() {
    return array(
      'kind',
      'id',
@@ -538,7 +560,7 @@ class Googlebooks extends FilterBase {
   * @return array
   *   Field names used to index the book data for each field.
   */
- private function google_books_api_get_google_books_data($id, $version_num, $api_key = NULL) {
+ function google_books_api_get_google_books_data($id, $version_num, $api_key = NULL) {
 
    // Clean search string of spaces, turn into '+'.
    $id = google_books_api_clean_search_id($id);
@@ -547,7 +569,7 @@ class Googlebooks extends FilterBase {
    $bookkeys = google_books_api_cached_request($id, $api_key);
 
    // Decode into array to be able to scan.
-   $json_array_google_books_data = drupal_json_decode($bookkeys, TRUE);
+   $json_array_google_books_data = json_decode($bookkeys, TRUE);
 
    $versions = $json_array_google_books_data['totalItems'];
 
@@ -600,7 +622,7 @@ class Googlebooks extends FilterBase {
   * @return string
   *   One big string of all book data with delimiters used to expand to arrays.
   */
- private function google_books_api_demark_and_flatten(&$barr) {
+ function google_books_api_demark_and_flatten(&$barr) {
 
    // Get the bib fields and go through the array.
    $bib_fields = google_books_api_bib_field_array();
@@ -645,7 +667,7 @@ class Googlebooks extends FilterBase {
   * @param string $value
   *   The value to assign to the array.
   */
- private function google_books_api_assign_bib_array(&$bib_array, $index, $value) {
+ function google_books_api_assign_bib_array(&$bib_array, $index, $value) {
 
    if (!array_key_exists($index, $bib_array)) {
      $bib_array[$index] = $value;
@@ -668,7 +690,7 @@ class Googlebooks extends FilterBase {
   * @return array
   *   Returns the cached JSON data for book located in cache, or fresh data.
   */
- private function google_books_api_cached_request($path, $api_key = NULL) {
+ function google_books_api_cached_request($path, $api_key = NULL) {
 
    // Build the full path (and the cache key).
    $url_bookkeys = GOOGLE_BOOKS_API_ROOT . $path ;
@@ -692,7 +714,7 @@ class Googlebooks extends FilterBase {
      if ($api_key) {
        $url_bookkeys .= '&key=' . $api_key;
      }
-     // $url_data = drupal_http_request($url_bookkeys);
+     $url_data = guzzle_http_request($url_bookkeys);
 
      /* $request = Drupal::httpClient()->get($url_bookkeys);
      $request->addHeader('If-Modified-Since', gmdate(DATE_RFC1123, $last_fetched));
@@ -729,7 +751,7 @@ class Googlebooks extends FilterBase {
   * @return int
   *   The count of the number of book versions returned in the JSON data.
   */
- private function google_books_api_get_googlebooks_version_count($id, $api_key = NULL) {
+ function google_books_api_get_googlebooks_version_count($id, $api_key = NULL) {
 
    // Cleanup the search ID.
    $id = google_books_api_clean_search_id($id);
@@ -747,25 +769,21 @@ class Googlebooks extends FilterBase {
  }
  
  
-/**
-  * Cleans the search ID to be used for Google API.
-  *
-  * @param string $id
-  *   The raw search string.
-  *
-  * @return string
-  *   The search string cleaned.
-  */
- private function google_books_api_clean_search_id($id) {
+  /**
+    * Cleans the search ID to be used for Google API.
+    *
+    * @param string $id
+    *   The raw search string.
+    *
+    * @return string
+    *   The search string cleaned.
+    */
+   function google_books_api_clean_search_id($id) {
 
-   // Clean search string of spaces, turn into '+'.
-   $id = trim($id);
-   $dirt_id = array(" ");
-   return str_replace($dirt_id, "+", $id);
- }
+     // Clean search string of spaces, turn into '+'.
+     $id = trim($id);
+     $dirt_id = array(" ");
+     return str_replace($dirt_id, "+", $id);
+   }
 
  
-
-
-
-}
