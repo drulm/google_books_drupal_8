@@ -411,6 +411,9 @@ class Googlebooks extends FilterBase {
 
       // Send the variables to the theme.
       //$output = theme('google_books_aggregate', $vars);
+      
+      return explode(" // " ,$vars);
+      
       return $output;
     }
     else {
@@ -565,11 +568,14 @@ class Googlebooks extends FilterBase {
 
    // Get all the arrays from the query.
    $bookkeys = google_books_api_cached_request($id, $api_key);
+   //dpm($bookkeys);
 
    // Decode into array to be able to scan.
    $json_array_google_books_data = json_decode($bookkeys, TRUE);
+   dpm($json_array_google_books_data);
 
    $versions = $json_array_google_books_data['totalItems'];
+   dpm($versions);
 
    // Check the number of versions returned by Google Books.
    if ($versions > 0 && $version_num < $versions) {
@@ -579,6 +585,7 @@ class Googlebooks extends FilterBase {
 
      // Extract the results into one big string with delimiters.
      $book_str = google_books_api_demark_and_flatten($bookkeyresult);
+     dpm($book_str);
 
      // Build array for this.
      $bib = array();
@@ -603,6 +610,7 @@ class Googlebooks extends FilterBase {
          google_books_api_assign_bib_array($bib, $fieldname, $value);
        }
      }
+     dpm($bib);
      return $bib;
    }
    else {
