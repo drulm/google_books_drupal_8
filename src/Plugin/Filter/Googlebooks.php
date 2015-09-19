@@ -11,7 +11,10 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
-use GuzzleHttp\Client;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\ClientInterface as GuzzleClientInterface;
+use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Exception\RequestException;
 
 /*
  * Holds the address of the books.google.com JSON call
@@ -714,8 +717,20 @@ class Googlebooks extends FilterBase {
      if ($api_key) {
        $url_bookkeys .= '&key=' . $api_key;
      }
-     $url_data = guzzle_http_request($url_bookkeys);
+     
+     //$url_data = guzzle_http_request($url_bookkeys);
+    try {
+      $url_data = (string) \Drupal::httpClient()
+        ->get($url_bookkeys)
+        ->getBody();
+    }  
+    catch (RequestException $exception) {
+      drupal_set_message(t('Googlebooks: Could not retrieve data from google.com. @err', array('%error' => $exception->getMessage())), 'error');
+      return FALSE;
+    }
 
+    dpm($url_data);
+    
      /* $request = Drupal::httpClient()->get($url_bookkeys);
      $request->addHeader('If-Modified-Since', gmdate(DATE_RFC1123, $last_fetched));
      try {
@@ -727,15 +742,15 @@ class Googlebooks extends FilterBase {
        watchdog_exception('google_books', $e);
      } */
 
-     if (isset($url_data->error) || !isset($url_data->data)) {
+     /*if (isset($url_data->error) || !isset($url_data->data)) {
        drupal_set_message(t('Googlebooks: Could not retrieve data from google.com. @err', array('@err' => $url_data->error)), $type = 'error');
        return NULL;
-     }
+     }*/
      $bookkeys = $url_data->data;
 
      // Set the cache if return from request is not NULL.
      if ($bookkeys != NULL) {
-       cache_set($bookkeys_hash, $bookkeys, 'cache_google_books_api', REQUEST_TIME + GOOGLE_BOOKS_CACHE_PERIOD);
+       //cache_set($bookkeys_hash, $bookkeys, 'cache_google_books_api', REQUEST_TIME + GOOGLE_BOOKS_CACHE_PERIOD);
      }
      // Bookkeys is the data, so return it.
      return $bookkeys;
@@ -761,6 +776,7 @@ class Googlebooks extends FilterBase {
    if ($bookkeys != NULL) {
      // Decode into array to be able to scan.
      $json_array_google_books_data = drupal_json_decode($bookkeys, TRUE);
+     dpm($json_array_google_books_data);
      return $json_array_google_books_data['totalItems'];
    }
    else {
