@@ -178,33 +178,38 @@ class Googlebooks extends PluginBase implements CKEditorPluginInterface, CKEdito
   
   public function settingsForm(array $form, FormStateInterface $form_state, Editor $editor) {
     //$link_url = 'https://code.google.com/apis/console';
+    
+    $input = $editor->getSettings();
+    $input = $input['plugins']['google_books'];
+    dpm($input);
+    
     $form['api_key'] = array(
       '#type' => 'textfield',
       '#title' => t('Google Books API Key'),
       '#size' => 60,
       '#maxlength' => 80,
       '#description' => t('Register your key at: (fill in link later)'),
-      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['api_key'] : "",
+      '#default_value' => isset($input['api_key']) ? $input['api_key'] : "",
     );
     $form['worldcat'] = array(
       '#type' => 'checkbox',
       '#title' => t('Link to WorldCat'),
-      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['worldcat'] : FALSE,
+      '#default_value' => isset($input['worldcat']) ? $input['worldcat'] : FALSE,
     );
     $form['librarything'] = array(
       '#type' => 'checkbox',
       '#title' => t('Link to LibraryThing'),
-      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['librarything'] : FALSE,
+      '#default_value' => isset($input['librarything']) ? $input['librarything'] : FALSE,
     );
     $form['openlibrary'] = array(
       '#type' => 'checkbox',
       '#title' => t('Link to Open Library'),
-      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['openlibrary'] : FALSE,
+      '#default_value' => isset($input['openlibrary']) ? $input['openlibrary'] : FALSE,
     );
     $form['image'] = array(
       '#type' => 'checkbox',
       '#title' => t('Include Google Books cover image'),
-      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['image'] : FALSE,
+      '#default_value' => isset($input['image']) ? $input['image'] : FALSE,
     );
     $form['image_height'] = array(
       '#type' => 'textfield',
@@ -214,7 +219,7 @@ class Googlebooks extends PluginBase implements CKEditorPluginInterface, CKEdito
       // @TODO Fix validator
       // '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
       '#description' => t('Height of Google cover image'),
-      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['image_height'] : FALSE,
+      '#default_value' => isset($input['image_height']) ? $input['image_height'] : FALSE,
     );
     $form['image_width'] = array(
       '#type' => 'textfield',
@@ -224,12 +229,12 @@ class Googlebooks extends PluginBase implements CKEditorPluginInterface, CKEdito
       // @TODO Fix validator
       // '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
       '#description' => t('Width of Google cover image'),
-      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['image_width'] : FALSE,
+      '#default_value' => isset($input['image_width']) ? $input['image_width'] : FALSE,
     );
     $form['reader'] = array(
       '#type' => 'checkbox',
       '#title' => t('Include the Google Books reader'),
-      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['reader'] : FALSE,
+      '#default_value' => isset($input['reader']) ? $input['reader'] : FALSE,
     );
     $form['reader_height'] = array(
       '#type' => 'textfield',
@@ -239,7 +244,7 @@ class Googlebooks extends PluginBase implements CKEditorPluginInterface, CKEdito
       // @TODO Fix validator
       //'#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
       '#description' => t('Height of Google reader'),
-      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['reader_height'] : FALSE,
+      '#default_value' => isset($input['reader_height']) ? $input['reader_height'] : FALSE,
     );
     $form['reader_width'] = array(
       '#type' => 'textfield',
@@ -249,7 +254,7 @@ class Googlebooks extends PluginBase implements CKEditorPluginInterface, CKEdito
       // @TODO Fix validator
       //'#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
       '#description' => t('Width of Google reader'),
-      '#default_value' => isset($editor->settings['plugins']['google_books']) ? $editor->settings['plugins']['google_books']['reader_width'] : FALSE,
+      '#default_value' => isset($input['reader_width']) ? $input['reader_width'] : FALSE,
     );
     return $form;
   }
