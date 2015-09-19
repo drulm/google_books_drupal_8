@@ -114,7 +114,6 @@ class Googlebooks extends PluginBase implements CKEditorPluginInterface, CKEdito
    * {@inheritdoc}
    */
   public function isInternal() {
-    return FALSE;
   }
   
   /**
@@ -128,7 +127,6 @@ class Googlebooks extends PluginBase implements CKEditorPluginInterface, CKEdito
    * {@inheritdoc}
    */
   public function getFile() {
-    return FALSE;
   }
   
   /**
@@ -150,9 +148,12 @@ class Googlebooks extends PluginBase implements CKEditorPluginInterface, CKEdito
    * {@inheritdoc}
    */
   /*public function process($text, $langcode) {
-    $text = google_books_filter_process($text);
-    return new FilterProcessResult($text);
-  }*/
+    //$text = google_books_filter_process($text);
+    //return new FilterProcessResult($text);
+    return $text;
+  }
+   * 
+   */
   
   /**
    * {@inheritdoc}
@@ -166,14 +167,14 @@ class Googlebooks extends PluginBase implements CKEditorPluginInterface, CKEdito
   /**
    * {@inheritdoc}
    */
-  /*public function tips($long = FALSE) {
+  public function tips($long = FALSE) {
     if ($long) {
       return t('Put a Google Books search term between square brackets like this:
         [google_books:The Hobbit] or [google_books:9780618154012] or [google_books:Rucker+Software]
         and this will filter the input to replace with Google Books data
         and images from http://books.google.com');
     }
-  }*/
+  }
   
   
   public function settingsForm(array $form, FormStateInterface $form_state, Editor $editor) {
@@ -296,154 +297,6 @@ function google_books_filter_info() {
   return $filters;
 }
 
-
-/**
- * Form constructor for google_books filter.
- *
- * Callback for 'settings callback' within google_books_filter_info().
- *
- * @param array $form
- *   The array of form elements.
- *
- * @param array &form_state
- *   State of the form information.
- *
- * @param object $filter
- *   The filter information in a StdClass object.
- *
- * @param object $format
- *   The format of the form in a StdClass object.
- *
- * @param array $defaults
- *   Default values array for form elements.
- *
- * @param array $filters
- *   The filters array containing index of objects, each a filter.
- *
- * @return array
- *   Returns the array of form settings for the filter setting page.
- *
- * @see _google_books_image_or_reader_valid_int_size()
- * @see google_books_filter_info()
- */
-// @TODO Remove after.
-function google_books_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
-  $settings['google_books'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Google Books Filter'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-  );
-  $settings['google_books']['api_key'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Google Books API Key'),
-    '#size' => 60,
-    '#maxlength' => 80,
-    '#description' => t('Register your key at:') . ' ' . l(t('Google Code API Console'), 'https://code.google.com/apis/console'),
-    '#default_value' => isset($filter->settings['google_books']['api_key']) ? $filter->settings['google_books']['api_key'] : '',
-  );
-  $settings['google_books']['bib_fields'] = array(
-    '#type' => 'select',
-    '#multiple' => TRUE,
-    '#title' => t('Google Books Data Fields'),
-    '#required' => TRUE,
-    '#size' => 20,
-    '#options' => google_books_api_bib_field_array(),
-    '#description' => t('Hold control to select multiple fields.
-      Also by checking this you are agreeing that you have the rights to display any of the information that you are going to display.'),
-    '#default_value' => isset($filter->settings['google_books']['bib_fields']) ? $filter->settings['google_books']['bib_fields'] : google_books_api_bib_field_array(),
-  );
-
-  $settings['google_books_link'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Google Books External Link Settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#description' => t('Turn on/off the links to external pages linking to book.'),
-  );
-  $settings['google_books_link']['worldcat'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Link to WorldCat'),
-    '#default_value' => isset($filter->settings['google_books_link']['worldcat']) ? $filter->settings['google_books_link']['worldcat'] : $defaults['worldcat'],
-  );
-  $settings['google_books_link']['librarything'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Link to LibraryThing'),
-    '#default_value' => isset($filter->settings['google_books_link']['librarything']) ? $filter->settings['google_books_link']['librarything'] : $defaults['librarything'],
-  );
-  $settings['google_books_link']['openlibrary'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Link to Open Library'),
-    '#default_value' => isset($filter->settings['google_books_link']['openlibrary']) ? $filter->settings['google_books_link']['openlibrary'] : $defaults['openlibrary'],
-  );
-
-  $settings['google_books_image'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Google Books Image Settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#description' => t('Turn on/off the Google Books cover image and set the default size.
-      Also by checking this you are agreeing that you have the rights to display any of the
-      scanned book cover images that you are going to display.'),
-  );
-  $settings['google_books_image']['image'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Include Google Books cover image'),
-    '#default_value' => isset($filter->settings['google_books_image']['image']) ? $filter->settings['google_books_image']['image'] : $defaults['image'],
-  );
-  $settings['google_books_image']['image_height'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Image height'),
-    '#size' => 4,
-    '#maxlength' => 4,
-    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
-    '#description' => t('Height of Google cover image'),
-    '#default_value' => isset($filter->settings['google_books_image']['image_height']) ? $filter->settings['google_books_image']['image_height'] : $defaults['image_height'],
-  );
-  $settings['google_books_image']['image_width'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Image width'),
-    '#size' => 4,
-    '#maxlength' => 4,
-    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
-    '#description' => t('Width of Google cover image'),
-    '#default_value' => isset($filter->settings['google_books_image']['image_width']) ? $filter->settings['google_books_image']['image_width'] : $defaults['image_width'],
-  );
-
-  $settings['google_books_reader'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Google Books Reader Settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#description' => t('Turn on/off the Javascript Google Reader and set the default size.
-      Also by checking this you are agreeing that you have the rights to display any of the
-      scanned book content that you are going to display.'),
-  );
-  $settings['google_books_reader']['reader'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Include the Google Books reader'),
-    '#default_value' => isset($filter->settings['google_books_reader']['reader']) ? $filter->settings['google_books_reader']['reader'] : $defaults['reader'],
-  );
-  $settings['google_books_reader']['reader_height'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Reader height'),
-    '#size' => 4,
-    '#maxlength' => 4,
-    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
-    '#description' => t('Height of Google reader'),
-    '#default_value' => isset($filter->settings['google_books_reader']['reader_height']) ? $filter->settings['google_books_reader']['reader_height'] : $defaults['reader_height'],
-  );
-  $settings['google_books_reader']['reader_width'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Reader width'),
-    '#size' => 6,
-    '#maxlength' => 6,
-    '#element_validate' => array('_google_books_image_or_reader_valid_int_size'),
-    '#description' => t('Width of Google reader'),
-    '#default_value' => isset($filter->settings['google_books_reader']['reader_width']) ? $filter->settings['google_books_reader']['reader_width'] : $defaults['reader_width'],
-  );
-  return $settings;
-}
 
 /**
  * Validation function for image sizes to check for positive int.
