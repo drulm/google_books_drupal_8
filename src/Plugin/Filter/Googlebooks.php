@@ -152,14 +152,37 @@ class Googlebooks extends FilterBase {
   /**
    * {@inheritdoc}
    */
+  /* 
+   * Previous D7 filter process. 
+  function google_books_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  preg_match_all('/\[google_books:(.*)\]/', $text, $match);
+  $tag = $match[0];
+  $book = array();
+   */
+/*
+    foreach ($this->settings['tags'] as $tag) {
+      $tag_elements = $document->getElementsByTagName($tag);
+      foreach ($tag_elements as $tag_element) {
+        $tag_element->setAttribute('test_attribute', 'test attribute value');
+      }
+    }
+    return new FilterProcessResult(Html::serialize($document));
+ */
   public function process($text, $langcode) {
+    $document = Html::load($text);
+    
+    dpm($this->settings);
+    
+    
+    //return new FilterProcessResult(Html::serialize($document));
+    
     preg_match_all('/\[google_books:(.*)\]/', $text, $match);
     $tag = $match[0];
     $book = array();
-    $filter = NULL;
+    
     
     /*
-     * 
+     * Old params:
     function google_books_retrieve_bookdata(
     $id,
     $worldcat_link,
@@ -173,27 +196,35 @@ class Googlebooks extends FilterBase {
     $reader_height,
     $reader_width,
     $api_key
-  ) {
      */
     
+    dpm($document);
+    
+    dpm($this->settings);
+    
     foreach ($match[1] as $i => $val) {
+      dpm($val);
       $book[$i] = google_books_retrieve_bookdata(
         $match[1][$i],
-        $filter->settings['google_books_link']['worldcat'],
-        $filter->settings['google_books_link']['librarything'],
-        $filter->settings['google_books_link']['openlibrary'],
-        $filter->settings['google_books_image']['image'],
-        $filter->settings['google_books_reader']['reader'],
-        $filter->settings['google_books']['bib_fields'],
-        $filter->settings['google_books_image']['image_height'],
-        $filter->settings['google_books_image']['image_width'],
-        $filter->settings['google_books_reader']['reader_height'],
-        $filter->settings['google_books_reader']['reader_width'],
-        $filter->settings['google_books']['api_key']
+        $this->settings['worldcat'],
+        $this->settings['librarything'],
+        $this->settings['openlibrary'],
+        $this->settings['image'],
+        $this->settings['reader'],
+        //$this->settings['bib_fields'],
+        $this->settings['image_height'],
+        $this->settings['image_width'],
+        $this->settings['reader_height'],
+        $this->settings['reader_width'],
+        $this->settings['api_key']
       );
     }
     $text = str_replace($tag, $book, $text);
-    return new FilterProcessResult(_filter_url($text, $this));
+    dpm($text);
+
+    
+    return new FilterProcessResult($text);
+    //return new FilterProcessResult(Html::serialize($document));
   }
  
   /**
@@ -324,7 +355,7 @@ class Googlebooks extends FilterBase {
     $openlibrary_link,
     $image_option,
     $reader_option,
-    $bib_field_select,
+    //$bib_field_select,
     $image_height,
     $image_width,
     $reader_height,
@@ -340,7 +371,7 @@ class Googlebooks extends FilterBase {
 
     // Separate parameters by '|' delimiter and clean data.
     $params = explode("|", $id);
-    array_map('filter_xss', $params);
+    // array_map('filter_xss', $params);
     $search_string = $params[0];
 
     // Get the Google Books data.
@@ -348,7 +379,7 @@ class Googlebooks extends FilterBase {
     $bib = google_books_api_get_google_books_data($search_string, 0, $api_key);
     if ($bib != NULL) {
       // Clean the data from Google.
-      array_map('filter_xss', $bib);
+      // array_map('filter_xss', $bib);
       $bib['infoLink'] = check_url($bib['infoLink']);
 
       // Start the parameter handling.
@@ -397,12 +428,13 @@ class Googlebooks extends FilterBase {
         $isbn = isset($bib['identifier']) ? google_books_get_isbn($bib['identifier']) : "";
         // Build up the the selected bib fields fields.
         $selected_bibs = array();
-        foreach ($bib_field_select as $i => $k) {
+        /*foreach ($bib_field_select as $i => $k) {
           $field = $bib_fields[$i];
           if (isset($bib[$field])) {
-            $selected_bibs[$field] = $bib [$field];
+            $selected_bibs[$field] = $bib[$field];
           }
-        }
+        }*/
+        $selected_bibs = $bib;
       }
 
       // Build up remaining output to send to template.
@@ -429,10 +461,9 @@ class Googlebooks extends FilterBase {
 
       // Send the variables to the theme.
       //$output = theme('google_books_aggregate', $vars);
-      
-      return explode(" // " ,$vars);
-      
-      return $output;
+
+      $output = print_r($vars, TRUE);  
+      return $output;  
     }
     else {
       // Nothing found so return empty string.

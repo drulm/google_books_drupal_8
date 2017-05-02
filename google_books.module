@@ -6,3 +6,17 @@
  * @see \Drupal\google_books\Plugin\Filter\google_books.
  */
 
+
+
+/**
+ *  Implements hook_theme().
+ */
+function google_books_theme($existing, $type, $theme, $path) {
+  return [
+    'google_books_themed_item' => [
+      'variables' => [
+        'description' => [],
+      ],
+    ],
+  ];
+}
