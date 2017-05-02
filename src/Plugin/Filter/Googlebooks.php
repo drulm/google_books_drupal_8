@@ -41,7 +41,6 @@ define("GOOGLE_BOOKS_API_ROOT", 'https://www.googleapis.com/books/v1/volumes?q='
  */
 define("GOOGLE_BOOKS_CACHE_PERIOD", 24 * 60 * 60);
 
-
 /**
  * Provides a filter to limit allowed HTML tags.
  *
@@ -62,7 +61,7 @@ class Googlebooks extends FilterBase {
       '#title' => t('Google Books API Key'),
       '#size' => 60,
       '#maxlength' => 80,
-      '#description' => t('Register your key at: (fill in link later)'),
+      '#description' => t('Register your key at: https://console.developers.google.com/apis'),
       '#default_value' => $this->settings['api_key'],
     );
     $form['worldcat'] = array(
@@ -149,7 +148,7 @@ class Googlebooks extends FilterBase {
       'google_books' => t('Google Books'),
     );
   }
-  
+
   /**
    * {@inheritdoc}
    */
@@ -157,6 +156,26 @@ class Googlebooks extends FilterBase {
     preg_match_all('/\[google_books:(.*)\]/', $text, $match);
     $tag = $match[0];
     $book = array();
+    $filter = NULL;
+    
+    /*
+     * 
+    function google_books_retrieve_bookdata(
+    $id,
+    $worldcat_link,
+    $librarything_link,
+    $openlibrary_link,
+    $image_option,
+    $reader_option,
+    $bib_field_select,
+    $image_height,
+    $image_width,
+    $reader_height,
+    $reader_width,
+    $api_key
+  ) {
+     */
+    
     foreach ($match[1] as $i => $val) {
       $book[$i] = google_books_retrieve_bookdata(
         $match[1][$i],
@@ -177,7 +196,6 @@ class Googlebooks extends FilterBase {
     return new FilterProcessResult(_filter_url($text, $this));
   }
  
-
   /**
    * {@inheritdoc}
    */
@@ -255,7 +273,7 @@ class Googlebooks extends FilterBase {
     $text = str_replace($tag, $book, $text);
     return $text;
   }
-  
+
   /**
    * Gets the book data from Google Books and then displays it.
    *
@@ -440,7 +458,6 @@ class Googlebooks extends FilterBase {
     return is_numeric($isbn) ? $isbn : "";
   }
   
-  
   /**
    * Takes book field data and makes it a link if it address present.
    *
@@ -456,7 +473,6 @@ class Googlebooks extends FilterBase {
     }
     return check_plain($address);
   }
-  
   
   /**
    * Sets a parameter variable by reference based on presence in array.
@@ -542,7 +558,6 @@ class Googlebooks extends FilterBase {
      'isAvailable',
    );
  }
- 
  
  /**
   * Gets the book data from Google Books and puts in flat array.
@@ -789,7 +804,6 @@ class Googlebooks extends FilterBase {
    }
  }
  
- 
   /**
     * Cleans the search ID to be used for Google API.
     *
@@ -806,10 +820,6 @@ class Googlebooks extends FilterBase {
      $dirt_id = array(" ");
      return str_replace($dirt_id, "+", $id);
    }
-
-
-
-
 
 /**
  * Implements hook_theme().
@@ -828,7 +838,6 @@ function google_books_theme() {
     ),
   );
 }
-
 
 /**
  * Implements hook_preprocess_HOOK().
@@ -949,7 +958,6 @@ function google_books_preprocess_google_books_aggregate(&$vars) {
   $vars["bib_data"] = theme('google_books_biblio', $processed_bibs);
 }
 
-
 /**
  * Returns HTML for google_books.
  *
@@ -972,5 +980,3 @@ function theme_google_books_biblio($selected_bibs) {
   $html_string .= "</ul>";
   return $html_string;
 }
-
-   
