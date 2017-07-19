@@ -227,18 +227,20 @@ class Googlebooks extends FilterBase {
 			'#worldcat' => $book[$i]['worldcat_link'],
 			'#librarything' => $book[$i]['librarything_link'],
 			'#openlibrary' => $book[$i]['openlibrary_link'],
-			'#image' => $book[$i]['title'],
+			'#image' => $book[$i]['thumbnail'],
 			'#reader' => $book[$i]['title'],
 			'#bib_fields' => 'bib_fields',
-			'#image_height' => 'image_height',
-			'#image_width' => 'image_width',
-			'#reader_height' => 'reader_height',
-			'#reader_width' => 'reader_width',
+			'#image_height' => $book[$i]['image_height'],
+			'#image_width' => $book[$i]['image_width'],
+			'#reader_height' => $book[$i]['reader_height'],
+			'#reader_width' => $book[$i]['reader_width'],
 			'#api_key' => 'api_key',
 		];
+	  dpm($output);
 	  $markup = render($output);
+	  dpm($tag);
 	  
-	  $text = str_replace($i, $markup, $text);
+	  $text = str_replace($tag[$i], $markup, $text);
     }
     //$text = str_replace($tag, $book, $text);
     //dpm($text);

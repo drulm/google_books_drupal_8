@@ -9,8 +9,6 @@
  * - text: The button label.
  */
 #}
-<h1>---{{test_var}}---</h1>
-
 <!-- Main CSS of a Google Books entry, multiple per page. -->
 <div class="google_books">
 
@@ -21,12 +19,11 @@
 
   <!-- Build image theme function call for book cover. -->
   <div class="google_books_image">
-    {{book_image}}
+    <img src="{{image}}" />
   </div>
 
   <!-- Display links and leave empty divs for theming. -->
   <div class="google_books_links">
-    {{worldcat}}
       <span class="google_books_worldcat">
         {{worldcat}}
       </span>
