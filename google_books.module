@@ -12,11 +12,9 @@
  *  Implements hook_theme().
  */
 function google_books_theme($existing, $type, $theme, $path) {
-  return [
-    'google_books_themed_item' => [
-      'variables' => [
-        'description' => [],
-      ],
-    ],
-  ];
+  return array(
+    'googlebooks_template' => array(
+      'variables' => array('test_var' => NULL),
+    ),
+  );
 }
