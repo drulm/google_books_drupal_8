@@ -14,7 +14,21 @@
 function google_books_theme($existing, $type, $theme, $path) {
   return array(
     'googlebooks_template' => array(
-      'variables' => array('test_var' => NULL),
+      'variables' => array(
+		'test_var' => NULL,
+		'title_anchor' => NULL,
+		'worldcat' => NULL,
+		'librarything' => NULL,
+		'openlibrary' => NULL,
+		'image' => NULL,
+		'reader' => NULL,
+		'bib_fields' => NULL,
+		'image_height' => NULL,
+		'image_width' => NULL,
+		'reader_height' => NULL,
+		'reader_width' => NULL,
+		'api_key' => NULL,
+	  ),
     ),
   );
 }

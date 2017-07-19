@@ -171,7 +171,7 @@ class Googlebooks extends FilterBase {
   public function process($text, $langcode) {
     $document = Html::load($text);
     
-    dpm($this->settings);
+    //dpm($this->settings);
     
     
     //return new FilterProcessResult(Html::serialize($document));
@@ -198,12 +198,11 @@ class Googlebooks extends FilterBase {
     $api_key
      */
     
-    dpm($document);
+    //dpm($document);
     
-    dpm($this->settings);
+    //dpm($this->settings);
     
     foreach ($match[1] as $i => $val) {
-      dpm($val);
       $book[$i] = google_books_retrieve_bookdata(
         $match[1][$i],
         $this->settings['worldcat'],
@@ -218,11 +217,33 @@ class Googlebooks extends FilterBase {
         $this->settings['reader_width'],
         $this->settings['api_key']
       );
-    }
-    $text = str_replace($tag, $book, $text);
-    dpm($text);
 
-    
+	  dpm($book[$i]);
+
+	  $output = [
+			'#theme' => 'googlebooks_template',
+			'#test_var' => "Hello World",
+			'#title_anchor' => $book[$i]['title'],
+			'#worldcat' => $book[$i]['worldcat_link'],
+			'#librarything' => $book[$i]['librarything_link'],
+			'#openlibrary' => $book[$i]['openlibrary_link'],
+			'#image' => $book[$i]['title'],
+			'#reader' => $book[$i]['title'],
+			'#bib_fields' => 'bib_fields',
+			'#image_height' => 'image_height',
+			'#image_width' => 'image_width',
+			'#reader_height' => 'reader_height',
+			'#reader_width' => 'reader_width',
+			'#api_key' => 'api_key',
+		];
+	  $markup = render($output);
+	  
+	  $text = str_replace($i, $markup, $text);
+    }
+    //$text = str_replace($tag, $book, $text);
+    //dpm($text);
+
+
     return new FilterProcessResult($text);
     //return new FilterProcessResult(Html::serialize($document));
   }
@@ -462,8 +483,8 @@ class Googlebooks extends FilterBase {
       // Send the variables to the theme.
       //$output = theme('google_books_aggregate', $vars);
 
-      $output = print_r($vars, TRUE);  
-      return $output;  
+      //$output = print_r($vars, TRUE);  
+      return $vars;  
     }
     else {
       // Nothing found so return empty string.
@@ -618,10 +639,10 @@ class Googlebooks extends FilterBase {
 
    // Decode into array to be able to scan.
    $json_array_google_books_data = json_decode($bookkeys, TRUE);
-   dpm($json_array_google_books_data);
+   //dpm($json_array_google_books_data);
 
    $versions = $json_array_google_books_data['totalItems'];
-   dpm($versions);
+   //dpm($versions);
 
    // Check the number of versions returned by Google Books.
    if ($versions > 0 && $version_num < $versions) {
@@ -631,7 +652,7 @@ class Googlebooks extends FilterBase {
 
      // Extract the results into one big string with delimiters.
      $book_str = google_books_api_demark_and_flatten($bookkeyresult);
-     dpm($book_str);
+     //dpm($book_str);
 
      // Build array for this.
      $bib = array();
@@ -656,7 +677,7 @@ class Googlebooks extends FilterBase {
          google_books_api_assign_bib_array($bib, $fieldname, $value);
        }
      }
-     dpm($bib);
+     //dpm($bib);
      return $bib;
    }
    else {
@@ -778,7 +799,7 @@ class Googlebooks extends FilterBase {
       return FALSE;
     }
 
-    dpm($url_data);
+    //dpm($url_data);
     
      /* $request = Drupal::httpClient()->get($url_bookkeys);
      $request->addHeader('If-Modified-Since', gmdate(DATE_RFC1123, $last_fetched));
@@ -823,11 +844,11 @@ class Googlebooks extends FilterBase {
 
    // Get all the arrays from the query.
    $bookkeys = google_books_api_cached_request($id, $api_key);
-   dpm($bookkeys);
+   //dpm($bookkeys);
    if ($bookkeys != NULL) {
      // Decode into array to be able to scan.
      $json_array_google_books_data = json_decode($bookkeys, TRUE);
-     dpm($json_array_google_books_data);
+     //dpm($json_array_google_books_data);
      return $json_array_google_books_data['totalItems'];
    }
    else {

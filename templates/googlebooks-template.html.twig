@@ -9,4 +9,43 @@
  * - text: The button label.
  */
 #}
-<h1>{{test_var}}</h1>
+<h1>---{{test_var}}---</h1>
+
+<!-- Main CSS of a Google Books entry, multiple per page. -->
+<div class="google_books">
+
+  <!-- Print the title of the book. -->
+  <div class="google_books_title">
+    {{title_anchor}}
+  </div>
+
+  <!-- Build image theme function call for book cover. -->
+  <div class="google_books_image">
+    {{book_image}}
+  </div>
+
+  <!-- Display links and leave empty divs for theming. -->
+  <div class="google_books_links">
+    {{worldcat}}
+      <span class="google_books_worldcat">
+        {{worldcat}}
+      </span>
+      <span class="google_books_librarything">
+        {{librarything}}
+      </span>
+      <span class="google_books_openlibrary">
+        {{openlibrary}}
+  </div>
+
+  <!-- Show the Google Books viewer if needed. -->
+  <!-- Embed direct because of the filter JavaScript issue in Drupal -->
+
+  <div class="google_books_datalist">
+    <!-- List the selected and available Google Books data fields. -->
+    {{bib_data}}
+  </div>
+  
+  <!-- Prevent overlap of next element. -->
+  <div style="clear:both;"></div>
+  
+</div>
