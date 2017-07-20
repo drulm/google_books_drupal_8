@@ -12,37 +12,48 @@
 <!-- Main CSS of a Google Books entry, multiple per page. -->
 <div class="google_books">
 
-  <!-- Print the title of the book. -->
-  <div class="google_books_title">
-    {{title_anchor}}
-  </div>
+    <!-- Print the title of the book. -->
+    <div class="google_books_title">
+        <a {{title_anchor}}
+        {{ link(title_anchor, info_link) }}
+    </div>
 
-  <!-- Build image theme function call for book cover. -->
-  <div class="google_books_image">
-    <img src="{{image}}" />
-  </div>
+    <!-- Build image theme function call for book cover. -->
+    <div class="google_books_image">
+        <img src="{{image}}" />
+    </div>
 
-  <!-- Display links and leave empty divs for theming. -->
-  <div class="google_books_links">
-      <span class="google_books_worldcat">
-        {{worldcat}}
-      </span>
-      <span class="google_books_librarything">
-        {{librarything}}
-      </span>
-      <span class="google_books_openlibrary">
-        {{openlibrary}}
-  </div>
+    <!-- Display links and leave empty divs for theming. -->
+    <div class="google_books_links">
+      {% if worldcat_link %}
+          <span class="google_books_worldcat">
+            {{ link('Worldcat', 'http://worldcat.org/isbn/' ~ isbn) }}
+          </span>
+      {%  endif %}
+        <span class="google_books_librarything">
+          {% if librarything_link %}
+              <span class="google_books_librarything">
+                {{ link('LibraryThing', 'http://librarything.com/isbn/' ~ isbn) }}
+              </span>
+          {%  endif %}
+        </span>
+        <span class="google_books_openlibrary">
+          {% if openlibrary_link %}
+              <span class="google_books_openlibrary">
+                {{ link('OpenLibrary', 'http://openlibrary.org/isbn/' ~ isbn) }}
+              </span>
+          {%  endif %}
+    </div>
 
-  <!-- Show the Google Books viewer if needed. -->
-  <!-- Embed direct because of the filter JavaScript issue in Drupal -->
+    <!-- Show the Google Books viewer if needed. -->
+    <!-- Embed direct because of the filter JavaScript issue in Drupal -->
 
-  <div class="google_books_datalist">
-    <!-- List the selected and available Google Books data fields. -->
-    {{bib_data}}
-  </div>
-  
-  <!-- Prevent overlap of next element. -->
-  <div style="clear:both;"></div>
+    <div class="google_books_datalist">
+        <!-- List the selected and available Google Books data fields. -->
+        {{bib_data}}
+    </div>
+
+    <!-- Prevent overlap of next element. -->
+    <div style="clear:both;"></div>
   
 </div>

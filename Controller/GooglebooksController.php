@@ -15,9 +15,9 @@ class GooglebooksController extends ControllerBase {
     return array(
 		'#theme' => 'googlebooks_template',
 		'#title_anchor' => NULL,
-		'#worldcat' => NULL,
-		'#librarything' => NULL,
-		'#openlibrary' => NULL,
+		'#worldcat_link' => NULL,
+		'#librarything_link' => NULL,
+		'#openlibrary_link' => NULL,
 		'#image' => NULL,
 		'#reader' => NULL,
 		'#bib_fields' => NULL,
@@ -26,6 +26,8 @@ class GooglebooksController extends ControllerBase {
 		'#reader_height' => NULL,
 		'#reader_width' => NULL,
 		'#api_key' => NULL,
+		'#info_link' => NULL,
+                '#isbn' => NULL,
     );
 
   }

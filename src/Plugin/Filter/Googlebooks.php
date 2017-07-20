@@ -218,26 +218,30 @@ class Googlebooks extends FilterBase {
         $this->settings['api_key']
       );
 
-	  dpm($book[$i]);
+	  dpm("-----------book[i]--------------");
+	  dpm($book[$i]['isbn']);
+    dpm($book[$i]);
 
 	  $output = [
-			'#theme' => 'googlebooks_template',
-			'#test_var' => "Hello World",
-			'#title_anchor' => $book[$i]['title'],
-			'#worldcat' => $book[$i]['worldcat_link'],
-			'#librarything' => $book[$i]['librarything_link'],
-			'#openlibrary' => $book[$i]['openlibrary_link'],
-			'#image' => $book[$i]['thumbnail'],
-			'#reader' => $book[$i]['title'],
-			'#bib_fields' => 'bib_fields',
-			'#image_height' => $book[$i]['image_height'],
-			'#image_width' => $book[$i]['image_width'],
-			'#reader_height' => $book[$i]['reader_height'],
-			'#reader_width' => $book[$i]['reader_width'],
-			'#api_key' => 'api_key',
+      '#theme' => 'googlebooks_template',
+      '#title_anchor' => $book[$i]['title'],
+      '#worldcat_link' => $book[$i]['worldcat_link'],
+      '#librarything_link' => $book[$i]['librarything_link'],
+      '#openlibrary_link' => $book[$i]['openlibrary_link'],
+      '#image' => $book[$i]['thumbnail'],
+      '#reader' => $book[$i]['title'],
+      '#bib_fields' => 'bib_fields',
+      '#image_height' => $book[$i]['image_height'],
+      '#image_width' => $book[$i]['image_width'],
+      '#reader_height' => $book[$i]['reader_height'],
+      '#reader_width' => $book[$i]['reader_width'],
+      '#info_link' => $book[$i]['info_link'],
+      '#isbn' => $book[$i]['isbn'],
 		];
+	  dpm("-----------output--------------");
 	  dpm($output);
 	  $markup = render($output);
+	  dpm("-----------tag--------------");
 	  dpm($tag);
 	  
 	  $text = str_replace($tag[$i], $markup, $text);
