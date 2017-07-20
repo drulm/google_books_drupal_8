@@ -11,32 +11,34 @@
 /**
  *  Implements hook_theme().
  */
-function google_books_theme($existing, $type, $theme, $path) {
-  return array(
+function google_books_theme($existing, $type, $theme, $path)
+{
+    return array(
     'googlebooks_template' => array(
       'variables' => array(
-      'title_anchor' => NULL,
-      'worldcat_link' => NULL,
-      'librarything_link' => NULL,
-      'openlibrary_link' => NULL,
-      'image' => NULL,
-      'reader' => NULL,
-      'bib_fields' => NULL,
-      'image_height' => NULL,
-      'image_width' => NULL,
-      'reader_height' => NULL,
-      'reader_width' => NULL,
-      'api_key' => NULL,
-      'info_link' => NULL,
-      'isbn' => NULL,
+      'title_anchor' => null,
+      'worldcat_link' => null,
+      'librarything_link' => null,
+      'openlibrary_link' => null,
+      'image' => null,
+      'reader' => null,
+      'bib_fields' => null,
+      'image_height' => null,
+      'image_width' => null,
+      'reader_height' => null,
+      'reader_width' => null,
+      'api_key' => null,
+      'info_link' => null,
+      'isbn' => null,
       ),
     ),
   );
 }
 
 
-function template_preprocess_google_books($variables) {
-\var_dump("inter");
+function template_preprocess_google_books($variables)
+{
+    \var_dump("inter");
 }
 
 
@@ -76,12 +78,12 @@ function template_preprocess_google_books($variables) {
  * @see theme_google_books_biblio()
  * @see google_books_make_html_link()
  */
-function google_books_preprocess_googlebooks_template(&$vars) {
-	
-  dpm("-----------------THE VARS------------------");
-  dpm($vars);
-	
-  // Build the main title with a link.
+function google_books_preprocess_googlebooks_template(&$vars)
+{
+    dpm("-----------------THE VARS------------------");
+    dpm($vars);
+    
+    // Build the main title with a link.
   //$vars["title_anchor"] = "";
 /*  if (isset($vars["title_link"]) && $vars["title_link"] !== 0 && isset($vars["info_link"]) && isset($vars["title"])) {
     $vars["title_anchor"] = l($vars["title"], $vars["info_link"], array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
@@ -93,29 +95,29 @@ function google_books_preprocess_googlebooks_template(&$vars) {
   // Show the book links if any are found. Not checked for ISBN validity.
   /*
   if (isset($vars["isbn"])) {
-      
+
         dpm("isbn");
         dpm($vars["isbn"]);
         dpm($vars["worldcat_link"]);
-      
-        
-	$isbn = $vars["isbn"];
-	if (!empty($isbn) || TRUE) {
-	  $vars["worldcat"] = "";
-	  if ($vars["worldcat_link"]) {
-		$vars["worldcat"] = Drupal::l(t('WorldCat'), check_url("http://worldcat.org/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
-	  }
-	  $vars["librarything"] = "";
-	  if ($vars["librarything_link"]) {
-		$vars["librarything"] = Drupal::l(t('LibraryThing'), check_url("http://librarything.com/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
-	  }
-	  $vars["openlibrary"] = "";
-	  if ($vars["openlibrary_link"]) {
-		$vars["openlibrary"] = Drupal::l(t('OpenLibrary'), check_url("http://openlibrary.org/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
-	  }
-	}
+
+
+    $isbn = $vars["isbn"];
+    if (!empty($isbn) || TRUE) {
+      $vars["worldcat"] = "";
+      if ($vars["worldcat_link"]) {
+        $vars["worldcat"] = Drupal::l(t('WorldCat'), check_url("http://worldcat.org/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
+      }
+      $vars["librarything"] = "";
+      if ($vars["librarything_link"]) {
+        $vars["librarything"] = Drupal::l(t('LibraryThing'), check_url("http://librarything.com/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
+      }
+      $vars["openlibrary"] = "";
+      if ($vars["openlibrary_link"]) {
+        $vars["openlibrary"] = Drupal::l(t('OpenLibrary'), check_url("http://openlibrary.org/isbn/" . $isbn), array('attributes' => array('rel' => 'nofollow', 'target' => '_blank')));
+      }
+    }
   }
-   * 
+   *
    */
 
 /*
@@ -168,7 +170,7 @@ function google_books_preprocess_googlebooks_template(&$vars) {
   // Setup the data array of biblio items.
   //$vars["book_data_array"] = theme('google_books_biblio', $vars["selected_bibs"]);
   $vars["book_data_array"] = $vars["selected_bibs"];
-  
+
   // Setup the list of biblio data.
   $processed_bibs = array();
   foreach ($vars["selected_bibs"] as $bib_index => $bib_value) {
@@ -178,7 +180,6 @@ function google_books_preprocess_googlebooks_template(&$vars) {
   }
   //$vars["bib_data"] = theme('google_books_biblio', $processed_bibs);
   $vars["bib_data"] = $processed_bibs;
- * 
+ *
  */
 }
-
