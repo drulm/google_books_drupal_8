@@ -54,13 +54,13 @@ class Googlebooks extends FilterBase {
       '#title' => t('Google Books API Key'),
       '#size' => 60,
       '#maxlength' => 80,
-      '#description' => t('Register your key at: https://console.developers.google.com/apis'),
+      '#description' => t('Register your key at: https://console.developers.google.com/apis/credentials'),
       '#default_value' => $this->settings['api_key'],
     ];
     $form['title_link'] = [
       '#type' => 'checkbox',
       '#title' => t('Title linked to GoogleBooks entry'),
-      '#default_value' => $this->settings['title'],
+      '#default_value' => $this->settings['title_link'],
     ];
     $form['worldcat'] = [
       '#type' => 'checkbox',
