@@ -100,3 +100,9 @@ filter_settings.google_books:
     reader_width:
       type: int
       label: 'Reader width'
+    page_curl:
+      type: boolean
+      label: 'Image page curl'
+    title_link:
+      type: boolean
+      label: 'Title linked to GoogleBooks entry'

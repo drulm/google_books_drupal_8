@@ -5,16 +5,19 @@ namespace Drupal\google_books\Controller;
 use Drupal\Core\Controller\ControllerBase;
 
 /**
- *
+ * 
  */
 class GooglebooksController extends ControllerBase {
 
   /**
-   *
+   * 
+   * @return type
    */
   public function content() {
     return [
       '#theme' => 'googlebooks_template',
+      '#title_link' => NULL,
+      '#page_curl' => NULL,
       '#title_anchor' => NULL,
       '#worldcat_link' => NULL,
       '#librarything_link' => NULL,

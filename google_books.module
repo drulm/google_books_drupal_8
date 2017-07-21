@@ -14,11 +14,13 @@ function google_books_theme($existing, $type, $theme, $path) {
   return [
     'googlebooks_template' => [
       'variables' => [
+        'title_link' => NULL,
         'title_anchor' => NULL,
         'worldcat_link' => NULL,
         'librarything_link' => NULL,
         'openlibrary_link' => NULL,
         'image' => NULL,
+        'page_curl' => NULL,
         'reader' => NULL,
         'bib_fields' => NULL,
         'image_height' => NULL,
@@ -31,13 +33,6 @@ function google_books_theme($existing, $type, $theme, $path) {
       ],
     ],
   ];
-}
-
-/**
- *
- */
-function template_preprocess_google_books($variables) {
-  \var_dump("inter");
 }
 
 /**
