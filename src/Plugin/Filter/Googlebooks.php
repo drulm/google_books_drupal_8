@@ -60,32 +60,32 @@ class Googlebooks extends FilterBase {
     $form['title_link'] = [
       '#type' => 'checkbox',
       '#title' => t('Title linked to GoogleBooks entry'),
-      '#default_value' => isset($this->settings['title_link']) ? $this->settings['title_link'] : NULL,
+      '#default_value' => isset($this->settings['title_link']) ? $this->settings['title_link'] : TRUE,
     ];
     $form['worldcat'] = [
       '#type' => 'checkbox',
       '#title' => t('Link to WorldCat'),
-      '#default_value' => isset($this->settings['worldcat']) ? $this->settings['worldcat'] : NULL,
+      '#default_value' => isset($this->settings['worldcat']) ? $this->settings['worldcat'] : TRUE,
     ];
     $form['librarything'] = [
       '#type' => 'checkbox',
       '#title' => t('Link to LibraryThing'),
-      '#default_value' => isset($this->settings['librarything']) ? $this->settings['librarything'] : NULL,
+      '#default_value' => isset($this->settings['librarything']) ? $this->settings['librarything'] : TRUE,
     ];
     $form['openlibrary'] = [
       '#type' => 'checkbox',
       '#title' => t('Link to Open Library'),
-      '#default_value' => isset($this->settings['openlibrary']) ? $this->settings['openlibrary'] : NULL,
+      '#default_value' => isset($this->settings['openlibrary']) ? $this->settings['openlibrary'] : TRUE,
     ];
     $form['image'] = [
       '#type' => 'checkbox',
       '#title' => t('Include Google Books cover image'),
-      '#default_value' => isset($this->settings['image']) ? $this->settings['image'] : NULL,
+      '#default_value' => isset($this->settings['image']) ? $this->settings['image'] : TRUE,
     ];
     $form['page_curl'] = [
       '#type' => 'checkbox',
       '#title' => t('Image page curl'),
-      '#default_value' => isset($this->settings['page_curl']) ? $this->settings['page_curl'] : NULL,
+      '#default_value' => isset($this->settings['page_curl']) ? $this->settings['page_curl'] : FALSE,
     ];
     $form['image_height'] = [
       '#type' => 'textfield',
@@ -106,7 +106,7 @@ class Googlebooks extends FilterBase {
     $form['reader'] = [
       '#type' => 'checkbox',
       '#title' => t('Include the Google Books reader'),
-      '#default_value' => isset($this->settings['reader']) ? $this->settings['reader'] : NULL,
+      '#default_value' => isset($this->settings['reader']) ? $this->settings['reader'] : FALSE,
     ];
     $form['reader_height'] = [
       '#type' => 'textfield',
@@ -114,7 +114,7 @@ class Googlebooks extends FilterBase {
       '#size' => 4,
       '#maxlength' => 4,
       '#description' => t('Height of Google reader'),
-      '#default_value' => isset($this->settings['reader_height']) ? $this->settings['reader_height'] : NULL,
+      '#default_value' => isset($this->settings['reader_height']) ? $this->settings['reader_height'] : 600,
     ];
     $form['reader_width'] = [
       '#type' => 'textfield',
