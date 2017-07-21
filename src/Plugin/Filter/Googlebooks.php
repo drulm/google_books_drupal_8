@@ -55,37 +55,37 @@ class Googlebooks extends FilterBase {
       '#size' => 60,
       '#maxlength' => 80,
       '#description' => t('Register your key at: https://console.developers.google.com/apis/credentials'),
-      '#default_value' => $this->settings['api_key'],
+      '#default_value' => isset($this->settings['api_key']) ? $this->settings['api_key'] : '',
     ];
     $form['title_link'] = [
       '#type' => 'checkbox',
       '#title' => t('Title linked to GoogleBooks entry'),
-      '#default_value' => $this->settings['title_link'],
+      '#default_value' => isset($this->settings['title_link']) ? $this->settings['title_link'] : NULL,
     ];
     $form['worldcat'] = [
       '#type' => 'checkbox',
       '#title' => t('Link to WorldCat'),
-      '#default_value' => $this->settings['worldcat'],
+      '#default_value' => isset($this->settings['worldcat']) ? $this->settings['worldcat'] : NULL,
     ];
     $form['librarything'] = [
       '#type' => 'checkbox',
       '#title' => t('Link to LibraryThing'),
-      '#default_value' => $this->settings['librarything'],
+      '#default_value' => isset($this->settings['librarything']) ? $this->settings['librarything'] : NULL,
     ];
     $form['openlibrary'] = [
       '#type' => 'checkbox',
       '#title' => t('Link to Open Library'),
-      '#default_value' => $this->settings['openlibrary'],
+      '#default_value' => isset($this->settings['openlibrary']) ? $this->settings['openlibrary'] : NULL,
     ];
     $form['image'] = [
       '#type' => 'checkbox',
       '#title' => t('Include Google Books cover image'),
-      '#default_value' => $this->settings['image'],
+      '#default_value' => isset($this->settings['image']) ? $this->settings['image'] : NULL,
     ];
     $form['page_curl'] = [
       '#type' => 'checkbox',
       '#title' => t('Image page curl'),
-      '#default_value' => $this->settings['page_curl'],
+      '#default_value' => isset($this->settings['page_curl']) ? $this->settings['page_curl'] : NULL,
     ];
     $form['image_height'] = [
       '#type' => 'textfield',
@@ -93,7 +93,7 @@ class Googlebooks extends FilterBase {
       '#size' => 4,
       '#maxlength' => 4,
       '#description' => t('Height of Google cover image'),
-      '#default_value' => $this->settings['image_height'],
+      '#default_value' => isset($this->settings['image_height']) ? $this->settings['image_height'] : 100,
     ];
     $form['image_width'] = [
       '#type' => 'textfield',
@@ -101,12 +101,12 @@ class Googlebooks extends FilterBase {
       '#size' => 4,
       '#maxlength' => 4,
       '#description' => t('Width of Google cover image'),
-      '#default_value' => $this->settings['image_width'],
+      '#default_value' => isset($this->settings['image_width']) ? $this->settings['image_width'] : 80,
     ];
     $form['reader'] = [
       '#type' => 'checkbox',
       '#title' => t('Include the Google Books reader'),
-      '#default_value' => $this->settings['reader'],
+      '#default_value' => isset($this->settings['reader']) ? $this->settings['reader'] : NULL,
     ];
     $form['reader_height'] = [
       '#type' => 'textfield',
@@ -114,7 +114,7 @@ class Googlebooks extends FilterBase {
       '#size' => 4,
       '#maxlength' => 4,
       '#description' => t('Height of Google reader'),
-      '#default_value' => $this->settings['reader_height'],
+      '#default_value' => isset($this->settings['reader_height']) ? $this->settings['reader_height'] : NULL,
     ];
     $form['reader_width'] = [
       '#type' => 'textfield',
@@ -122,7 +122,16 @@ class Googlebooks extends FilterBase {
       '#size' => 6,
       '#maxlength' => 6,
       '#description' => t('Width of Google reader'),
-      '#default_value' => $this->settings['reader_width'],
+      '#default_value' => isset($this->settings['reader_width']) ? $this->settings['reader_width'] : 400,
+    ];
+    $form['bib_fields'] = [
+      '#type' => 'select',
+      '#title' => t('Biblio fields'),
+      '#multiple' => TRUE,
+      '#size' => 20,
+      '#description' => t('Extra biblio fields to show'),
+      '#options' => google_books_api_bib_field_array(), 
+      '#default_value' => isset($this->settings['bib_fields']) ? $this->settings['bib_fields'] : [],
     ];
     return $form;
   }
@@ -724,6 +733,22 @@ function google_books_api_cached_request($path, $api_key = NULL) {
 }
 
 /**
+ * Cleans the search ID to be used for Google API.
+ *
+ * @param string $id
+ *   The raw search string.
+ *
+ * @return string
+ *   The search string cleaned.
+ */
+function google_books_api_clean_search_id($id) {
+  // Clean search string of spaces, turn into '+'.
+  $id = trim($id);
+  $dirt_id = [" "];
+  return str_replace($dirt_id, "+", $id);
+}
+
+/**
  * Gets the number of versions in the books.google.com JSON data.
  *
  * @param string $id
@@ -752,22 +777,6 @@ function google_books_api_cached_request($path, $api_key = NULL) {
 }
  * 
  */
-
-/**
- * Cleans the search ID to be used for Google API.
- *
- * @param string $id
- *   The raw search string.
- *
- * @return string
- *   The search string cleaned.
- */
-function google_books_api_clean_search_id($id) {
-  // Clean search string of spaces, turn into '+'.
-  $id = trim($id);
-  $dirt_id = [" "];
-  return str_replace($dirt_id, "+", $id);
-}
 
 /**
  * Implements hook_theme().

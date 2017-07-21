@@ -71,9 +71,10 @@ function google_books_theme($existing, $type, $theme, $path) {
  * @see theme_google_books_biblio()
  * @see google_books_make_html_link()
  */
+/**
 function google_books_preprocess_googlebooks_template(&$vars) {
-  dpm("-----------------THE VARS------------------");
-  dpm($vars);
+*/
+
 
   // Build the main title with a link.
   // $vars["title_anchor"] = "";
@@ -173,4 +174,6 @@ function google_books_preprocess_googlebooks_template(&$vars) {
   $vars["bib_data"] = $processed_bibs;
    *
    */
-}
+
+
+//}
