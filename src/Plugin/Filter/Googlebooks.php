@@ -125,12 +125,13 @@ class Googlebooks extends FilterBase {
       '#default_value' => isset($this->settings['reader_width']) ? $this->settings['reader_width'] : 400,
     ];
     $form['bib_fields'] = [
-      '#type' => 'select',
+      '#type' => 'textarea',
       '#title' => t('Biblio fields'),
-      '#multiple' => TRUE,
-      '#size' => 20,
-      '#description' => t('Extra biblio fields to show'),
-      '#options' => google_books_api_bib_field_array(), 
+      '#rows' => 5,
+      '#cols' => 40,
+      '#description' => t('Extra biblio fields to show. List field names separated by commas.' .
+          '<br />Check https://developers.google.com/books/docs/v1/reference/volumes for field names.') .
+          '<br />Example: https://www.googleapis.com/books/v1/volumes?q=flowers+inauthor:keyes',
       '#default_value' => isset($this->settings['bib_fields']) ? $this->settings['bib_fields'] : [],
     ];
     return $form;

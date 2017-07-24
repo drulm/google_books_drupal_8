@@ -7,72 +7,6 @@ filter_settings.google_books:
     api_key:
       type: string
       label: 'Google Books API Key'
-    bib_fields:
-      type: group
-      label: 'Google Books Data Fields'
-      description: ''
-      identifier: ''
-      optional: false
-      widget: select
-      multiple: true
-      remember: true
-      default_group: All
-      default_group_multiple: {  }
-      group_items: {
-        'kind',
-        'id',
-        'etag',
-        'selfLink',
-        'volumeInfo',
-        'title',
-        'authors',
-        'publisher',
-        'publishedDate',
-        'description',
-        'industryIdentifiers',
-        'type',
-        'identifier',
-        'pageCount',
-        'dimensions',
-        'height',
-        'width',
-        'thickness',
-        'printType',
-        'mainCategory',
-        'categories',
-        'averageRating',
-        'ratingsCount',
-        'contentVersion',
-        'imageLinks',
-        'smallThumbnail',
-        'thumbnail',
-        'small',
-        'medium',
-        'large',
-        'extraLarge',
-        'language',
-        'previewLink',
-        'infoLink',
-        'canonicalVolumeLink',
-        'saleInfo',
-        'country',
-        'saleability',
-        'isEbook',
-        'listPrice',
-        'amount',
-        'currencyCode',
-        'buyLink',
-        'accessInfo',
-        'viewability',
-        'embeddable',
-        'publicDomain',
-        'textToSpeechPermission',
-        'epub',
-        'acsTokenLink',
-        'accessViewStatus',
-        'webReaderLink',
-        'isAvailable'
-      }
     worldcat:
       type: boolean
       label: 'Link to WorldCat'
@@ -106,3 +40,68 @@ filter_settings.google_books:
     title_link:
       type: boolean
       label: 'Title linked to GoogleBooks entry'
+    bib_fields:
+      type: string
+      label: 'Biblio fields used, separated by commas'
+          
+          
+      #default_group: All
+      #default_group_multiple: {  }
+      #group_items: {
+
+          
+#      - {
+#        'kind',
+#        'id',
+#        'etag',
+#        'selfLink',
+#        'volumeInfo',
+#        'title',
+#        'authors',
+#        'publisher',
+#        'publishedDate',
+#        'description',
+#        'industryIdentifiers',
+#        'type',
+#        'identifier',
+#        'pageCount',
+#        'dimensions',
+#        'height',
+#        'width',
+#        'thickness',
+#        'printType',
+#        'mainCategory',
+#        'categories',
+#        'averageRating',
+#        'ratingsCount',
+#        'contentVersion',
+#        'imageLinks',
+#        'smallThumbnail',
+#        'thumbnail',
+#        'small',
+#        'medium',
+#        'large',
+#        'extraLarge',
+#        'language',
+#        'previewLink',
+#        'infoLink',
+#        'canonicalVolumeLink',
+#        'saleInfo',
+#        'country',
+#        'saleability',
+#        'isEbook',
+#        'listPrice',
+#        'amount',
+#        'currencyCode',
+#        'buyLink',
+#        'accessInfo',
+#        'viewability',
+#        'embeddable',
+#        'publicDomain',
+#        'textToSpeechPermission',
+#        'epub',
+#        'acsTokenLink',
+#        'accessViewStatus',
+#        'webReaderLink',
+#        'isAvailable'
+#      }
