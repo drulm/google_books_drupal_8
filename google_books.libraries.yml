@@ -1,0 +1,5 @@
+google_books:
+  version: 1.x
+  css:
+    theme:
+        css/google_books.css: {}

@@ -10,6 +10,7 @@
  */
 #}
 <!-- Main CSS of a Google Books entry, multiple per page. -->
+{{ attach_library('google_books/google_books') }}
 <div class="google_books">
 
     <!-- Print the title of the book. -->
@@ -50,7 +51,15 @@
 
     <div class="google_books_datalist">
         <!-- List the selected and available Google Books data fields. -->
-        {{bib_data}}
+        <ul class="google_books_datafields">
+            {% for bib_key, bib_field in bib_fields  %}
+                <li>
+                    <span class="google_books_{{ bib_key }}">
+                        {{ bib_field }}
+                    </span>
+                </li>
+            {% endfor %}
+        </ul> 
     </div>
 
     <!-- Prevent overlap of next element. -->
