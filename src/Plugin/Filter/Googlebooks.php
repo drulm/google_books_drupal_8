@@ -391,7 +391,7 @@ function google_books_retrieve_bookdata(
       }
     }
 
-    $bib_field_select = array_map('trim', explode(',', $bib_field_select));   
+    $bib_field_select = array_map('trim', explode(',', $bib_field_select));
 
     // Start of the data handling.
     // If the data is sound then continue.
@@ -400,10 +400,10 @@ function google_books_retrieve_bookdata(
       $isbn = isset($bib['identifier']) ? google_books_get_isbn($bib['identifier']) : "";
       // Build up the the selected bib fields fields.
       $selected_bibs = [];
-      foreach ($bib_field_select as $i => $k) {
-        $field = $bib_fields[$i];
-        if (isset($bib[$field])) {
-          $selected_bibs[$field] = $bib[$field];
+      foreach ($bib_field_select as $bib_type) {
+        //$field = $bib_fields[$i];
+        if (isset($bib[$bib_type])) {
+          $selected_bibs[$bib_type] = $bib[$bib_type];
         }
       }
     }
@@ -779,49 +779,3 @@ function google_books_api_clean_search_id($id) {
  * 
  */
 
-/**
- * Implements hook_theme().
- */
-/**
-function google_books_theme() {
-  // Return the array describing the template name and vars.
-  return [
-    // The main theme template google_books.tpl.php.
-    'google_books_aggregate' => [
-      'template' => 'google_books',
-      'arguments' => ['parameter' => NULL],
-    ],
-      // Theme function to print biblio fields.
-    'google_books_biblio' => [
-      'variables' => [],
-    ],
-  ];
-}
- * 
- */
-
-/**
- * Returns HTML for google_books.
- *
- * @param array $selected_bibs
- *   An associative array containing:
- *   - selected_bibs: Array of biblio: $index => $value defined in
- *     google_books_api_bib_field_array()
- *
- * @ingroup themeable
- */
-/**
-function theme_google_books_biblio($selected_bibs) {
-  $html_string = '<ul class="google_books_datafields">';
-  foreach ($selected_bibs as $bib_field_name => $bib_field_data) {
-    $html_string .= '<li><span class="google_books_field_name">'
-      . $bib_field_name
-      . '</span>: <span class="google_books_field_data">'
-      . $bib_field_data
-      . "</span></li>";
-  }
-  $html_string .= "</ul>";
-  return $html_string;
-}
- * 
- */

@@ -46,8 +46,14 @@
           {%  endif %}
     </div>
 
-    <!-- Show the Google Books viewer if needed. -->
-    <!-- Embed direct because of the filter JavaScript issue in Drupal -->
+ <!-- Show the Google Books viewer if needed. -->
+  <!-- Embed direct because of the filter JavaScript issue in Drupal -->
+  <!-- <?php
+    if (!empty($google_books_js_string)):
+      print "<script type='text/javascript'>" . $google_books_js_string . "</script>";
+      print '<div class="google_books_reader" id="viewerCanvas' . $isbn . '" style = "width:' . $reader_width . 'px; height:' . $reader_height . 'px"></div>';
+    endif;
+  ?>-->
 
     <div class="google_books_datalist">
         <!-- List the selected and available Google Books data fields. -->
@@ -55,7 +61,9 @@
             {% for bib_key, bib_field in bib_fields  %}
                 <li>
                     <span class="google_books_{{ bib_key }}">
-                        {{ bib_field }}
+                        <span class="google_books_field_name">
+                            {{ bib_key }}
+                        </span> : {{ bib_field }}
                     </span>
                 </li>
             {% endfor %}

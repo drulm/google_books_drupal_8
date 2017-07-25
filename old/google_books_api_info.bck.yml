@@ -1,5 +1,0 @@
-name: Google Books API
-type: module
-description: 'API for books.google.com returns simple array'
-core: 8.x
-package: User interface
