@@ -3,8 +3,12 @@ Google Books Module intallation instructions
 1. Copy the "google_books" directory into a Drupal modules directory,
    like sites/all/modules.
 
-2. Enable module at: Administer->Site Building->Modules->Google_Books
+2. Enable module at: Manage >> Extend 
+    or drush en google_books
 
-3. Turn on input filter at: Administer->Site Configuration->Input
-   Formats.  Open any input filter (for example, Filtered HTML) and
-   check box for the Google Books filter.
+3. Turn on input filter at: 
+    Home >> Administration >> Configuration >> Content authoring.  
+    Open any input filter (for example, Filtered HTML) and
+    check box for the Google Books filter.
+
+4. On page from 3. update settings as needed.
