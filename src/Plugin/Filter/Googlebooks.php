@@ -429,6 +429,16 @@ function google_books_retrieve_bookdata(
     $vars['page_curl'] = $page_curl;
     $vars['reader_option'] = $reader_option;
     $vars['reader_on'] = $reader_on;
+    /*$vars['google_books_js_string'] = '
+      google.load("books", "0");
+      function initialize' . $isbn . '() {
+      var viewer' . $isbn . ' = new google.books.DefaultViewer(document.getElementById("viewerCanvas' . $isbn . '"));
+      viewer' . $isbn . '.load("ISBN:' . $isbn . '");
+      }
+      google.setOnLoadCallback(initialize' . $isbn . ');
+    ';
+     * 
+     */
 
     return $vars;
   }
