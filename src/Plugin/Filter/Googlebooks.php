@@ -26,12 +26,12 @@ define('GOOGLE_BOOKS_DEFAULT_READER_WIDTH', '400');
 /*
  * GOOGLE_BOOKS_API_ROOT is the path for the cURL request
  */
-define("GOOGLE_BOOKS_API_ROOT", 'https://www.googleapis.com/books/v1/volumes?q=');
+define('GOOGLE_BOOKS_API_ROOT', 'https://www.googleapis.com/books/v1/volumes?q=');
 
 /*
  * GOOGLE_BOOKS_CACHE_PERIOD is the time to keep data in the book cache in secs.
  */
-define("GOOGLE_BOOKS_CACHE_PERIOD", 24 * 60 * 60);
+define('GOOGLE_BOOKS_CACHE_PERIOD', 24 * 60 * 60);
 
 /**
  * Provides a filter to limit allowed HTML tags.
@@ -336,10 +336,10 @@ function google_books_retrieve_bookdata(
 
   // Set the API Key to NULL if blank.
   $api_key = trim($api_key);
-  $api_key = $api_key == "" ? NULL : $api_key;
+  $api_key = $api_key == '' ? NULL : $api_key;
 
   // Separate parameters by '|' delimiter and clean data.
-  $params = explode("|", $id);
+  $params = explode('|', $id);
   
   // array_map('filter_xss', $params);.
   $search_string = $params[0];
@@ -357,27 +357,27 @@ function google_books_retrieve_bookdata(
     $params = array_map('trim', $params);
     
     // Set the fixed parameters explicitly (not the data fields).
-    google_books_set_param($params, $worldcat_link, "worldcat", 1);
-    google_books_set_param($params, $worldcat_link, "no_worldcat", 0);
-    google_books_set_param($params, $openlibrary_link, "openlibrary", 1);
-    google_books_set_param($params, $openlibrary_link, "no_openlibrary", 0);
-    google_books_set_param($params, $librarything_link, "librarything", 1);
-    google_books_set_param($params, $librarything_link, "no_librarything", 0);
-    google_books_set_param($params, $page_curl, "pagecurl", 1);
-    google_books_set_param($params, $page_curl, "no_pagecurl", 0);
-    google_books_set_param($params, $title_link, "titlelink", 1);
-    google_books_set_param($params, $title_link, "no_titlelink", 0);
-    google_books_set_param($params, $image_on, "image", 1);
-    google_books_set_param($params, $image_on, "no_image", 0);
-    google_books_set_param($params, $reader_on, "reader", 1);
-    google_books_set_param($params, $reader_on, "no_reader", 0);
+    google_books_set_param($params, $worldcat_link, 'worldcat', 1);
+    google_books_set_param($params, $worldcat_link, 'no_worldcat', 0);
+    google_books_set_param($params, $openlibrary_link, 'openlibrary', 1);
+    google_books_set_param($params, $openlibrary_link, 'no_openlibrary', 0);
+    google_books_set_param($params, $librarything_link, 'librarything', 1);
+    google_books_set_param($params, $librarything_link, 'no_librarything', 0);
+    google_books_set_param($params, $page_curl, 'pagecurl', 1);
+    google_books_set_param($params, $page_curl, 'no_pagecurl', 0);
+    google_books_set_param($params, $title_link, 'titlelink', 1);
+    google_books_set_param($params, $title_link, 'no_titlelink', 0);
+    google_books_set_param($params, $image_on, 'image', 1);
+    google_books_set_param($params, $image_on, 'no_image', 0);
+    google_books_set_param($params, $reader_on, 'reader', 1);
+    google_books_set_param($params, $reader_on, 'no_reader', 0);
 
     // Set the data field parameters explicitly.
     $bib_field_select_explicit = [];
     foreach ($bib_fields as $i => $field_name) {
       $bib_field_select_explicit[$i] = "";
       google_books_set_param($params, $bib_field_select_explicit[$i], $field_name, "$i");
-      google_books_set_param($params, $bib_field_select_explicit[$i], "no_" . $field_name, FALSE);
+      google_books_set_param($params, $bib_field_select_explicit[$i], 'no_' . $field_name, FALSE);
     }
     
     // Merge the selected parameters with the global bib field options.
@@ -397,7 +397,7 @@ function google_books_retrieve_bookdata(
     // If the data is sound then continue.
     if ($bib != FALSE) {
       // Get the ISBN.
-      $isbn = isset($bib['identifier']) ? google_books_get_isbn($bib['identifier']) : "";
+      $isbn = isset($bib['identifier']) ? google_books_get_isbn($bib['identifier']) : '';
       // Build up the the selected bib fields fields.
       $selected_bibs = [];
       foreach ($bib_field_select as $bib_type) {
@@ -437,14 +437,13 @@ function google_books_retrieve_bookdata(
       }
       google.setOnLoadCallback(initialize' . $isbn . ');
     ';
-     * 
      */
 
     return $vars;
   }
   else {
     // Nothing found so return empty string.
-    return "";
+    return '';
   }
 }
 
@@ -460,10 +459,10 @@ function google_books_retrieve_bookdata(
 function google_books_get_isbn($identifiers) {
   // Pull an ISBN if we have it, prefer the last
   // which should be an ISBN 13 although may be something else.
-  $identifier_list = explode("|", $identifiers);
+  $identifier_list = explode('|', $identifiers);
   $num_of_identifiers = count($identifier_list);
   $isbn = trim($identifier_list[$num_of_identifiers - 1]);
-  return is_numeric($isbn) ? $isbn : "";
+  return is_numeric($isbn) ? $isbn : '';
 }
 
 /**
@@ -592,32 +591,32 @@ function google_books_api_get_google_books_data($id, $version_num, $api_key = NU
 
     // Build array for this.
     $bib = [];
-    $fields = explode("|||", $book_str);
+    $fields = explode('|||', $book_str);
     for ($i = 1; $i < count($fields); $i += 2) {
       $fieldname = $fields[$i];
-      if (strpos($fields[$i + 1], "[[[") === FALSE) {
-        $value = trim(str_replace("(((", "", $fields[$i + 1]));
+      if (strpos($fields[$i + 1], '[[[') === FALSE) {
+        $value = trim(str_replace('(((', '', $fields[$i + 1]));
       }
       else {
-        $sub_value = "";
-        $sub_fields = explode("[[[", $fields[$i + 1]);
+        $sub_value = '';
+        $sub_fields = explode('[[[', $fields[$i + 1]);
         for ($j = 1; $j < count($sub_fields); $j += 2) {
           if ($j != 1 && !empty($sub_fields[$j + 1])) {
-            $sub_value .= " | ";
+            //$sub_value .= " | ";
           }
-          $sub_value .= trim(str_replace("(((", "", $sub_fields[$j + 1]));
+          $sub_value .= trim(str_replace('(((', '', $sub_fields[$j + 1]));
         }
         $value = $sub_value;
       }
       if (!empty($value)) {
         google_books_api_assign_bib_array($bib, $fieldname, $value);
       }
-    }
+    } 
     return $bib;
   }
   else {
     return NULL;
-  }
+  }               
 }
 
 /**
@@ -637,7 +636,7 @@ function google_books_api_demark_and_flatten(&$barr) {
 
   // Loop through array struture recursively.
   foreach ($barr as $key => $value) {
-    if (!is_array($value) && $value != "") {
+    if (!is_array($value) && $value != '') {
       $effective_key = is_int($key) ? '[[[///' . $key . '[[[' : '|||' . $key . '|||';
       $book_html .= "$effective_key ((($value(((";
     }
@@ -649,8 +648,8 @@ function google_books_api_demark_and_flatten(&$barr) {
       else {
         $sub_bib = $value;
       }
-      if ($sub_bib != "") {
-        $book_html .= "|||" . $key . "|||" . $sub_bib . "";
+      if ($sub_bib != '') {
+        $book_html .= '|||' . $key . '|||' . $sub_bib . '';
       }
     }
   }
@@ -679,7 +678,7 @@ function google_books_api_assign_bib_array(&$bib_array, $index, $value) {
     $bib_array[$index] = $value;
   }
   else {
-    $bib_array[$index] = $bib_array[$index] . " | " . $value;
+    $bib_array[$index] = $bib_array[$index] . ' | ' . $value;
   }
 }
 
@@ -755,8 +754,8 @@ function google_books_api_cached_request($path, $api_key = NULL) {
 function google_books_api_clean_search_id($id) {
   // Clean search string of spaces, turn into '+'.
   $id = trim($id);
-  $dirt_id = [" "];
-  return str_replace($dirt_id, "+", $id);
+  $dirt_id = [' '];
+  return str_replace($dirt_id, '+', $id);
 }
 
 /**
