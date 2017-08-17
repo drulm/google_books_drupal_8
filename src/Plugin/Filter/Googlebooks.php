@@ -342,7 +342,7 @@ function google_books_retrieve_bookdata(
   // Separate parameters by '|' delimiter and clean data.
   $params = explode('|', $id);
   
-  // array_map('filter_xss', $params);.
+  array_map('\Drupal\Component\Utility\Xss::filter', $params);
   $search_string = $params[0];
 
   // Get the Google Books data.
@@ -350,7 +350,7 @@ function google_books_retrieve_bookdata(
   $bib = google_books_api_get_google_books_data($search_string, 0, $api_key);
   if ($bib != NULL) {
     // Clean the data from Google.
-    // array_map('filter_xss', $bib);.
+    array_map('\Drupal\Component\Utility\Xss::filter', $bib);
     $bib['infoLink'] = check_url($bib['infoLink']);
 
     // Start the parameter handling.
@@ -603,7 +603,7 @@ function google_books_api_get_google_books_data($id, $version_num, $api_key = NU
         $sub_fields = explode('[[[', $fields[$i + 1]);
         for ($j = 1; $j < count($sub_fields); $j += 2) {
           if ($j != 1 && !empty($sub_fields[$j + 1])) {
-            //$sub_value .= " | ";
+            $sub_value .= ' | ';
           }
           $sub_value .= trim(str_replace('(((', '', $sub_fields[$j + 1]));
         }
@@ -679,7 +679,7 @@ function google_books_api_assign_bib_array(&$bib_array, $index, $value) {
     $bib_array[$index] = $value;
   }
   else {
-    $bib_array[$index] = $bib_array[$index] . '|||' . $value;
+    $bib_array[$index] = $bib_array[$index] . ' | ' . $value;
   }
 }
 
