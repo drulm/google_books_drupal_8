@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
+use Drupal\Core\Cache\CacheBackendInterface;
 use GuzzleHttp\Exception\RequestException;
 
 /*
@@ -609,9 +610,9 @@ function google_books_api_get_google_books_data($id, $version_num, $api_key = NU
         $value = $sub_value;
       }
       if (!empty($value)) {
-        google_books_api_assign_bib_array($bib, $fieldname, $value);
+          google_books_api_assign_bib_array($bib, $fieldname, $value);
+        } 
       }
-    } 
     return $bib;
   }
   else {
@@ -678,7 +679,7 @@ function google_books_api_assign_bib_array(&$bib_array, $index, $value) {
     $bib_array[$index] = $value;
   }
   else {
-    $bib_array[$index] = $bib_array[$index] . ' | ' . $value;
+    $bib_array[$index] = $bib_array[$index] . '|||' . $value;
   }
 }
 
@@ -701,16 +702,19 @@ function google_books_api_cached_request($path, $api_key = NULL) {
   $url_bookkeys = GOOGLE_BOOKS_API_ROOT . $path;
   $bookkeys_hash = hash('sha256', $url_bookkeys);
 
-  // @TODO Convert to D8 cache
   // See if it is cached.
-  // $cached = cache_get($bookkeys_hash, 'cache_google_books_api');
   $cached = FALSE;
+  $cid = 'google_books:' . \Drupal::languageManager()->getCurrentLanguage()->getId();
+  $data = NULL;
+  if ($cache = \Drupal::cache()->get($bookkeys_hash)) {
+    $cached = $cache->data;
+  }
 
   // If is it IS cached, then just return the data from the cache.
   if ($cached !== FALSE) {
     // Check if the time has expired.
     if ($cached->expire < REQUEST_TIME) {
-      cache_clear_all($bookkeys_hash, 'cache_google_books_api');
+       \Drupal::cache()->delete($bookkeys_hash);
     }
     return $cached->data;
   }
@@ -733,9 +737,8 @@ function google_books_api_cached_request($path, $api_key = NULL) {
     $bookkeys = $url_data;
 
     // Set the cache if return from request is not NULL.
-    // @TODO Cache!
     if ($bookkeys != NULL) {
-      // cache_set($bookkeys_hash, $bookkeys, 'cache_google_books_api', REQUEST_TIME + GOOGLE_BOOKS_CACHE_PERIOD);.
+    \Drupal::cache()->set($bookkeys_hash, $bookkeys, CacheBackendInterface::CACHE_PERMANENT);
     }
     // Bookkeys is the data, so return it.
     return $bookkeys;
