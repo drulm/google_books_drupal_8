@@ -13,6 +13,7 @@ The user of this filter module will be able to easily insert:
 3. there are options to include / exclude any data fields,
 4. and for books with a full or partial preview,
    the Google Books reader for the volume.
+@TODO TEST OPTION 5
 5. use [google_books: <search string> | <option 1> | <option 2> | ... ]
    as the replacement tag.
 

@@ -32,6 +32,7 @@ class GooglebooksController extends ControllerBase {
       '#api_key' => NULL,
       '#info_link' => NULL,
       '#isbn' => NULL,
+      '#prevent_duplicate_values' => NULL,
     ];
   }
 

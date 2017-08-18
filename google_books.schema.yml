@@ -40,6 +40,9 @@ filter_settings.google_books:
     title_link:
       type: boolean
       label: 'Title linked to GoogleBooks entry'
+    prevent_duplicate_values:
+      type: boolean
+      label: 'Prevent duplicate values in a field'
     bib_fields:
       type: string
       label: 'Biblio fields used, separated by commas'

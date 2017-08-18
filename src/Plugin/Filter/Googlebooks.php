@@ -78,6 +78,11 @@ class Googlebooks extends FilterBase {
       '#title' => t('Link to Open Library'),
       '#default_value' => isset($this->settings['openlibrary']) ? $this->settings['openlibrary'] : TRUE,
     ];
+    $form['prevent_duplicate_values'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Prevent duplicate values in a field'),
+      '#default_value' => isset($this->settings['prevent_duplicate_values']) ? $this->settings['prevent_duplicate_values'] : FALSE,
+    ];
     $form['image'] = [
       '#type' => 'checkbox',
       '#title' => t('Include Google Books cover image'),
@@ -132,7 +137,8 @@ class Googlebooks extends FilterBase {
       '#cols' => 40,
       '#description' => t('Extra biblio fields to show. List field names separated by commas.' .
           '<br />Check https://developers.google.com/books/docs/v1/reference/volumes for field names.') .
-          '<br />Example: https://www.googleapis.com/books/v1/volumes?q=flowers+inauthor:keyes',
+          '<br />Example Json: https://www.googleapis.com/books/v1/volumes?q=flowers+inauthor:keyes' . 
+          '<br /><strong>Supported Fields:</strong> ' . implode(' , ', google_books_api_bib_field_array()) . '<br />',
       '#default_value' => isset($this->settings['bib_fields']) ? $this->settings['bib_fields'] : [],
     ];
     return $form;
@@ -679,7 +685,7 @@ function google_books_api_assign_bib_array(&$bib_array, $index, $value) {
     $bib_array[$index] = $value;
   }
   else {
-    $bib_array[$index] = $bib_array[$index] . ' | ' . $value;
+    $bib_array[$index] = $bib_array[$index] . ' , ' . $value;
   }
 }
 
