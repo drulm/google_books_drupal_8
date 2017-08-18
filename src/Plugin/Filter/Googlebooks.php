@@ -12,16 +12,19 @@ use GuzzleHttp\Exception\RequestException;
 /*
  * Holds the address of the books.google.com JSON call
  */
+// @TODO Used?
 define('GOOGLE_BOOKS_EXTERN_JS', 'https://www.google.com/jsapi');
 
 /*
  * Has the Google Books reader height default.
  */
+// @TODO Used?
 define('GOOGLE_BOOKS_DEFAULT_READER_HEIGHT', '500');
 
 /*
  * Has the Google Books reader width default.
  */
+// @TODO Used?
 define('GOOGLE_BOOKS_DEFAULT_READER_WIDTH', '400');
 
 /*
@@ -32,6 +35,7 @@ define('GOOGLE_BOOKS_API_ROOT', 'https://www.googleapis.com/books/v1/volumes?q='
 /*
  * GOOGLE_BOOKS_CACHE_PERIOD is the time to keep data in the book cache in secs.
  */
+// @TODO Used?
 define('GOOGLE_BOOKS_CACHE_PERIOD', 24 * 60 * 60);
 
 /**
@@ -153,17 +157,10 @@ class Googlebooks extends FilterBase {
     ];
   }
 
-
   /**
-   * 
-   * @param type $text
-   * @param type $langcode
-   * @return FilterProcessResult
+   * {@inheritdoc}
    */
   public function process($text, $langcode) {
-    $document = Html::load($text);
-
-    // return new FilterProcessResult(Html::serialize($document));
     preg_match_all('/\[google_books:(.*)\]/', $text, $match);
     $tag = $match[0];
     $book = [];
@@ -181,7 +178,9 @@ class Googlebooks extends FilterBase {
         $this->settings['image_width'],
         $this->settings['reader_height'],
         $this->settings['reader_width'],
-        $this->settings['api_key']
+        $this->settings['api_key'],
+        $this->settings['prevent_duplicate_values'],
+        $this->settings['page_curl']
       );
 
       $output = [
@@ -202,7 +201,6 @@ class Googlebooks extends FilterBase {
       ];
 
       $markup = render($output);
-
       $text = str_replace($tag[$i], $markup, $text);
     }
 
@@ -210,9 +208,7 @@ class Googlebooks extends FilterBase {
   }
 
   /**
-   * 
-   * @param type $long
-   * @return type
+   * {@inheritdoc}
    */
   public function tips($long = FALSE) {
     if ($long) {
@@ -226,36 +222,9 @@ class Googlebooks extends FilterBase {
 }
 
 /**
- * This is the main filter callback process for the google book filter module.
- *
- * Stated @ api.drupal.org hook_filter_FILTER_process is not really a hook.
- *
- * @param string $text
- *   Text to match.
- *
- * @param object $filter
- *   The filter as information stdClass object.
- *
- * @param object $format
- *   The text format type stdClass object.
- *
- * @param string $langcode
- *   The language code.
- *
- * @param bool $cache
- *   TRUE if cachable, FALSE if not.
- *
- * @param string $cache_id
- *   The ID of the cache.
- *
- * @return string
- *   Returns string of the filtered HTML for google_books.
- *
- * @see google_books_filter_info()
- */
-
-/**
- * Function google_books_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {.
+ * Google books text filter process for each filter match.
+ * @param String $text
+ * @return String
  */
 function google_books_filter_process($text) {
   preg_match_all('/\[google_books:(.*)\]/', $text, $match);
@@ -263,18 +232,20 @@ function google_books_filter_process($text) {
   $book = [];
   foreach ($match[1] as $i => $val) {
     $book[$i] = google_books_retrieve_bookdata(
-    $match[1][$i],
-    $filter->settings['google_books_link']['worldcat'],
-    $filter->settings['google_books_link']['librarything'],
-    $filter->settings['google_books_link']['openlibrary'],
-    $filter->settings['google_books_image']['image'],
-    $filter->settings['google_books_reader']['reader'],
-    $filter->settings['google_books']['bib_fields'],
-    $filter->settings['google_books_image']['image_height'],
-    $filter->settings['google_books_image']['image_width'],
-    $filter->settings['google_books_reader']['reader_height'],
-    $filter->settings['google_books_reader']['reader_width'],
-    $filter->settings['google_books']['api_key']
+      $match[1][$i],
+      $filter->settings['google_books_link']['worldcat'],
+      $filter->settings['google_books_link']['librarything'],
+      $filter->settings['google_books_link']['openlibrary'],
+      $filter->settings['google_books_image']['image'],
+      $filter->settings['google_books_reader']['reader'],
+      $filter->settings['google_books']['bib_fields'],
+      $filter->settings['google_books_image']['image_height'],
+      $filter->settings['google_books_image']['image_width'],
+      $filter->settings['google_books_reader']['reader_height'],
+      $filter->settings['google_books_reader']['reader_width'],
+      $filter->settings['google_books']['api_key'],
+      $filter->settings['google_books']['prevent_duplicate_values'],
+      $filter->settings['google_books']['page_curl']
     );
   }
   $text = str_replace($tag, $book, $text);
@@ -336,7 +307,9 @@ function google_books_retrieve_bookdata(
     $image_width,
     $reader_height,
     $reader_width,
-    $api_key
+    $api_key,
+    $prevent_duplicate_values,
+    $page_curl
   ) {
   // Get all the Google Books permissible book data fields.
   $bib_fields = google_books_api_bib_field_array();
@@ -436,6 +409,8 @@ function google_books_retrieve_bookdata(
     $vars['page_curl'] = $page_curl;
     $vars['reader_option'] = $reader_option;
     $vars['reader_on'] = $reader_on;
+    
+    // @TODO Get viewer code working.
     /*$vars['google_books_js_string'] = '
       google.load("books", "0");
       function initialize' . $isbn . '() {
@@ -455,7 +430,7 @@ function google_books_retrieve_bookdata(
 }
 
 /**
- * Take a string of book identifiers, and choose one.
+ * Take a string of volume ISBN identifiers, and choose one.
  *
  * @param string $identifiers
  *   Takes a string of IDs delimited by '|' characters.
@@ -494,7 +469,9 @@ function google_books_set_param($params, &$flag_var, $value, $set) {
 }
 
 /**
- * These are the fields that are displayable in google books.
+ * These are the fields that are displayable in Google Books.
+ * 
+ * @TODO Check and add additional tags.
  *
  * @return array
  *   Returns array of book data field names returned from books.google.com.
@@ -766,34 +743,3 @@ function google_books_api_clean_search_id($id) {
   $dirt_id = [' '];
   return str_replace($dirt_id, '+', $id);
 }
-
-/**
- * Gets the number of versions in the books.google.com JSON data.
- *
- * @param string $id
- *   The raw search string.
- *
- * @return int
- *   The count of the number of book versions returned in the JSON data.
- */
-/*function google_books_api_get_googlebooks_version_count($id, $api_key = NULL) {
-
-  // Cleanup the search ID.
-  $id = _google_books_api_clean_search_id($id);
-
-  // Get all the arrays from the query.
-  $bookkeys = google_books_api_cached_request($id, $api_key);
-
-  if ($bookkeys != NULL) {
-    // Decode into array to be able to scan.
-    $json_array_google_books_data = json_decode($bookkeys, TRUE);
-
-    return $json_array_google_books_data['totalItems'];
-  }
-  else {
-    return NULL;
-  }
-}
- * 
- */
-
