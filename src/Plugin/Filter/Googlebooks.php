@@ -182,7 +182,9 @@ class Googlebooks extends FilterBase {
         $this->settings['prevent_duplicate_values'],
         $this->settings['page_curl']
       );
-
+      
+      // var_dump($book[$i]['isbn']);
+      
       $output = [
         '#theme' => 'googlebooks_template',
         '#title_anchor' => $book[$i]['title'],
@@ -197,7 +199,7 @@ class Googlebooks extends FilterBase {
         '#reader_height' => $book[$i]['reader_height'],
         '#reader_width' => $book[$i]['reader_width'],
         '#info_link' => $book[$i]['info_link'],
-        '#isbn' => $book[$i]['isbn'],
+        //'#isbn' => $book[$i]['isbn'],
       ];
 
       $markup = render($output);
@@ -327,6 +329,14 @@ function google_books_retrieve_bookdata(
   // Get the Google Books data.
   // Ignore if google_books_api_get_google_books_data returns NULL.
   $bib = google_books_api_get_google_books_data($search_string, 0, $api_key);
+
+  $isbn = trim(explode(',', $bib['identifier'])[0]);
+  //var_dump($isbn);
+  
+    
+  //var_dump($bib);
+      
+  
   if ($bib != NULL) {
     // Clean the data from Google.
     array_map('\Drupal\Component\Utility\Xss::filter', $bib);
@@ -387,7 +397,7 @@ function google_books_retrieve_bookdata(
         }
       }
     }
-
+   
     // Build up remaining output to send to template.
     // Pass all information fields for themers future use.
     $vars['bib_fields'] = $selected_bibs;
@@ -420,6 +430,8 @@ function google_books_retrieve_bookdata(
       google.setOnLoadCallback(initialize' . $isbn . ');
     ';
      */
+    
+    //var_dump($vars);
 
     return $vars;
   }
