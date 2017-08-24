@@ -183,27 +183,27 @@ class Googlebooks extends FilterBase {
         $this->settings['page_curl']
       );
       
-      // var_dump($book[$i]['isbn']);
+      if ($book[$i] != FALSE) {
+        $output = [
+          '#theme' => 'googlebooks_template',
+          '#title_anchor' => $book[$i]['title'],
+          '#worldcat_link' => $book[$i]['worldcat_link'],
+          '#librarything_link' => $book[$i]['librarything_link'],
+          '#openlibrary_link' => $book[$i]['openlibrary_link'],
+          '#image' => $book[$i]['thumbnail'],
+          '#reader' => $book[$i]['title'],
+          '#bib_fields' => $book[$i]['bib_fields'],
+          '#image_height' => $book[$i]['image_height'],
+          '#image_width' => $book[$i]['image_width'],
+          '#reader_height' => $book[$i]['reader_height'],
+          '#reader_width' => $book[$i]['reader_width'],
+          '#info_link' => $book[$i]['info_link'],
+          '#isbn' => $book[$i]['isbn'],
+        ];
+        $markup = render($output);
+        $text = str_replace($tag[$i], $markup, $text);
+      }
       
-      $output = [
-        '#theme' => 'googlebooks_template',
-        '#title_anchor' => $book[$i]['title'],
-        '#worldcat_link' => $book[$i]['worldcat_link'],
-        '#librarything_link' => $book[$i]['librarything_link'],
-        '#openlibrary_link' => $book[$i]['openlibrary_link'],
-        '#image' => $book[$i]['thumbnail'],
-        '#reader' => $book[$i]['title'],
-        '#bib_fields' => $book[$i]['bib_fields'],
-        '#image_height' => $book[$i]['image_height'],
-        '#image_width' => $book[$i]['image_width'],
-        '#reader_height' => $book[$i]['reader_height'],
-        '#reader_width' => $book[$i]['reader_width'],
-        '#info_link' => $book[$i]['info_link'],
-        //'#isbn' => $book[$i]['isbn'],
-      ];
-
-      $markup = render($output);
-      $text = str_replace($tag[$i], $markup, $text);
     }
 
     return new FilterProcessResult($text);
@@ -327,17 +327,11 @@ function google_books_retrieve_bookdata(
   $search_string = $params[0];
 
   // Get the Google Books data.
-  // Ignore if google_books_api_get_google_books_data returns NULL.
+  // Ignore if google_books_api_get_google_books_data returns FALSE.
+  // @TODO Need to degrade nicely if data not coming back, or errors returned
   $bib = google_books_api_get_google_books_data($search_string, 0, $api_key);
-
-  $isbn = trim(explode(',', $bib['identifier'])[0]);
-  //var_dump($isbn);
-  
-    
-  //var_dump($bib);
       
-  
-  if ($bib != NULL) {
+  if ($bib != FALSE) {
     // Clean the data from Google.
     array_map('\Drupal\Component\Utility\Xss::filter', $bib);
     $bib['infoLink'] = check_url($bib['infoLink']);
@@ -388,6 +382,7 @@ function google_books_retrieve_bookdata(
     if ($bib != FALSE) {
       // Get the ISBN.
       $isbn = isset($bib['identifier']) ? google_books_get_isbn($bib['identifier']) : '';
+
       // Build up the the selected bib fields fields.
       $selected_bibs = [];
       foreach ($bib_field_select as $bib_type) {
@@ -430,14 +425,12 @@ function google_books_retrieve_bookdata(
       google.setOnLoadCallback(initialize' . $isbn . ');
     ';
      */
-    
-    //var_dump($vars);
 
     return $vars;
   }
   else {
-    // Nothing found so return empty string.
-    return '';
+    // Nothing found.
+    return FALSE;
   }
 }
 
@@ -452,8 +445,8 @@ function google_books_retrieve_bookdata(
  */
 function google_books_get_isbn($identifiers) {
   // Pull an ISBN if we have it, prefer the last
-  // which should be an ISBN 13 although may be something else.
-  $identifier_list = explode('|', $identifiers);
+  // which should be an ISBN 13 although may be something else.WS
+  $identifier_list = explode(',', $identifiers);
   $num_of_identifiers = count($identifier_list);
   $isbn = trim($identifier_list[$num_of_identifiers - 1]);
   return is_numeric($isbn) ? $isbn : '';
@@ -571,48 +564,47 @@ function google_books_api_get_google_books_data($id, $version_num, $api_key = NU
   // Get all the arrays from the query.
   $bookkeys = google_books_api_cached_request($id, $api_key);
 
-  // Decode into array to be able to scan.
-  $json_array_google_books_data = json_decode($bookkeys, TRUE);
+  if ($bookkeys != FALSE) {
+    // Decode into array to be able to scan.
+    $json_array_google_books_data = json_decode($bookkeys, TRUE);
+    $versions = $json_array_google_books_data['totalItems'];
 
-  $versions = $json_array_google_books_data['totalItems'];
+    // Check the number of versions returned by Google Books.
+    if ($versions > 0 && $version_num < $versions) {
+      // Grab the first result.
+      $bookkeyresult = $json_array_google_books_data['items'][$version_num];
 
-  // Check the number of versions returned by Google Books.
-  if ($versions > 0 && $version_num < $versions) {
+      // Extract the results into one big string with delimiters.
+      $book_str = google_books_api_demark_and_flatten($bookkeyresult);
 
-    // Grab the first result.
-    $bookkeyresult = $json_array_google_books_data['items'][$version_num];
-
-    // Extract the results into one big string with delimiters.
-    $book_str = google_books_api_demark_and_flatten($bookkeyresult);
-
-    // Build array for this.
-    $bib = [];
-    $fields = explode('|||', $book_str);
-    for ($i = 1; $i < count($fields); $i += 2) {
-      $fieldname = $fields[$i];
-      if (strpos($fields[$i + 1], '[[[') === FALSE) {
-        $value = trim(str_replace('(((', '', $fields[$i + 1]));
-      }
-      else {
-        $sub_value = '';
-        $sub_fields = explode('[[[', $fields[$i + 1]);
-        for ($j = 1; $j < count($sub_fields); $j += 2) {
-          if ($j != 1 && !empty($sub_fields[$j + 1])) {
-            $sub_value .= ' | ';
-          }
-          $sub_value .= trim(str_replace('(((', '', $sub_fields[$j + 1]));
+      // Build array for this.
+      $bib = [];
+      $fields = explode('|||', $book_str);
+      for ($i = 1; $i < count($fields); $i += 2) {
+        $fieldname = $fields[$i];
+        if (strpos($fields[$i + 1], '[[[') === FALSE) {
+          $value = trim(str_replace('(((', '', $fields[$i + 1]));
         }
-        $value = $sub_value;
-      }
-      if (!empty($value)) {
-          google_books_api_assign_bib_array($bib, $fieldname, $value);
-        } 
-      }
-    return $bib;
+        else {
+          $sub_value = '';
+          $sub_fields = explode('[[[', $fields[$i + 1]);
+          for ($j = 1; $j < count($sub_fields); $j += 2) {
+            if ($j != 1 && !empty($sub_fields[$j + 1])) {
+              $sub_value .= ' | ';
+            }
+            $sub_value .= trim(str_replace('(((', '', $sub_fields[$j + 1]));
+          }
+          $value = $sub_value;
+        }
+        if (!empty($value)) {
+            google_books_api_assign_bib_array($bib, $fieldname, $value);
+          } 
+        }
+      return $bib;
+    }
   }
-  else {
-    return NULL;
-  }               
+  
+  return FALSE;              
 }
 
 /**
@@ -698,15 +690,11 @@ function google_books_api_cached_request($path, $api_key = NULL) {
   $bookkeys_hash = hash('sha256', $url_bookkeys);
 
   // See if it is cached.
-  $cached = FALSE;
   $cid = 'google_books:' . \Drupal::languageManager()->getCurrentLanguage()->getId();
   $data = NULL;
   if ($cache = \Drupal::cache()->get($bookkeys_hash)) {
     $cached = $cache->data;
-  }
 
-  // If is it IS cached, then just return the data from the cache.
-  if ($cached !== FALSE) {
     // Check if the time has expired.
     if ($cached->expire < REQUEST_TIME) {
        \Drupal::cache()->delete($bookkeys_hash);
@@ -733,7 +721,7 @@ function google_books_api_cached_request($path, $api_key = NULL) {
 
     // Set the cache if return from request is not NULL.
     if ($bookkeys != NULL) {
-    \Drupal::cache()->set($bookkeys_hash, $bookkeys, CacheBackendInterface::CACHE_PERMANENT);
+      \Drupal::cache()->set($bookkeys_hash, $bookkeys, CacheBackendInterface::CACHE_PERMANENT);
     }
     // Bookkeys is the data, so return it.
     return $bookkeys;
