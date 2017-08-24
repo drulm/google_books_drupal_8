@@ -21,10 +21,12 @@
         </div>
     {% endif %}
 
-    <!-- Book image for book cover. -->
-    <div class="google_books_image">
-        <img src="{{image}}" height="{{image_height}}" width="{{image_width}}"/>
-    </div>
+    {% if image_option %}
+        <!-- Book image for book cover. -->
+        <div class="google_books_image">
+            <img src="{{image}}" height="{{image_height}}" width="{{image_width}}"/>
+        </div>
+    {% endif %}
 
     <!-- Display links and leave empty divs for theming. -->
     <div class="google_books_links">

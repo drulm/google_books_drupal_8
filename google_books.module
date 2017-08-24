@@ -23,6 +23,7 @@ function google_books_theme($existing, $type, $theme, $path) {
         'page_curl' => NULL,
         'reader' => NULL,
         'bib_fields' => NULL,
+        'image_option' => NULL,
         'image_height' => NULL,
         'image_width' => NULL,
         'reader_height' => NULL,

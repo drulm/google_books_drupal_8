@@ -184,6 +184,8 @@ class Googlebooks extends FilterBase {
         $this->settings['title_link']
       );
       
+      dpm($book[$i]);
+      
       if ($book[$i] != FALSE) {
         $output = [
           '#theme' => 'googlebooks_template',
@@ -201,6 +203,7 @@ class Googlebooks extends FilterBase {
           '#info_link' => $book[$i]['info_link'],
           '#isbn' => $book[$i]['isbn'],
           '#title_link' => $book[$i]['title_link'],
+          '#image_option' => $book[$i]['image_option'],
         ];
 
         $markup = render($output);
@@ -225,40 +228,6 @@ class Googlebooks extends FilterBase {
   }
 
 }
-
-/**
- * Google books text filter process for each filter match.
- * @param String $text
- * @return String
- */
-/*function google_books_filter_process($text) {
-  preg_match_all('/\[google_books:(.*)\]/', $text, $match);
-  $tag = $match[0];
-  $book = [];
-  foreach ($match[1] as $i => $val) {
-    $book[$i] = google_books_retrieve_bookdata(
-      $match[1][$i],
-      $filter->settings['google_books_link']['worldcat'],
-      $filter->settings['google_books_link']['librarything'],
-      $filter->settings['google_books_link']['openlibrary'],
-      $filter->settings['google_books_image']['image'],
-      $filter->settings['google_books_reader']['reader'],
-      $filter->settings['google_books']['bib_fields'],
-      $filter->settings['google_books_image']['image_height'],
-      $filter->settings['google_books_image']['image_width'],
-      $filter->settings['google_books_reader']['reader_height'],
-      $filter->settings['google_books_reader']['reader_width'],
-      $filter->settings['google_books']['api_key'],
-      $filter->settings['google_books']['prevent_duplicate_values'],
-      $filter->settings['google_books']['page_curl'],
-      $filter->settings['google_books']['title_link']
-    );
-  }
-  $text = str_replace($tag, $book, $text);
-  return $text;
-}
- * 
- */
 
 /**
  * Gets the book data from Google Books and then displays it.
@@ -335,7 +304,6 @@ function google_books_retrieve_bookdata(
 
   // Get the Google Books data.
   // Ignore if google_books_api_get_google_books_data returns FALSE.
-  // @TODO Need to degrade nicely if data not coming back, or errors returned
   $bib = google_books_api_get_google_books_data($search_string, 0, $api_key);
       
   if ($bib != FALSE) {
@@ -418,7 +386,6 @@ function google_books_retrieve_bookdata(
     $vars['reader_height'] = $reader_height;
     $vars['reader_width'] = $reader_width;
     $vars['image_option'] = $image_option;
-    $vars['image_on'] = $image_on;
     $vars['page_curl'] = $page_curl;
     $vars['reader_option'] = $reader_option;
     $vars['reader_on'] = $reader_on;
