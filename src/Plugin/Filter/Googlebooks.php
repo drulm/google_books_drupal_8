@@ -180,7 +180,8 @@ class Googlebooks extends FilterBase {
         $this->settings['reader_width'],
         $this->settings['api_key'],
         $this->settings['prevent_duplicate_values'],
-        $this->settings['page_curl']
+        $this->settings['page_curl'],
+        $this->settings['title_link']
       );
       
       if ($book[$i] != FALSE) {
@@ -199,7 +200,9 @@ class Googlebooks extends FilterBase {
           '#reader_width' => $book[$i]['reader_width'],
           '#info_link' => $book[$i]['info_link'],
           '#isbn' => $book[$i]['isbn'],
+          '#title_link' => $book[$i]['title_link'],
         ];
+
         $markup = render($output);
         $text = str_replace($tag[$i], $markup, $text);
       }
@@ -228,7 +231,7 @@ class Googlebooks extends FilterBase {
  * @param String $text
  * @return String
  */
-function google_books_filter_process($text) {
+/*function google_books_filter_process($text) {
   preg_match_all('/\[google_books:(.*)\]/', $text, $match);
   $tag = $match[0];
   $book = [];
@@ -247,12 +250,15 @@ function google_books_filter_process($text) {
       $filter->settings['google_books_reader']['reader_width'],
       $filter->settings['google_books']['api_key'],
       $filter->settings['google_books']['prevent_duplicate_values'],
-      $filter->settings['google_books']['page_curl']
+      $filter->settings['google_books']['page_curl'],
+      $filter->settings['google_books']['title_link']
     );
   }
   $text = str_replace($tag, $book, $text);
   return $text;
 }
+ * 
+ */
 
 /**
  * Gets the book data from Google Books and then displays it.
@@ -311,7 +317,8 @@ function google_books_retrieve_bookdata(
     $reader_width,
     $api_key,
     $prevent_duplicate_values,
-    $page_curl
+    $page_curl,
+    $title_link
   ) {
   // Get all the Google Books permissible book data fields.
   $bib_fields = google_books_api_bib_field_array();
@@ -371,6 +378,7 @@ function google_books_retrieve_bookdata(
         $bib_field_select[$i] = $bib_field_select_explicit[$i];
       }
       if ($bib_field_select_explicit[$i] === FALSE) {
+        // @TODO fix this
         unset($bib_field_select[$i]);
       }
     }
@@ -392,7 +400,7 @@ function google_books_retrieve_bookdata(
         }
       }
     }
-   
+    
     // Build up remaining output to send to template.
     // Pass all information fields for themers future use.
     $vars['bib_fields'] = $selected_bibs;
@@ -425,7 +433,7 @@ function google_books_retrieve_bookdata(
       google.setOnLoadCallback(initialize' . $isbn . ');
     ';
      */
-
+    
     return $vars;
   }
   else {
@@ -693,13 +701,13 @@ function google_books_api_cached_request($path, $api_key = NULL) {
   $cid = 'google_books:' . \Drupal::languageManager()->getCurrentLanguage()->getId();
   $data = NULL;
   if ($cache = \Drupal::cache()->get($bookkeys_hash)) {
-    $cached = $cache->data;
+    $data = $cache->data;
 
     // Check if the time has expired.
-    if ($cached->expire < REQUEST_TIME) {
+    /*if (isset($data->expire) && $data->expire < REQUEST_TIME) {
        \Drupal::cache()->delete($bookkeys_hash);
-    }
-    return $cached->data;
+    }*/
+    return $data;
   }
   else {
     // Do it the slow way, go get the new data, and add API key if it exists.

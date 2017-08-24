@@ -14,32 +14,34 @@
 <div class="google_books">
 
     <!-- Print the title of the book. -->
-    <div class="google_books_title">
-        <a {{title_anchor}}
-        {{ link(title_anchor, info_link) }}
-    </div>
+    {% if title_link %}
+        <div class="google_books_title">
+            <a {{title_anchor}}
+            {{ link(title_anchor, info_link) }}
+        </div>
+    {% endif %}
 
-    <!-- Build image theme function call for book cover. -->
+    <!-- Book image for book cover. -->
     <div class="google_books_image">
-        <img src="{{image}}" />
+        <img src="{{image}}" height="{{image_height}}" width="{{image_width}}"/>
     </div>
 
     <!-- Display links and leave empty divs for theming. -->
     <div class="google_books_links">
-      {% if worldcat_link %}
+      {% if worldcat_link and isbn %}
           <span class="google_books_worldcat">
             {{ link('Worldcat', 'http://worldcat.org/isbn/' ~ isbn) }}
           </span>
-      {%  endif %}
+      {% endif %}
         <span class="google_books_librarything">
-          {% if librarything_link %}
+          {% if librarything_link and isbn %}
               <span class="google_books_librarything">
                 {{ link('LibraryThing', 'http://librarything.com/isbn/' ~ isbn) }}
               </span>
-          {%  endif %}
+          {% endif %}
         </span>
         <span class="google_books_openlibrary">
-          {% if openlibrary_link %}
+          {% if openlibrary_link and isbn %}
               <span class="google_books_openlibrary">
                 {{ link('OpenLibrary', 'http://openlibrary.org/isbn/' ~ isbn) }}
               </span>
@@ -48,7 +50,7 @@
 
     <!-- Show the Google Books viewer if needed. -->
     <!-- Embed direct because of the filter JavaScript issue in Drupal -->
-    {% if reader %}
+    {% if reader_on %}
       <script type='text/javascript'>"
         google.load("books", "0");
         function initialize{{ isbn }}() {
