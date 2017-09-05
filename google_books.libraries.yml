@@ -3,3 +3,5 @@ google_books:
   css:
     theme:
         css/google_books.css: {}
+  js:
+        https://www.google.com/books/jsapi.js: { external: true }
