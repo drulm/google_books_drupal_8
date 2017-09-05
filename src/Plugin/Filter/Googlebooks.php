@@ -194,7 +194,7 @@ class Googlebooks extends FilterBase {
           '#librarything_link' => $book[$i]['librarything_link'],
           '#openlibrary_link' => $book[$i]['openlibrary_link'],
           '#image' => $book[$i]['thumbnail'],
-          '#reader' => $book[$i]['reader'],
+          //'#reader' => $book[$i]['reader'],
           '#reader_option' => $book[$i]['reader_option'],
           '#bib_fields' => $book[$i]['bib_fields'],
           '#image_height' => $book[$i]['image_height'],
