@@ -21,7 +21,6 @@ function google_books_theme($existing, $type, $theme, $path) {
         'openlibrary_link' => NULL,
         'image' => NULL,
         'page_curl' => NULL,
-        'reader' => NULL,
         'bib_fields' => NULL,
         'image_option' => NULL,
         'image_height' => NULL,
@@ -31,7 +30,9 @@ function google_books_theme($existing, $type, $theme, $path) {
         'api_key' => NULL,
         'info_link' => NULL,
         'isbn' => NULL,
-        'prevent_duplicate_values' => NULL
+        'prevent_duplicate_values' => NULL,
+        'reader' => NULL,
+        'reader_option' => NULL
       ],
     ],
   ];

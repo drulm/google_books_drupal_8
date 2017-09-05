@@ -194,7 +194,8 @@ class Googlebooks extends FilterBase {
           '#librarything_link' => $book[$i]['librarything_link'],
           '#openlibrary_link' => $book[$i]['openlibrary_link'],
           '#image' => $book[$i]['thumbnail'],
-          '#reader' => $book[$i]['title'],
+          '#reader' => $book[$i]['reader'],
+          '#reader_option' => $book[$i]['reader_option'],
           '#bib_fields' => $book[$i]['bib_fields'],
           '#image_height' => $book[$i]['image_height'],
           '#image_width' => $book[$i]['image_width'],
@@ -388,19 +389,19 @@ function google_books_retrieve_bookdata(
     $vars['image_option'] = $image_option;
     $vars['page_curl'] = $page_curl;
     $vars['reader_option'] = $reader_option;
-    $vars['reader_on'] = $reader_on;
+    
+    //dpm($params);
     
     // @TODO Get viewer code working.
-    /*$vars['google_books_js_string'] = '
+    /*$vars['reader'] = '
       google.load("books", "0");
       function initialize' . $isbn . '() {
       var viewer' . $isbn . ' = new google.books.DefaultViewer(document.getElementById("viewerCanvas' . $isbn . '"));
       viewer' . $isbn . '.load("ISBN:' . $isbn . '");
       }
       google.setOnLoadCallback(initialize' . $isbn . ');
-    ';
-     */
-    
+    ';*/
+        
     return $vars;
   }
   else {
