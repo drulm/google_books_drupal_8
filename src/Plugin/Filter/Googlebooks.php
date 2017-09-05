@@ -184,7 +184,7 @@ class Googlebooks extends FilterBase {
         $this->settings['title_link']
       );
       
-      dpm($book[$i]);
+      // dpm($book[$i]);
       
       if ($book[$i] != FALSE) {
         $output = [
